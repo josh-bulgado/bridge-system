@@ -1,0 +1,89 @@
+# ===================================================
+# FRONTEND (React / Vite / TypeScript)
+# ===================================================
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Dependency directories
+node_modules/
+.pnp/
+.pnp.js
+
+# Vite build output
+dist/
+dist-ssr/
+*.local
+
+# TypeScript cache
+*.tsbuildinfo
+
+# Environment variables
+.env
+.env.*.local
+
+# Vercel
+.vercel/
+
+# Editor files
+.vscode/*
+!.vscode/extensions.json
+.idea/
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# System files
+Thumbs.db
+
+# Local history
+.histo/
+.history/
+
+# ===================================================
+# BACKEND (C# ASP.NET Web API)
+# ===================================================
+
+# Build results
+server/bin/
+server/obj/
+*.exe
+*.dll
+*.app
+*.dbmdl
+*.bak
+*.cache
+*.pdb
+*.mdb
+*.ldf
+
+# User-specific files
+*.user
+*.suo
+
+# VS / Rider files
+.vs/
+.vscode/
+.idea/
+*.sln.iml
+
+# ASP.NET logs and temp
+*.log
+server/wwwroot/
+server/appsettings.Development.json
+
+# ===================================================
+# GLOBAL IGNORE
+# ===================================================
+# Prevent accidentally committing secrets or temp files
+*.env
+*.tmp
