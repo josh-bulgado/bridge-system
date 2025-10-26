@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import AuthButtons from "@/features/auth/components/AuthButtons";
 
 export const Hero = () => {
   return (
@@ -21,10 +21,12 @@ export const Hero = () => {
         </div>
 
         <div className="flex w-full justify-center gap-4">
-          <Button>Create account</Button>
+          <AuthButtons mainText="Create account" reverse />
+          {/* <Button>Create account</Button>
+
           <Button variant="secondary" className="">
             Sign in
-          </Button>
+          </Button> */}
         </div>
       </div>
     </>

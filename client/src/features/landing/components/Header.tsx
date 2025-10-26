@@ -1,4 +1,4 @@
-import { Button } from "@/components/ui/button";
+import AuthButtons from "@/features/auth/components/AuthButtons";
 
 export const Header = () => {
   return (
@@ -8,10 +8,8 @@ export const Header = () => {
           bridge
         </h1>
       </div>
-      <div className="space-x-4">
-        <Button variant="secondary">Sign in</Button>
-        <Button className="bg-green-500">Get Started</Button>
-      </div>
+
+      <AuthButtons />
     </div>
   );
 };
