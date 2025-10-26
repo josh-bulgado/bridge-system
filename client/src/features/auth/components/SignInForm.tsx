@@ -6,9 +6,9 @@ import {
   FieldDescription,
   FieldGroup,
   FieldLabel,
-  FieldSeparator,
 } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import { Link } from "react-router-dom";
 
 export const SignInForm = () => {
   return (
@@ -48,12 +48,10 @@ export const SignInForm = () => {
                 <Field>
                   <Button type="submit">Login</Button>
                 </Field>
-                <FieldSeparator className="*:data-[slot=field-separator-content]:bg-card">
-                  Or continue with
-                </FieldSeparator>
-                
+
                 <FieldDescription className="text-center">
-                  Don&apos;t have an account? <a href="#">Sign up</a>
+                  Don&apos;t have an account?{" "}
+                  <Link to="/register">Sign up</Link>
                 </FieldDescription>
               </FieldGroup>
             </form>
