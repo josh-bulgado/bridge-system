@@ -10,8 +10,21 @@ export const formSchema = z
     dateOfBirth: z
       .string()
       .refine((val) => !isNaN(Date.parse(val)), "Invalid date"),
-    contactNumber: z.string().min(1, "Phone number is required"),
-    email: z.string().min(1, "Email is required"),
+    contactNumber: z
+      .string()
+      .min(1, "Phone number is required")
+      .refine((val) => {
+        // Remove all non-digit characters
+        const digitsOnly = val.replace(/\D/g, "");
+        // Philippine mobile numbers: 09XXXXXXXXX (11 digits) or +639XXXXXXXXX (12 digits with country code)
+        const philippinePatterns = [
+          /^09[0-9]{9}$/, // 09XXXXXXXXX format
+          /^\+639[0-9]{9}$/, // +639XXXXXXXXX format
+          /^639[0-9]{9}$/, // 639XXXXXXXXX format (without + symbol)
+        ];
+        return philippinePatterns.some((pattern) => pattern.test(digitsOnly));
+      }, "Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)"),
+    email: z.email("Please enter a valid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })
