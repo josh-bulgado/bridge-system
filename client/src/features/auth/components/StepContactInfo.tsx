@@ -48,11 +48,15 @@ const StepContactInfo = () => {
           <Input
             {...register("email")}
             type="email"
-            placeholder="m@example.com"
+            placeholder="john.doe@example.com"
             className={cn(
               isEmailValid && "border-green-500 focus:border-green-500 focus:ring-green-500"
             )}
             onFocus={() => setEmailTouched(true)}
+            onInput={(e) => {
+              // Convert to lowercase and remove spaces
+              e.currentTarget.value = e.currentTarget.value.toLowerCase().trim();
+            }}
           />
           {isEmailValid && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">
@@ -82,6 +86,7 @@ const StepContactInfo = () => {
               }
               e.currentTarget.value = value;
             }}
+            maxLength={11}
           />
           {isPhoneValid && (
             <div className="absolute right-3 top-1/2 -translate-y-1/2">

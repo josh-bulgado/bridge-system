@@ -6,14 +6,23 @@ import ResidentLayout from "./features/resident/layout/ResidentLayout";
 import AdminLayout from "./features/admin/layout/AdminLayout";
 import ResidentDashboard from "./features/resident/pages/ResidentDashboard";
 import AdminDashboard from "./features/admin/pages/AdminDashboard";
+import { ErrorBoundary } from "./components/ui/error-boundary";
 
 const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
 
 function App() {
   return (
-    <BrowserRouter>
-      <Suspense fallback={<div>Loading...</div>}>
-        <Routes>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <Suspense fallback={
+          <div className="flex items-center justify-center min-h-screen">
+            <div className="flex flex-col items-center gap-4">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-green-500" aria-label="Loading"></div>
+              <p className="text-sm text-gray-600">Loading application...</p>
+            </div>
+          </div>
+        }>
+          <Routes>
           <Route path="/" element={<LandingPage />} />
           <Route path="/sign-in" element={<SignInPage />} />
           <Route path="/register" element={<RegisterPage />} />
@@ -29,9 +38,10 @@ function App() {
             <Route index element={<AdminDashboard />} />
             {/* Add more admin routes here */}
           </Route>
-        </Routes>
-      </Suspense>
-    </BrowserRouter>
+          </Routes>
+        </Suspense>
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 

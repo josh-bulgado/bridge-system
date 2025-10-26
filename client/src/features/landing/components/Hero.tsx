@@ -3,18 +3,18 @@ import AuthButtons from "@/features/auth/components/AuthButtons";
 export const Hero = () => {
   return (
     <>
-      <div className="flex h-svh flex-col justify-center gap-8 text-center">
+      <div className="flex h-svh flex-col justify-center gap-8 text-center px-4 sm:px-8">
         <div className="space-y-4">
           <div>
-            <h1 className="scroll-m-20 text-center text-6xl font-extrabold tracking-tight text-balance">
+            <h1 className="scroll-m-20 text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-balance">
               Service made simple
             </h1>
-            <h1 className="scroll-m-20 text-center text-6xl font-extrabold tracking-tight text-balance text-green-500">
+            <h1 className="scroll-m-20 text-center text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold tracking-tight text-balance text-green-500">
               Bringing your barangay online
             </h1>
           </div>
 
-          <h4 className="mx-auto max-w-md text-center text-xl font-semibold tracking-tight sm:max-w-lg md:max-w-xl lg:max-w-2xl">
+          <h4 className="mx-auto max-w-md text-center text-lg sm:text-xl font-semibold tracking-tight sm:max-w-lg md:max-w-xl lg:max-w-2xl text-gray-600">
             Bridge makes requesting barangay documents faster, safer, and more
             transparent — connecting residents and local offices with ease.
           </h4>
