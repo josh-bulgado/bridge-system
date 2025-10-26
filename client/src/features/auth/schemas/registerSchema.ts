@@ -10,10 +10,8 @@ export const formSchema = z
     dateOfBirth: z
       .string()
       .refine((val) => !isNaN(Date.parse(val)), "Invalid date"),
-    contactNumber: z
-      .string()
-      .regex(/^(09|\+639)\d{9}$/, "Invalid Philippine number"),
-    email: z.email("Invalid email"),
+    contactNumber: z.string().min(1, "Phone number is required"),
+    email: z.string().min(1, "Email is required"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string(),
   })

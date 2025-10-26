@@ -8,6 +8,8 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { Check, X, Calendar } from "lucide-react";
+import { cn } from "@/lib/utils";
 
 const StepPersonalInfo = () => {
   const { register, setValue, formState: { errors } } = useFormContext();
