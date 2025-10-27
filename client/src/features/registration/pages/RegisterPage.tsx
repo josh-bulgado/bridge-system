@@ -2,8 +2,7 @@ import { useState } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 
-import StepPersonalInfo from "../components/StepPersonalInfo";
-import StepContactInfo from "../components/StepContactInfo";
+import { StepPersonalInfo, StepContactInfo } from "../components";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -48,8 +47,14 @@ const RegisterPage = () => {
 
   const prevStep = () => setStep(1);
 
-  const onSubmit = (data: FormValues) => {
-    console.log("Form submitted:", data);
+  const onSubmit = async (data: FormValues) => {
+    try {
+      // TODO: Implement registration logic using useRegistration hook
+      console.log("Form submitted:", data);
+      // Example: await register(data);
+    } catch (error) {
+      console.error("Registration failed:", error);
+    }
   };
 
   return (

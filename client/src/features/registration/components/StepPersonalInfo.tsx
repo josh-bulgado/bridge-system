@@ -8,11 +8,13 @@ import {
   SelectContent,
   SelectItem,
 } from "@/components/ui/select";
+import { DatePickerWithInput } from "@/components/date-picker-with-input";
 import { Check, X, Calendar } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 const StepPersonalInfo = () => {
-  const { register, setValue, formState: { errors } } = useFormContext();
+  const { register, setValue, watch, formState: { errors } } = useFormContext();
+  const dateOfBirth = watch("dateOfBirth");
 
   return (
     <div className="flex flex-col flex-wrap gap-4">
@@ -83,17 +85,14 @@ const StepPersonalInfo = () => {
 
         <Field className="flex-1">
           <FieldLabel>Date of Birth</FieldLabel>
-          <Input 
-            type="date" 
-            {...register("dateOfBirth")} 
-            min="1900-01-01"
-            max={new Date().toISOString().split('T')[0]}
-            onInput={(e) => {
-              const value = e.currentTarget.value;
-              if (value && value.length > 10) {
-                e.currentTarget.value = value.slice(0, 10);
-              }
+          <DatePickerWithInput
+            date={dateOfBirth ? new Date(dateOfBirth) : undefined}
+            onDateChange={(date) => {
+              setValue("dateOfBirth", date ? date.toISOString().split('T')[0] : "");
             }}
+            placeholder="Select your date of birth"
+            maxDate={new Date()}
+            minDate={new Date("1900-01-01")}
           />
           <FieldError errors={errors.dateOfBirth ? [errors.dateOfBirth] : []} />
         </Field>
