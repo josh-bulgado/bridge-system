@@ -1,6 +1,5 @@
 import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { Field, FieldLabel, FieldGroup, FieldError } from "@/components/ui/field";
 import {
   Select,
   SelectTrigger,
@@ -9,94 +8,157 @@ import {
   SelectItem,
 } from "@/components/ui/select";
 import { DatePickerWithInput } from "@/components/date-picker-with-input";
-import { Check, X, Calendar } from "lucide-react";
-import { cn } from "@/lib/utils";
+import {
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
 
 const StepPersonalInfo = () => {
-  const { register, setValue, watch, formState: { errors } } = useFormContext();
-  const dateOfBirth = watch("dateOfBirth");
+  const { control } = useFormContext();
 
   return (
-    <div className="flex flex-col flex-wrap gap-4">
-      <FieldGroup>
-        <Field className="flex-1">
-          <FieldLabel>First Name</FieldLabel>
-          <Input 
-            {...register("firstName")} 
-            placeholder="Juan" 
-            onInput={(e) => {
-              // Only allow letters and spaces, capitalize first letter
-              let value = e.currentTarget.value.replace(/[^a-zA-Z\s]/g, '');
-              value = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-              e.currentTarget.value = value;
-            }}
-          />
-          <FieldError errors={errors.firstName ? [errors.firstName] : []} />
-        </Field>
+    <div className="flex gap-4">
+      <div className="flex w-full flex-col gap-4">
+        <FormField
+          control={control}
+          name="firstName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>First Name</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Juan"
+                  onInput={(e) => {
+                    // Only allow letters and spaces, capitalize first letter
+                    let value = e.currentTarget.value.replace(
+                      /[^a-zA-Z\s]/g,
+                      "",
+                    );
+                    value =
+                      value.charAt(0).toUpperCase() +
+                      value.slice(1).toLowerCase();
+                    e.currentTarget.value = value;
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <Field className="flex-1">
-          <FieldLabel>Middle Name (Optional)</FieldLabel>
-          <Input 
-            {...register("middleName")} 
-            placeholder="Santos" 
-            onInput={(e) => {
-              // Only allow letters and spaces, capitalize first letter
-              let value = e.currentTarget.value.replace(/[^a-zA-Z\s]/g, '');
-              value = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-              e.currentTarget.value = value;
-            }}
-          />
-        </Field>
+        <FormField
+          control={control}
+          name="middleName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Middle Name (Optional)</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Santos"
+                  onInput={(e) => {
+                    // Only allow letters and spaces, capitalize first letter
+                    let value = e.currentTarget.value.replace(
+                      /[^a-zA-Z\s]/g,
+                      "",
+                    );
+                    value =
+                      value.charAt(0).toUpperCase() +
+                      value.slice(1).toLowerCase();
+                    e.currentTarget.value = value;
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <Field className="flex-1">
-          <FieldLabel>Last Name</FieldLabel>
-          <Input 
-            {...register("lastName")} 
-            placeholder="Dela Cruz" 
-            onInput={(e) => {
-              // Only allow letters and spaces, capitalize first letter
-              let value = e.currentTarget.value.replace(/[^a-zA-Z\s]/g, '');
-              value = value.charAt(0).toUpperCase() + value.slice(1).toLowerCase();
-              e.currentTarget.value = value;
-            }}
-          />
-          <FieldError errors={errors.lastName ? [errors.lastName] : []} />
-        </Field>
+        <FormField
+          control={control}
+          name="lastName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Last Name</FormLabel>
+              <FormControl>
+                <Input
+                  {...field}
+                  placeholder="Dela Cruz"
+                  onInput={(e) => {
+                    // Only allow letters and spaces, capitalize first letter
+                    let value = e.currentTarget.value.replace(
+                      /[^a-zA-Z\s]/g,
+                      "",
+                    );
+                    value =
+                      value.charAt(0).toUpperCase() +
+                      value.slice(1).toLowerCase();
+                    e.currentTarget.value = value;
+                    field.onChange(value);
+                  }}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <Field>
-          <FieldLabel>Extension</FieldLabel>
-          <Select
-            onValueChange={(val) => setValue("extensionName", val)}
-            defaultValue=""
-          >
-            <SelectTrigger>
-              <SelectValue placeholder="Select" />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value=" ">None</SelectItem>
-              <SelectItem value="jr">Jr.</SelectItem>
-              <SelectItem value="sr">Sr.</SelectItem>
-              <SelectItem value="ii">II</SelectItem>
-              <SelectItem value="iii">III</SelectItem>
-              <SelectItem value="iv">IV</SelectItem>
-            </SelectContent>
-          </Select>
-        </Field>
+        <FormField
+          control={control}
+          name="extensionName"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Extension</FormLabel>
+              <Select onValueChange={field.onChange} defaultValue={field.value}>
+                <FormControl>
+                  <SelectTrigger className="w-full">
+                    <SelectValue placeholder="Select" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value=" ">None</SelectItem>
+                  <SelectItem value="jr">Jr.</SelectItem>
+                  <SelectItem value="sr">Sr.</SelectItem>
+                  <SelectItem value="ii">II</SelectItem>
+                  <SelectItem value="iii">III</SelectItem>
+                  <SelectItem value="iv">IV</SelectItem>
+                </SelectContent>
+              </Select>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
 
-        <Field className="flex-1">
-          <FieldLabel>Date of Birth</FieldLabel>
-          <DatePickerWithInput
-            date={dateOfBirth ? new Date(dateOfBirth) : undefined}
-            onDateChange={(date) => {
-              setValue("dateOfBirth", date ? date.toISOString().split('T')[0] : "");
-            }}
-            placeholder="Select your date of birth"
-            maxDate={new Date()}
-            minDate={new Date("1900-01-01")}
-          />
-          <FieldError errors={errors.dateOfBirth ? [errors.dateOfBirth] : []} />
-        </Field>
-      </FieldGroup>
+        <FormField
+          control={control}
+          name="dateOfBirth"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Date of Birth</FormLabel>
+              <FormControl>
+                <DatePickerWithInput
+                  date={field.value ? new Date(field.value) : undefined}
+                  onDateChange={(date) => {
+                    field.onChange(
+                      date ? date.toISOString().split("T")[0] : "",
+                    );
+                  }}
+                  placeholder="Select your date of birth"
+                  maxDate={new Date()}
+                  minDate={new Date("1900-01-01")}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
+      </div>
     </div>
   );
 };

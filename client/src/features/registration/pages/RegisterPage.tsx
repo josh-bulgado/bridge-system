@@ -1,124 +1,44 @@
-import { useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
-import { zodResolver } from "@hookform/resolvers/zod";
-
-import { StepPersonalInfo, StepContactInfo } from "../components";
-
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-  CardContent,
-} from "@/components/ui/card";
 import { Link } from "react-router-dom";
-import { formSchema, type FormValues } from "../schemas/registerSchema";
 
-import { FieldDescription, FieldGroup } from "@/components/ui/field";
+import { RegistrationForm, RegistrationFeaturesList } from "../components";
 
 const RegisterPage = () => {
-  const [step, setStep] = useState(1);
-
-  const methods = useForm<FormValues>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      firstName: "",
-      middleName: "",
-      lastName: "",
-      extensionName: "",
-      dateOfBirth: "",
-      contactNumber: "",
-      email: "",
-      password: "",
-      confirmPassword: "",
-    },
-    mode: "onBlur",
-  });
-
-  const nextStep = async () => {
-    const isValid = await methods.trigger([
-      "firstName",
-      "lastName",
-      "dateOfBirth",
-    ]);
-    if (isValid) setStep(2);
-  };
-
-  const prevStep = () => setStep(1);
-
-  const onSubmit = async (data: FormValues) => {
-    try {
-      // TODO: Implement registration logic using useRegistration hook
-      console.log("Form submitted:", data);
-      // Example: await register(data);
-    } catch (error) {
-      console.error("Registration failed:", error);
-    }
-  };
-
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center bg-green-50 p-6">
-      <Link to="/" className="mb-4 text-4xl font-extrabold text-green-500">
-        bridge
-      </Link>
+    <div className="flex h-svh w-svw flex-col p-4 md:flex-row">
+      <div className="hidden h-full rounded-2xl bg-green-500 bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
+        <Link
+          className="text-4xl font-extrabold tracking-tight text-balance"
+          to="/"
+        >
+          bridge
+        </Link>
 
-      <Card className="w-full max-w-xl">
-        <CardHeader className="space-y-8 text-center">
+        <div className="flex h-full flex-col justify-between py-16">
           <div>
-            <CardTitle className="text-2xl">Create Account</CardTitle>
-            <CardDescription>
-              Quick registration - complete verification after account creation
-            </CardDescription>
+            <h1 className="scroll-m-20 text-6xl font-extrabold tracking-tight text-balance md:text-5xl">
+              Join Our <br /> Digital <br /> Community
+            </h1>
+
+            <h4 className="mt-2 scroll-m-20 text-xl font-semibold tracking-tight md:text-lg">
+              Create your account to access fast, secure, and transparent
+              barangay services — your gateway to digital governance.
+            </h4>
           </div>
-          <div className="text-left">
-            <CardTitle>
-              {step === 1 ? "Personal Information" : "Contact & Account Info"}
-            </CardTitle>
-            {/* <CardDescription>Step {step} of 2</CardDescription> */}
-          </div>
-        </CardHeader>
 
-        <CardContent className="space-y-8">
-          <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)}>
-              {step === 1 && <StepPersonalInfo />}
-              {step === 2 && <StepContactInfo />}
+          <RegistrationFeaturesList />
+        </div>
+      </div>
 
-              <div className="mt-6 flex justify-between">
-                {step === 2 && (
-                  <Button type="button" variant="outline" onClick={prevStep}>
-                    Back
-                  </Button>
-                )}
+      <div className="m-auto flex flex-col items-center justify-center bg-white lg:w-1/2">
+        <Link
+          className="mb-8 text-4xl font-extrabold tracking-tight text-balance text-green-500 lg:hidden"
+          to="/"
+        >
+          bridge
+        </Link>
 
-                {step === 1 ? (
-                  <Button
-                    type="button"
-                    className="ml-auto bg-green-600 text-white"
-                    onClick={nextStep}
-                  >
-                    Next
-                  </Button>
-                ) : (
-                  <Button
-                    type="submit"
-                    className="ml-auto bg-green-600 text-white"
-                  >
-                    Create Account
-                  </Button>
-                )}
-              </div>
-            </form>
-          </FormProvider>
-
-          <FieldGroup>
-            <FieldDescription className="text-center">
-              Already have an account? <Link to="/sign-in">Sign in</Link>
-            </FieldDescription>
-          </FieldGroup>
-        </CardContent>
-      </Card>
+        <RegistrationForm />
+      </div>
     </div>
   );
 };
