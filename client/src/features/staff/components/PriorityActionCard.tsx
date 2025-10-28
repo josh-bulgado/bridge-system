@@ -7,7 +7,7 @@ import { cn } from "@/lib/utils";
 interface PriorityActionCardProps {
   title: string;
   count: number;
-  theme: 'purple' | 'blue';
+  theme: 'purple' | 'blue' | 'emerald' | 'teal';
   icon: React.ComponentType<{ className?: string }>;
   buttonText: string;
   onClick?: () => void;
@@ -23,6 +23,18 @@ const themeConfig = {
   blue: {
     gradient: 'bg-gradient-to-br from-blue-500 to-blue-600',
     iconBg: 'bg-blue-400/20',
+    buttonBg: 'bg-white/20 hover:bg-white/30',
+    buttonText: 'text-white',
+  },
+  emerald: {
+    gradient: 'bg-gradient-to-br from-emerald-500 to-emerald-600',
+    iconBg: 'bg-emerald-400/20',
+    buttonBg: 'bg-white/20 hover:bg-white/30',
+    buttonText: 'text-white',
+  },
+  teal: {
+    gradient: 'bg-gradient-to-br from-teal-500 to-teal-600',
+    iconBg: 'bg-teal-400/20',
     buttonBg: 'bg-white/20 hover:bg-white/30',
     buttonText: 'text-white',
   },

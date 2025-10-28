@@ -105,7 +105,7 @@ const StaffDashboard = () => {
               title="Pending Review"
               value={stats.pendingReview.count}
               change={stats.pendingReview.change}
-              color="orange"
+              color="amber"
               icon={<Clock className="h-8 w-8" />}
               onClick={() => handleStatClick('pending')}
             />
@@ -113,7 +113,7 @@ const StaffDashboard = () => {
               title="Payment Verification"
               value={stats.paymentVerification.count}
               change={stats.paymentVerification.change}
-              color="purple"
+              color="emerald"
               icon={<CreditCard className="h-8 w-8" />}
               onClick={() => handleStatClick('payment')}
             />
@@ -121,7 +121,7 @@ const StaffDashboard = () => {
               title="Ready for Generation"
               value={stats.readyForGeneration.count}
               change={stats.readyForGeneration.change}
-              color="blue"
+              color="teal"
               icon={<Download className="h-8 w-8" />}
               onClick={() => handleStatClick('generation')}
             />
@@ -134,7 +134,7 @@ const StaffDashboard = () => {
         <PriorityActionCard
           title="Payment Verification"
           count={paymentPendingCount}
-          theme="purple"
+          theme="emerald"
           icon={CreditCard}
           buttonText="Review Now"
           onClick={() => handlePriorityAction('payment')}
@@ -142,7 +142,7 @@ const StaffDashboard = () => {
         <PriorityActionCard
           title="Document Generation"
           count={readyForGenerationCount}
-          theme="blue"
+          theme="teal"
           icon={Download}
           buttonText="Generate Now"
           onClick={() => handlePriorityAction('generation')}
