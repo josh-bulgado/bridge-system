@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useNavigate } from "react-router-dom";
 
 import { StepPersonalInfo, StepContactInfo } from "./";
 
@@ -10,12 +11,17 @@ import {
   registerSchema,
   type RegisterFormData,
 } from "../schemas/registerSchema";
+import { useRegistration } from "../hooks/useRegistration";
 
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
 
 export const RegistrationForm = () => {
   const [step, setStep] = useState(1);
+  const navigate = useNavigate();
+  
+  // TanStack Query + Axios hook
+  const { register, isLoading, error, success, data, clearError } = useRegistration();
 
   const methods = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -50,6 +56,23 @@ export const RegistrationForm = () => {
     step2Fields[3] && 
     step2Fields[2] === step2Fields[3]; // password === confirmPassword
 
+  // Handle successful registration
+  useEffect(() => {
+    if (success && data) {
+      // Clear any previous errors
+      clearError();
+      
+      // Navigate to success page or sign-in page
+      // You can customize this based on your app flow
+      navigate("/sign-in", { 
+        state: { 
+          message: "Registration successful! Please sign in to continue.",
+          registeredEmail: data.data.email 
+        }
+      });
+    }
+  }, [success, data, navigate, clearError]);
+
   const nextStep = () => {
     setStep(2);
   };
@@ -59,8 +82,11 @@ export const RegistrationForm = () => {
   };
 
   const onSubmit = (data: RegisterFormData) => {
-    console.log("Form submitted:", data);
-    // TODO: Handle registration submission
+    // Clear any previous errors
+    clearError();
+    
+    // Submit registration data
+    register(data);
   };
 
   return (
@@ -79,9 +105,21 @@ export const RegistrationForm = () => {
           {step === 1 && <StepPersonalInfo />}
           {step === 2 && <StepContactInfo />}
 
+          {/* Error Message Display */}
+          {error && (
+            <div className="my-4 rounded-md border border-red-200 bg-red-50 p-3">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           <div className="my-6 flex justify-between">
             {step === 2 && (
-              <Button type="button" variant="outline" onClick={prevStep}>
+              <Button 
+                type="button" 
+                variant="outline" 
+                onClick={prevStep}
+                disabled={isLoading}
+              >
                 Back
               </Button>
             )}
@@ -92,7 +130,7 @@ export const RegistrationForm = () => {
                 className="ml-auto"
                 onClick={nextStep}
                 variant="default"
-                disabled={!isStep1Valid}
+                disabled={!isStep1Valid || isLoading}
               >
                 Next
               </Button>
@@ -100,9 +138,9 @@ export const RegistrationForm = () => {
               <Button 
                 type="submit" 
                 className="ml-auto bg-green-600 text-white"
-                disabled={!isStep2Valid}
+                disabled={!isStep2Valid || isLoading}
               >
-                Create Account
+                {isLoading ? "Creating Account..." : "Create Account"}
               </Button>
             )}
           </div>

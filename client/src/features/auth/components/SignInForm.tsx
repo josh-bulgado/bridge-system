@@ -9,24 +9,30 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 
 import { signInSchema, type SignInFormData } from "../schemas/signInSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "@/components/ui/separator";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
+import { authService } from "../services/authService";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 
 export const SignInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const [error, setError] = useState<string>("");
+  const navigate = useNavigate();
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),
     defaultValues: {
       email: "",
       password: "",
+      rememberMe: false,
     },
   });
 
@@ -34,9 +40,25 @@ export const SignInForm = () => {
     setShowPassword(!showPassword);
   };
 
-  const onSubmit = (data: SignInFormData) => {
-    console.log("Sign in data:", data);
-    // TODO: Implement actual sign-in logic
+  const onSubmit = async (data: SignInFormData) => {
+    try {
+      setError("");
+      const response = await authService.login(data);
+      
+      toast.success("Login successful!", {
+        description: `Welcome back, ${response.name}!`,
+      });
+
+      // Navigate based on user role or to dashboard
+      // For now, navigate to a general dashboard
+      navigate("/dashboard");
+    } catch (error: any) {
+      const errorMessage = error.message || "Login failed. Please try again.";
+      setError(errorMessage);
+      toast.error("Login failed", {
+        description: errorMessage,
+      });
+    }
   };
 
   return (
@@ -52,6 +74,13 @@ export const SignInForm = () => {
                 Access your account to manage document requests
               </p>
             </div>
+
+            {error && (
+              <Alert variant="destructive">
+                <AlertCircle className="h-4 w-4" />
+                <AlertDescription>{error}</AlertDescription>
+              </Alert>
+            )}
 
             <FormField
               control={form.control}
@@ -85,7 +114,7 @@ export const SignInForm = () => {
                         {...field}
                       />
                       <button
-                        type="button"
+                        type="button"ar
                         className="text-muted-foreground hover:text-foreground focus:ring-opacity-50 absolute top-1/2 right-3 -translate-y-1/2 rounded-sm p-0.5 transition-all duration-200 ease-in-out hover:scale-110 focus:ring-2 focus:ring-green-500 focus:outline-none"
                         onClick={togglePasswordVisibility}
                         aria-label={

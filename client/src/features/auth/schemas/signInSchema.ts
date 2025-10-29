@@ -12,7 +12,7 @@ export const signInSchema = z.object({
         const phoneRegex = /^\+?[\d\s\-\\)]{10,}$/;
         return emailRegex.test(value) || phoneRegex.test(value);
       },
-      {
+    {
         message: "Please enter a valid email address or phone number",
       },
     ),
