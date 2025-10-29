@@ -1,6 +1,7 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SignInPage } from "./features/auth/pages/SignInPage";
+import VerifyOTPPage from "./features/auth/pages/VerifyOTPPage";
 import RegisterPage from "./features/registration/pages/RegisterPage";
 import ResidentLayout from "./features/resident/layout/ResidentLayout";
 import AdminLayout from "./features/admin/layout/AdminLayout";
@@ -40,6 +41,7 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/verify-otp" element={<VerifyOTPPage />} />
 
             {/* Resident Routes */}
             <Route path="/resident" element={<ResidentLayout />}>
