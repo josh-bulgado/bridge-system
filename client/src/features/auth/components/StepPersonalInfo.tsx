@@ -56,7 +56,9 @@ const StepPersonalInfo = () => {
           name="middleName"
           render={({ field }) => (
             <FormItem>
-              <FormLabel>Middle Name (Optional)</FormLabel>
+              <FormLabel>
+                Middle Name <span className="text-gray-200">(Optional)</span>
+              </FormLabel>
               <FormControl>
                 <Input
                   {...field}
@@ -149,7 +151,7 @@ const StepPersonalInfo = () => {
                       date ? date.toISOString().split("T")[0] : "",
                     );
                   }}
-                  placeholder="Select your date of birth"
+                  placeholder="June 01, 2025"
                   maxDate={new Date()}
                   minDate={new Date("1900-01-01")}
                 />
