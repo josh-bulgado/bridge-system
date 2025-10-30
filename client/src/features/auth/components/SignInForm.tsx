@@ -44,7 +44,7 @@ export const SignInForm = () => {
     try {
       setError("");
       const response = await authService.login(data);
-      
+
       toast.success("Login successful!", {
         description: `Welcome back, ${response.name}!`,
       });
@@ -87,7 +87,7 @@ export const SignInForm = () => {
               name="email"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email or Phone Number</FormLabel>
+                  <FormLabel>Email</FormLabel>
                   <FormControl>
                     <Input
                       type="email"
@@ -114,7 +114,7 @@ export const SignInForm = () => {
                         {...field}
                       />
                       <button
-                        type="button"ar
+                        type="button"
                         className="text-muted-foreground hover:text-foreground focus:ring-opacity-50 absolute top-1/2 right-3 -translate-y-1/2 rounded-sm p-0.5 transition-all duration-200 ease-in-out hover:scale-110 focus:ring-2 focus:ring-green-500 focus:outline-none"
                         onClick={togglePasswordVisibility}
                         aria-label={
@@ -158,12 +158,12 @@ export const SignInForm = () => {
                       )}
                     />
 
-                    <a
-                      href="#"
+                    <Link
+                      to="/forgot-password"
                       className="text-muted-foreground hover:text-foreground text-sm underline-offset-2 transition-colors duration-200 hover:underline"
                     >
                       Forgot your password?
-                    </a>
+                    </Link>
                   </div>
                 </FormItem>
               )}
