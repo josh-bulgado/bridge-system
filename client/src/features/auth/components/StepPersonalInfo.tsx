@@ -15,6 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { formatLocalDate } from "@/lib/date";
 
 const StepPersonalInfo = () => {
   const { control } = useFormContext();
@@ -145,15 +146,10 @@ const StepPersonalInfo = () => {
               <FormLabel>Date of Birth</FormLabel>
               <FormControl>
                 <DatePickerWithInput
-                  date={field.value ? new Date(field.value) : undefined}
+                  value={field.value ? new Date(field.value) : undefined}
                   onDateChange={(date) => {
-                    field.onChange(
-                      date ? date.toISOString().split("T")[0] : "",
-                    );
+                    field.onChange(formatLocalDate(date));
                   }}
-                  placeholder="June 01, 2025"
-                  maxDate={new Date()}
-                  minDate={new Date("1900-01-01")}
                 />
               </FormControl>
               <FormMessage />

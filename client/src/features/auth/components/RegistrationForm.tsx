@@ -19,9 +19,10 @@ import { Separator } from "@/components/ui/separator";
 export const RegistrationForm = () => {
   const [step, setStep] = useState(1);
   const navigate = useNavigate();
-  
+
   // TanStack Query + Axios hook
-  const { register, isLoading, error, success, data, clearError } = useRegistration();
+  const { register, isLoading, error, success, data, clearError } =
+    useRegistration();
 
   const methods = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
@@ -43,17 +44,22 @@ export const RegistrationForm = () => {
 
   // Watch required fields for each step
   const step1Fields = watch(["firstName", "lastName", "dateOfBirth"]);
-  const step2Fields = watch(["contactNumber", "email", "password", "confirmPassword"]);
+  const step2Fields = watch([
+    "contactNumber",
+    "email",
+    "password",
+    "confirmPassword",
+  ]);
 
   // Check if step 1 required fields are filled
   const isStep1Valid = step1Fields[0] && step1Fields[1] && step1Fields[2];
 
   // Check if step 2 required fields are filled and passwords match
-  const isStep2Valid = 
-    step2Fields[0] && 
-    step2Fields[1] && 
-    step2Fields[2] && 
-    step2Fields[3] && 
+  const isStep2Valid =
+    step2Fields[0] &&
+    step2Fields[1] &&
+    step2Fields[2] &&
+    step2Fields[3] &&
     step2Fields[2] === step2Fields[3]; // password === confirmPassword
 
   // Handle successful registration
@@ -61,14 +67,14 @@ export const RegistrationForm = () => {
     if (success && data) {
       // Clear any previous errors
       clearError();
-      
+
       // Navigate to success page or sign-in page
       // You can customize this based on your app flow
-      navigate("/sign-in", { 
-        state: { 
+      navigate("/sign-in", {
+        state: {
           message: "Registration successful! Please sign in to continue.",
-          registeredEmail: data.data.email 
-        }
+          registeredEmail: data.data.email,
+        },
       });
     }
   }, [success, data, navigate, clearError]);
@@ -83,10 +89,11 @@ export const RegistrationForm = () => {
 
   const onSubmit = (data: RegisterFormData) => {
     // Clear any previous errors
-    clearError();
-    
+    console.log(data);
+    // clearError();
+
     // Submit registration data
-    register(data);
+    // register(data);
   };
 
   return (
@@ -114,9 +121,9 @@ export const RegistrationForm = () => {
 
           <div className="my-6 flex justify-between">
             {step === 2 && (
-              <Button 
-                type="button" 
-                variant="outline" 
+              <Button
+                type="button"
+                variant="outline"
                 onClick={prevStep}
                 disabled={isLoading}
               >
@@ -135,8 +142,8 @@ export const RegistrationForm = () => {
                 Next
               </Button>
             ) : (
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="ml-auto bg-green-600 text-white"
                 disabled={!isStep2Valid || isLoading}
               >
