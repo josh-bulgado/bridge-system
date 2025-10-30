@@ -3,6 +3,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SignInPage } from "./features/auth/pages/SignInPage";
 import RegisterPage from "./features/auth/pages/RegisterPage";
 import VerifyOTPPage from "./features/auth/pages/VerifyOTPPage";
+import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import ResidentLayout from "./features/resident/layout/ResidentLayout";
 import AdminLayout from "./features/admin/layout/AdminLayout";
 import StaffLayout from "./features/staff/layout/StaffLayout";
@@ -23,7 +24,7 @@ const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter>
+      <BrowserRouter >
         <Suspense
           fallback={
             <div className="flex min-h-screen items-center justify-center">
@@ -42,6 +43,7 @@ function App() {
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/register" element={<RegisterPage />} />
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
+            <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
             {/* Resident Routes */}
             <Route path="/resident" element={<ResidentLayout />}>
