@@ -57,7 +57,7 @@ const StepContactInfo = () => {
         name="contactNumber"
         render={({ field }) => (
           <FormItem>
-            <FormLabel>Phone Number</FormLabel>
+            <FormLabel>Phone Number (for directory)</FormLabel>
             <FormControl>
               <Input
                 {...field}

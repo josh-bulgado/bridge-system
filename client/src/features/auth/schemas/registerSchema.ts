@@ -13,14 +13,14 @@ export const registerSchema = z
       .refine((val) => !isNaN(Date.parse(val)), "Invalid date"),
     contactNumber: z
       .string()
-      .min(1, "Phone number is required")
+      .min(1, "Phone number is required for directory purposes")
       .refine((val) => {
         // Remove all non-digit characters
         const digitsOnly = val.replace(/\D/g, "");
         // Philippine mobile numbers: 09XXXXXXXXX (11 digits) or +639XXXXXXXXX (12 digits with country code)
         const philippinePatterns = [
           /^09[0-9]{9}$/, // 09XXXXXXXXX format
-          /^\+639[0-9]{9}$/, // +639XXXXXXXXX format
+          /^\\+639[0-9]{9}$/, // +639XXXXXXXXX format
           /^639[0-9]{9}$/, // 639XXXXXXXXX format (without + symbol)
         ];
         return philippinePatterns.some((pattern) => pattern.test(digitsOnly));
