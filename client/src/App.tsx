@@ -1,7 +1,7 @@
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SignInPage } from "./features/auth/pages/SignInPage";
-import RegisterPage from "./features/registration/pages/RegisterPage";
+import RegisterPage from "./features/auth/pages/RegisterPage";
 import ResidentLayout from "./features/resident/layout/ResidentLayout";
 import AdminLayout from "./features/admin/layout/AdminLayout";
 import StaffLayout from "./features/staff/layout/StaffLayout";
