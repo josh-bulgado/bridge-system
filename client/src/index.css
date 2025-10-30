@@ -5,7 +5,7 @@
 @custom-variant dark (&:is(.dark *));
 
 @theme inline {
-  --font-display: "Plus Jakart Sans", sans-serif;
+  --font-display: "Plus Jakarta Sans", sans-serif;
 
   --radius-sm: calc(var(--radius) - 4px);
   --radius-md: calc(var(--radius) - 2px);
@@ -116,6 +116,7 @@
 @layer base {
   * {
     @apply border-border outline-ring/50;
+    @apply font-display;
   }
   body {
     @apply bg-background text-foreground;
