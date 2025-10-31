@@ -8,8 +8,8 @@ builder.Services.Configure<MongoDBSettings>(
     builder.Configuration.GetSection("MongoDB"));
 
 builder.Services.AddSingleton<MongoDBContext>();
-// builder.Services.AddSingleton<UserService>();
-// builder.Services.AddSingleton<CommentService>();
+builder.Services.AddSingleton<ResidentService>();
+builder.Services.AddSingleton<UserService>();
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -18,7 +18,7 @@ builder.Services.AddCors(options =>
 {
     options.AddPolicy("_myAllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins("http://localhost:5173")
+        policy.WithOrigins("http://localhost:5173", "http://localhost:5174")
               .AllowAnyHeader()
               .AllowAnyMethod();
     });
