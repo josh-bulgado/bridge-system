@@ -6,7 +6,7 @@ export const registerSchema = z
     firstName: z.string().min(1, "First name is required"),
     middleName: z.string().optional().or(z.literal("")),
     lastName: z.string().min(1, "Last name is required"),
-    extensionName: z.string().optional().or(z.literal("")),
+    extensionName: z.string().nullable(),
     dateOfBirth: z
       .string()
       .min(1, "Date of birth is required")
@@ -25,7 +25,7 @@ export const registerSchema = z
         ];
         return philippinePatterns.some((pattern) => pattern.test(digitsOnly));
       }, "Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)"),
-    email: z.string().email("Please enter a valid email address"),
+    email: z.email("Please enter a valid email address"),
     password: z.string().min(6, "Password must be at least 6 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
   })
