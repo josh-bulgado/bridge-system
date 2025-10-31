@@ -93,7 +93,7 @@ export const RegistrationForm = () => {
     // clearError();
 
     // Submit registration data
-    // register(data);
+    register(data);
   };
 
   return (

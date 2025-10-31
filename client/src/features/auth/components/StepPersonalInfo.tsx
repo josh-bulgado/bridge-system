@@ -30,22 +30,7 @@ const StepPersonalInfo = () => {
             <FormItem>
               <FormLabel>First Name</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Juan"
-                  onInput={(e) => {
-                    // Only allow letters and spaces, capitalize first letter
-                    let value = e.currentTarget.value.replace(
-                      /[^a-zA-Z\s]/g,
-                      "",
-                    );
-                    value =
-                      value.charAt(0).toUpperCase() +
-                      value.slice(1).toLowerCase();
-                    e.currentTarget.value = value;
-                    field.onChange(value);
-                  }}
-                />
+                <Input {...field} placeholder="Juan" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -90,22 +75,7 @@ const StepPersonalInfo = () => {
             <FormItem>
               <FormLabel>Last Name</FormLabel>
               <FormControl>
-                <Input
-                  {...field}
-                  placeholder="Dela Cruz"
-                  onInput={(e) => {
-                    // Only allow letters and spaces, capitalize first letter
-                    let value = e.currentTarget.value.replace(
-                      /[^a-zA-Z\s]/g,
-                      "",
-                    );
-                    value =
-                      value.charAt(0).toUpperCase() +
-                      value.slice(1).toLowerCase();
-                    e.currentTarget.value = value;
-                    field.onChange(value);
-                  }}
-                />
+                <Input {...field} placeholder="Dela Cruz" />
               </FormControl>
               <FormMessage />
             </FormItem>
@@ -118,14 +88,20 @@ const StepPersonalInfo = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel>Extension</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
+              <Select
+                onValueChange={(value) =>
+                  field.onChange(value === "none" ? null : value)
+                }
+                defaultValue={field.value}
+                value={field.value ?? "none"}
+              >
                 <FormControl>
                   <SelectTrigger className="w-full">
                     <SelectValue placeholder="Select" />
                   </SelectTrigger>
                 </FormControl>
                 <SelectContent>
-                  <SelectItem value=" ">None</SelectItem>
+                  <SelectItem value="none">None</SelectItem>
                   <SelectItem value="jr">Jr.</SelectItem>
                   <SelectItem value="sr">Sr.</SelectItem>
                   <SelectItem value="ii">II</SelectItem>
