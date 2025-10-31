@@ -11,10 +11,10 @@ export const registrationApi = {
       extension: data.extensionName || null, // Map extensionName to extension
       dateOfBirth: data.dateOfBirth,
       email: data.email,
-      phoneNumber: data.contactNumber, // Map contactNumber to phoneNumber
+      contactNumber: data.contactNumber, // Map contactNumber to phoneNumber
       password: data.password,
     };
-    return api.post("/resident/register", serverData).then((res) => res.data);
+    return api.post("/auth/register", serverData).then((res) => res.data);
   },
 
   checkEmailAvailability: (email: string) =>
