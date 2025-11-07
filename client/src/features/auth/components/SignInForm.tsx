@@ -52,17 +52,17 @@ export const SignInForm = () => {
       // Navigate based on user role or to dashboard
       // For now, navigate to a general dashboard
       navigate("/dashboard");
-    } catch (error: any) {
-      const errorMessage = error.message || "Login failed. Please try again.";
-      setError(errorMessage);
-      toast.error("Login failed", {
-        description: errorMessage,
-      });
+    } catch (error) {
+      // const errorMessage = error.message || "Login failed. Please try again.";
+      // setError(errorMessage);
+      // toast.error("Login failed", {
+      //   description: errorMessage,
+      // });
     }
   };
 
   return (
-    <div className="flex flex-col gap-6 rounded-md border bg-white pb-8 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
+    <div className="flex flex-col gap-6 rounded-xl pb-8 shadow-sm lg:border-none lg:shadow-none">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
           <div className="grid gap-6">

@@ -4,7 +4,7 @@ import { Hero } from "../components/Hero";
 const LandingPage = () => {
   return (
     <>
-      <div className="font-display bg-white">
+      <div className="font-display">
         <Header />
         <Hero />
       </div>

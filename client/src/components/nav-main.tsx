@@ -1,25 +1,23 @@
-import { IconCirclePlusFilled, IconMail, type Icon } from "@tabler/icons-react"
-import { Link, useLocation } from "react-router-dom"
-
-import { Button } from "@/components/ui/button"
+import { Link, useLocation } from "react-router-dom";
 import {
   SidebarGroup,
   SidebarGroupContent,
   SidebarMenu,
   SidebarMenuButton,
   SidebarMenuItem,
-} from "@/components/ui/sidebar"
+} from "@/components/ui/sidebar";
+import { type LucideIcon, LucidePlusCircle } from "lucide-react";
 
 export function NavMain({
   items,
 }: {
   items: {
-    title: string
-    url: string
-    icon?: Icon
-  }[]
+    title: string;
+    url: string;
+    icon?: LucideIcon;
+  }[];
 }) {
-  const location = useLocation()
+  const location = useLocation();
 
   return (
     <SidebarGroup>
@@ -30,28 +28,22 @@ export function NavMain({
               tooltip="Quick Create"
               className="bg-primary text-primary-foreground hover:bg-primary/90 hover:text-primary-foreground active:bg-primary/90 active:text-primary-foreground min-w-8 duration-200 ease-linear"
             >
-              <IconCirclePlusFilled />
+              <LucidePlusCircle />
               <span>Quick Create</span>
             </SidebarMenuButton>
-            <Button
-              size="icon"
-              className="size-8 group-data-[collapsible=icon]:opacity-0"
-              variant="outline"
-            >
-              <IconMail />
-              <span className="sr-only">Inbox</span>
-            </Button>
           </SidebarMenuItem>
         </SidebarMenu>
         <SidebarMenu>
           {items.map((item) => {
-            const isActive = location.pathname === item.url
+            const isActive = location.pathname === item.url;
             return (
               <SidebarMenuItem key={item.title}>
-                <SidebarMenuButton 
-                  tooltip={item.title} 
+                <SidebarMenuButton
+                  tooltip={item.title}
                   asChild
-                  className={isActive ? "bg-green-50 text-green-700 font-medium border-r-2 border-r-green-500" : ""}
+                  className={
+                    isActive ? "bg-primary/10 text-primary font-medium" : ""
+                  }
                 >
                   <Link to={item.url}>
                     {item.icon && <item.icon />}
@@ -59,10 +51,10 @@ export function NavMain({
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-            )
+            );
           })}
         </SidebarMenu>
       </SidebarGroupContent>
     </SidebarGroup>
-  )
+  );
 }

@@ -70,9 +70,11 @@ const staffData = {
   ],
 };
 
-export function StaffSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function StaffSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>

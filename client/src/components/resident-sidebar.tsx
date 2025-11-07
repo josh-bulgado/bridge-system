@@ -1,8 +1,6 @@
-import * as React from "react";
 import {
   LayoutDashboard,
   HelpCircle,
-  Home,
   FileText,
   Search,
   Settings,
@@ -21,6 +19,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import BridgeIcon from "./bridge-icon";
 
 const residentData = {
   user: {
@@ -64,9 +63,11 @@ const residentData = {
   ],
 };
 
-export function ResidentSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function ResidentSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -74,12 +75,7 @@ export function ResidentSidebar({ ...props }: React.ComponentProps<typeof Sideba
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="/resident">
-                <Home className="h-5 w-5" />
-                <span className="text-base font-semibold text-green-500">
-                  bridge
-                </span>
-              </a>
+              <BridgeIcon path="/resident" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>

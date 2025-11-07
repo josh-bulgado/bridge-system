@@ -29,6 +29,7 @@ import {
   CheckCircle,
   X,
 } from "lucide-react";
+import { UploadDropzone } from "@/components/upload-dropzone";
 
 // Zod schema for verification form
 const verificationSchema = z.object({
@@ -196,7 +197,7 @@ const VerificationPage = () => {
 
   if (isSubmitted) {
     return (
-      <div className="h-svh space-y-6 px-4 lg:px-6 flex justify-center flex-col">
+      <div className="flex h-svh flex-col justify-center space-y-6 px-4 lg:px-6">
         <div className="mx-auto flex max-w-2xl">
           <div className="h space-y-4 py-8 text-center">
             <CheckCircle className="mx-auto h-16 w-16 text-green-600" />
@@ -294,18 +295,28 @@ const VerificationPage = () => {
                   <h3 className="text-lg font-semibold">Required Documents</h3>
 
                   {/* Government ID Front */}
+                  <UploadDropzone
+                    control={form.control}
+                    accept="image/*"
+                    description={{
+                      maxFileSize: "5MB",
+                      fileTypes: "JPEG and PNG",
+                    }}
+                  />
+
                   <FormField
                     control={form.control}
                     name="governmentIdFront"
                     render={({ field }) => (
                       <FormItem>
-                        <FileUpload
+                        <UploadDropzone />
+                        {/* <FileUpload
                           field={field}
                           label="Government ID (Front Side)"
                           description="Upload a clear photo of the front side of your valid government ID"
                           accept="image/*"
                           onChange={(file) => field.onChange(file)}
-                        />
+                        /> */}
                         <FormMessage />
                       </FormItem>
                     )}

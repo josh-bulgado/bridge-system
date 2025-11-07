@@ -47,7 +47,7 @@ export const AuthFeaturesList: React.FC<AuthFeaturesListProps> = ({
         return (
           <div key={index} className="grid grid-cols-[50px_auto] gap-4">
             <IconComponent
-              className="m-2 mt-1 aspect-square rounded-md bg-green-50 p-2 text-green-500"
+              className="bg-card text-primary m-2 mt-1 aspect-square rounded-md p-2"
               size={40}
             />
             <div className="flex-2">

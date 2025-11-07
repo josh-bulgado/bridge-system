@@ -10,6 +10,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import { Button } from "@/components/ui/button";
 
 const StepContactInfo = () => {
   const { control, watch } = useFormContext();
@@ -94,8 +95,8 @@ const StepContactInfo = () => {
                     type={showPassword ? "text" : "password"}
                     className="pr-10"
                   />
-                  <button
-                    type="button"
+                  <Button
+                    variant="ghost"
                     className="text-muted-foreground hover:text-foreground focus:ring-opacity-50 absolute top-1/2 right-3 -translate-y-1/2 rounded-sm p-0.5 transition-all duration-200 ease-in-out hover:scale-110 focus:ring-2 focus:ring-green-500 focus:outline-none"
                     onClick={togglePasswordVisibility}
                     aria-label={
@@ -109,7 +110,7 @@ const StepContactInfo = () => {
                         <Eye className="h-4 w-4 transition-opacity duration-150 ease-in-out" />
                       )}
                     </div>
-                  </button>
+                  </Button>
                 </div>
               </FormControl>
               <FormMessage />

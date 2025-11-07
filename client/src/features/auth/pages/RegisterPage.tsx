@@ -1,11 +1,13 @@
 import { Link } from "react-router-dom";
 
 import { RegistrationForm, RegistrationFeaturesList } from "../components";
+import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
+import BridgeIcon from "@/components/bridge-icon";
 
 const RegisterPage = () => {
   return (
-    <div className="flex h-svh w-svw flex-col p-4 md:flex-row gap-4">
-      <div className="hidden h-full rounded-2xl bg-green-500 bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
+    <div className="flex h-svh w-svw flex-col gap-4 p-4 md:flex-row">
+      <div className="bg-primary hidden h-full rounded-2xl bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
         <Link
           className="text-4xl font-extrabold tracking-tight text-balance"
           to="/"
@@ -29,13 +31,9 @@ const RegisterPage = () => {
         </div>
       </div>
 
-      <div className="m-auto flex flex-col items-center justify-center bg-white lg:w-1/2 pb-4">
-        <Link
-          className="mb-8 text-4xl font-extrabold tracking-tight text-balance text-green-500 lg:hidden"
-          to="/"
-        >
-          bridge
-        </Link>
+      <div className="m-auto flex flex-col items-center justify-center pb-4 lg:w-1/2">
+        <ThemeSwitcherMultiButton />
+        <BridgeIcon />
 
         <RegistrationForm />
       </div>

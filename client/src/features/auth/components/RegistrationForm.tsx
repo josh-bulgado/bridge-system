@@ -97,9 +97,12 @@ export const RegistrationForm = () => {
   };
 
   return (
-    <div className="flex flex-col gap-6 rounded-md border bg-white p-4 pb-8 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
+    <div className="bg-card flex flex-col gap-6 rounded-xl border pb-8 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
       <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)}>
+        <form
+          onSubmit={methods.handleSubmit(onSubmit)}
+          className="darktext-white p-6 md:p-8"
+        >
           <div className="mb-8 flex flex-col gap-2">
             <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
               Create account

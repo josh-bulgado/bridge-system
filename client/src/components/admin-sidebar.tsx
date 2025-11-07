@@ -148,9 +148,11 @@ const adminData = {
   ],
 };
 
-export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
+export function AdminSidebar({
+  ...props
+}: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="offcanvas" {...props}>
+    <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -160,7 +162,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
             >
               <a href="/admin">
                 <IconInnerShadowTop size={5} />
-                <span className="text-base font-semibold text-green-500">
+                <span className="text-primary text-base font-semibold">
                   bridge
                 </span>
               </a>

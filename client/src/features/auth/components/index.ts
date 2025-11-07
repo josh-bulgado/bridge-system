@@ -9,3 +9,7 @@ export { default as StepPersonalInfo } from "./StepPersonalInfo";
 export { default as StepContactInfo } from "./StepContactInfo";
 export { RegistrationForm } from "./RegistrationForm";
 export { RegistrationFeaturesList } from "./RegistrationFeaturesList";
+
+// Verification components
+export { VerifyOTPForm } from "./VerifyOTPForm";
+export { VerificationFeaturesList } from "./VerificationFeaturesList";

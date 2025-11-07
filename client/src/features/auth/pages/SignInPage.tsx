@@ -1,18 +1,15 @@
-import { Link } from "react-router-dom";
+
 
 import { SignInForm } from "../components/SignInForm";
 import { AuthFeaturesList } from "../components/AuthFeaturesList";
+import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
+import BridgeIcon from "@/components/bridge-icon";
 
 export const SignInPage = () => {
   return (
     <div className="flex h-svh w-svw flex-col p-4 md:flex-row">
-      <div className="hidden h-full rounded-2xl bg-green-500 bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
-        <Link
-          className="text-4xl font-extrabold tracking-tight text-balance"
-          to="/"
-        >
-          bridge
-        </Link>
+      <div className="bg-primary hidden h-full rounded-2xl bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
+        <BridgeIcon />
 
         <div className="flex h-full flex-col justify-between py-16">
           <div>
@@ -30,13 +27,9 @@ export const SignInPage = () => {
         </div>
       </div>
 
-      <div className="m-auto flex w-full flex-col items-center justify-center bg-white lg:w-1/2">
-        <Link
-          className="mb-8 text-4xl font-extrabold tracking-tight text-balance text-green-500 lg:hidden"
-          to="/"
-        >
-          bridge
-        </Link>
+      <div className="m-auto flex w-full flex-col items-center justify-center lg:w-1/2">
+        {/* <ThemeSwitcherMultiButton /> */}
+        <BridgeIcon />
 
         <SignInForm />
       </div>

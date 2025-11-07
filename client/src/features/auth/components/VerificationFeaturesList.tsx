@@ -1,4 +1,4 @@
-import { Clock, Shield, UserPlus, Zap, type LucideIcon } from "lucide-react";
+import { Lock, Key, Bell, Shield, type LucideIcon } from "lucide-react";
 
 interface Feature {
   icon: LucideIcon;
@@ -6,39 +6,39 @@ interface Feature {
   description: string;
 }
 
-interface RegistrationFeaturesListProps {
+interface VerificationFeaturesListProps {
   features?: Feature[];
 }
 
 const defaultFeatures: Feature[] = [
   {
-    icon: UserPlus,
-    title: "Quick Registration",
-    description:
-      "Sign up in minutes with just basic information — complete verification later when needed.",
-  },
-  {
-    icon: Zap,
-    title: "Instant Access",
-    description:
-      "Start requesting documents immediately after registration — no waiting for approvals.",
-  },
-  {
-    icon: Clock,
-    title: "Track Everything",
-    description:
-      "Monitor your document requests and payments in real-time from your personal dashboard.",
-  },
-  {
     icon: Shield,
-    title: "Secure & Private",
+    title: "Secure Account",
     description:
-      "Your personal information is protected with bank-level security and encryption.",
+      "Email verification adds an extra layer of security to protect your account from unauthorized access.",
+  },
+  {
+    icon: Key,
+    title: "Password Recovery",
+    description:
+      "A verified email ensures you can always recover your account if you forget your password.",
+  },
+  {
+    icon: Bell,
+    title: "Get Notifications",
+    description:
+      "Stay updated on your document requests and important barangay announcements via email.",
+  },
+  {
+    icon: Lock,
+    title: "Full Access",
+    description:
+      "Complete verification to unlock all features and services available in your dashboard.",
   },
 ];
 
-export const RegistrationFeaturesList: React.FC<
-  RegistrationFeaturesListProps
+export const VerificationFeaturesList: React.FC<
+  VerificationFeaturesListProps
 > = ({ features = defaultFeatures }) => {
   return (
     <div className="space-y-4">
@@ -50,7 +50,7 @@ export const RegistrationFeaturesList: React.FC<
             className="grid grid-cols-[50px_auto] items-center gap-4"
           >
             <IconComponent
-              className="text-primary bg-secondary m-2 mt-1 aspect-square rounded-md p-2"
+              className="m-2 mt-1 aspect-square rounded-md bg-green-50 p-2 text-green-500"
               size={40}
             />
             <div className="flex-2">
