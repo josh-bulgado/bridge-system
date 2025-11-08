@@ -1,5 +1,4 @@
 import { useFormContext } from "react-hook-form";
-import { useState } from "react";
 import { Check, AlertCircle, Shield } from "lucide-react";
 import {
   FormControl,
@@ -8,12 +7,18 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { PasswordInput } from "@/components/password-input";
 import { PasswordStrength } from "@/components/ui/password-strength";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
+import PasswordInput from "@/components/password-input";
 
 const StepSecuritySetup = () => {
   const { control, watch } = useFormContext();
@@ -22,7 +27,8 @@ const StepSecuritySetup = () => {
   const confirmPassword = watch("confirmPassword") || "";
 
   // Password match helper
-  const passwordsMatch = password && confirmPassword && password === confirmPassword;
+  const passwordsMatch =
+    password && confirmPassword && password === confirmPassword;
 
   return (
     <Card>
@@ -36,15 +42,15 @@ const StepSecuritySetup = () => {
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Password Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 items-start">
-          <div className="space-y-3">
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+          <div>
             <FormField
               control={control}
               name="password"
               render={({ field }) => (
                 <FormItem>
                   <FormLabel className="flex items-center gap-2">
-                    <Shield className="h-4 w-4" />
+                    <Shield size={16} />
                     Password
                     <span className="text-red-500">*</span>
                   </FormLabel>
@@ -52,20 +58,12 @@ const StepSecuritySetup = () => {
                     <PasswordInput
                       {...field}
                       placeholder="Enter a secure password"
-                      className="h-10"
                     />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
-
-            {/* Password Strength Indicator - Plenty of space */}
-            {password && (
-              <div className="space-y-2">
-                <PasswordStrength password={password} />
-              </div>
-            )}
           </div>
 
           <FormField
@@ -74,18 +72,21 @@ const StepSecuritySetup = () => {
             render={({ field }) => (
               <FormItem>
                 <FormLabel className="flex items-center gap-2">
-                  <Shield className="h-4 w-4" />
+                  <Shield size={16} />
                   Confirm Password
                   <span className="text-red-500">*</span>
                   {passwordsMatch && (
-                    <Badge variant="secondary" className="text-green-600 bg-green-50 border-green-200">
-                      <Check className="h-3 w-3 mr-1" />
+                    <Badge
+                      variant="secondary"
+                      className="border-green-200 bg-green-50 text-green-600"
+                    >
+                      <Check className="mr-1" size={12} />
                       Match
                     </Badge>
                   )}
                   {confirmPassword && !passwordsMatch && (
                     <Badge variant="destructive">
-                      <AlertCircle className="h-3 w-3 mr-1" />
+                      <AlertCircle className="mr-1" size={12} />
                       No Match
                     </Badge>
                   )}
@@ -94,7 +95,6 @@ const StepSecuritySetup = () => {
                   <PasswordInput
                     {...field}
                     placeholder="Confirm your password"
-                    className="h-10"
                   />
                 </FormControl>
                 <FormMessage />
@@ -102,6 +102,13 @@ const StepSecuritySetup = () => {
             )}
           />
         </div>
+
+        {/* Password Strength Indicator - Plenty of space */}
+        {password && (
+          <div className="space-y-2">
+            <PasswordStrength password={password} />
+          </div>
+        )}
 
         <Separator className="my-6" />
 
@@ -111,7 +118,7 @@ const StepSecuritySetup = () => {
             control={control}
             name="agreeToTerms"
             render={({ field }) => (
-              <FormItem className="flex flex-row items-start space-x-3 space-y-0">
+              <FormItem className="flex flex-row items-start space-y-0 space-x-3">
                 <FormControl>
                   <Checkbox
                     checked={field.value}
@@ -120,18 +127,18 @@ const StepSecuritySetup = () => {
                   />
                 </FormControl>
                 <div className="flex-1 space-y-1">
-                  <FormLabel className="text-sm font-normal leading-relaxed">
+                  <FormLabel className="text-sm leading-relaxed font-normal">
                     I agree to the{" "}
                     <a
                       href="#"
-                      className="text-primary hover:underline underline-offset-4"
+                      className="text-primary underline-offset-4 hover:underline"
                     >
                       Terms and Conditions
                     </a>{" "}
                     and{" "}
                     <a
                       href="#"
-                      className="text-primary hover:underline underline-offset-4"
+                      className="text-primary underline-offset-4 hover:underline"
                     >
                       Privacy Policy
                     </a>

@@ -105,7 +105,7 @@ export const RegistrationForm = () => {
   };
 
   return (
-    <div className="bg-card flex flex-col gap-3 rounded-xl border pb-4 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
+    <div className="flex flex-col gap-3 rounded-xl lg:rounded-none lg:border-none lg:shadow-none">
       <FormProvider {...methods}>
         <form
           onSubmit={methods.handleSubmit(onSubmit)}

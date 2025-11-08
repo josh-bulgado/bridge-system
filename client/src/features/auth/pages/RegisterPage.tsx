@@ -8,12 +8,7 @@ const RegisterPage = () => {
   return (
     <div className="flex h-svh w-svw flex-col gap-4 p-4 md:flex-row">
       <div className="bg-primary hidden h-full rounded-2xl bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
-        <Link
-          className="text-4xl font-extrabold tracking-tight text-balance"
-          to="/"
-        >
-          bridge
-        </Link>
+        <BridgeIcon variant="secondary" />
 
         <div className="flex h-full flex-col justify-between py-16">
           <div>

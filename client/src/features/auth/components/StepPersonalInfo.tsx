@@ -18,7 +18,6 @@ import {
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { formatLocalDate } from "@/lib/date";
-// import { User, Hash, Calendar, Info } from "lucide-react";
 
 const StepPersonalInfo = () => {
   const { control } = useFormContext();
