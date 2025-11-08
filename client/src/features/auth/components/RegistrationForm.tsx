@@ -14,10 +14,10 @@ import {
 import { useRegistration } from "../hooks/useRegistration";
 
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
-import { Separator } from "@/components/ui/separator";
-import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
+import { Lock, Mail, User } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 // import { Alert, AlertDescription } from "@/components/ui/alert";
 // import { CheckCircle, User, Mail, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
 
@@ -117,20 +117,20 @@ export const RegistrationForm = () => {
                 Create account
               </h2>
               <Badge variant="outline" className="flex items-center gap-1">
-                {step === 1 ? "👤" : step === 2 ? "📧" : "🔒"}
+                {step === 1 ? <User /> : step === 2 ? <Mail /> : <Lock />}
                 Step {step} of 3
               </Badge>
             </div>
-            
+
             <p className="text-muted-foreground">
               Get instant access to barangay services - verify your identity
               later when needed
             </p>
-            
+
             {/* Progress Bar */}
             <div className="space-y-1">
               <Progress value={(step / 3) * 100} className="h-2" />
-              <div className="flex justify-between text-xs text-muted-foreground">
+              <div className="text-muted-foreground flex justify-between text-xs">
                 <span className={step >= 1 ? "text-primary font-medium" : ""}>
                   Personal Info
                 </span>
@@ -143,13 +143,14 @@ export const RegistrationForm = () => {
               </div>
             </div>
           </div>
+
           {step === 1 && <StepPersonalInfo />}
           {step === 2 && <StepContactInfo />}
           {step === 3 && <StepSecuritySetup />}
 
           {/* Error Message Display */}
           {error && (
-            <div className="my-4 rounded-md border border-red-200 bg-red-50 p-4 flex items-center gap-2">
+            <div className="my-4 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-4">
               <span className="text-red-600">⚠️</span>
               <p className="text-sm text-red-600">{error}</p>
             </div>
@@ -196,13 +197,11 @@ export const RegistrationForm = () => {
               >
                 {isLoading ? (
                   <>
-                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    <Spinner />
                     Creating Account...
                   </>
                 ) : (
-                  <>
-                    ✓ Create Account
-                  </>
+                  <>✓ Create Account</>
                 )}
               </Button>
             )}
@@ -214,7 +213,6 @@ export const RegistrationForm = () => {
           </FieldGroup>
         </form>
       </FormProvider>
-
     </div>
   );
 };

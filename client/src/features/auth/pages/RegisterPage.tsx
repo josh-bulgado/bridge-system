@@ -33,7 +33,7 @@ const RegisterPage = () => {
 
       <div className="m-auto flex flex-col items-center justify-center pb-4 lg:w-1/2">
         <ThemeSwitcherMultiButton />
-        <BridgeIcon />
+        <BridgeIcon responsive="hideOnLg" />
 
         <RegistrationForm />
       </div>

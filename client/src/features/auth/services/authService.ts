@@ -8,10 +8,12 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  id: string;
-  email: string;
-  name: string;
-  message: string;
+  token: string; // Store actual JWT token from backend
+  user: {
+    id: string;
+    email: string;
+    role: "resident" | "staff" | "admin";
+  };
 }
 
 export interface AuthError {
@@ -20,63 +22,59 @@ export interface AuthError {
 }
 
 class AuthService {
-  private readonly baseUrl = "/api/auth";
+  private readonly baseUrl = "/auth"; // now used
 
+  // Login function
   async login(data: SignInFormData): Promise<LoginResponse> {
     try {
-      const loginData: LoginRequest = {
+      const loginData = {
         email: data.email,
         password: data.password,
-        rememberMe: data.rememberMe,
       };
 
-      const response = await api.post<LoginResponse>(
-        `/resident/login`,
+      console.log("baseUrl =", this.baseUrl);
+
+      const { data: response } = await api.post<LoginResponse>(
+        `${this.baseUrl}/login`,
         loginData,
       );
 
-      // Store user data in localStorage if login is successful
-      if (response.data) {
-        localStorage.setItem("user", JSON.stringify(response.data));
+      const storage = data.rememberMe ? localStorage : sessionStorage;
+      storage.setItem("user", JSON.stringify(response.user));
+      storage.setItem("auth_token", response.token);
 
-        // If remember me is checked, store in localStorage, otherwise sessionStorage
-        const storage = data.rememberMe ? localStorage : sessionStorage;
-        storage.setItem("auth_token", "logged_in"); // Placeholder for actual token
-      }
-
-      return response.data;
+      return response;
     } catch (error: any) {
       const errorMessage = error.response?.data?.message || "Login failed";
       throw new Error(errorMessage);
     }
   }
 
+  // Logout function
   async logout(): Promise<void> {
-    // Clear stored user data
     localStorage.removeItem("user");
     localStorage.removeItem("auth_token");
+    sessionStorage.removeItem("user");
     sessionStorage.removeItem("auth_token");
   }
 
+  // Get current user from storage
   getCurrentUser(): LoginResponse | null {
     try {
-      const userData = localStorage.getItem("user");
+      const userData =
+        localStorage.getItem("user") || sessionStorage.getItem("user");
       return userData ? JSON.parse(userData) : null;
     } catch {
       return null;
     }
   }
 
+  // Check if authenticated (has token)
   isAuthenticated(): boolean {
     const token =
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
     return !!token;
-  }
-
-  // Check if user data exists in storage
-  hasUserSession(): boolean {
-    return !!localStorage.getItem("user");
   }
 }
 

@@ -1,20 +1,48 @@
+import { cva, type VariantProps } from "class-variance-authority";
 import { Link } from "react-router-dom";
 
-const bridgeVariantStyles = {
-  default: "text-2xl sm:text-3xl lg:text-4xl",
-  compact: "text-lg sm:text-xl lg:text-2xl",
-};
+const bridgeIconVariants = cva(
+  "font-extrabold tracking-tight transition-all duration-200 ease-in-out",
+  {
+    variants: {
+      variant: {
+        primary: "text-primary",
+        secondary: "text-secondary",
+        muted: "text-muted",
+      },
+      size: {
+        default: "text-2xl sm:text-3xl lg:text-4xl",
+        compact: "text-4xl sm:text-4xl lg:text-4xl",
+        small: "text-4xl sm:text-4xl lg:text-4xl",
+      },
+      responsive: {
+        showOnLg: "block lg:block",
+        hideOnLg: "block lg:hidden", // hidden on lg and above
+      },
+    },
+    defaultVariants: {
+      variant: "primary",
+      size: "default",
+      responsive: "showOnLg",
+    },
+  },
+);
 
-interface BridgeIconProps {
+export interface BridgeIconProps
+  extends VariantProps<typeof bridgeIconVariants> {
   path?: string;
-  variant?: "default" | "compact";
 }
 
-const BridgeIcon = ({ path, variant = "default" }: BridgeIconProps) => {
+const BridgeIcon = ({
+  path = "/",
+  variant,
+  size,
+  responsive,
+}: BridgeIconProps) => {
   return (
     <Link
-      to={path || "/"}
-      className="text-primary text-2xl font-extrabold tracking-tight text-balance sm:text-3xl lg:text-4xl"
+      to={path}
+      className={bridgeIconVariants({ variant, size, responsive })}
     >
       bridge
     </Link>

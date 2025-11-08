@@ -1,10 +1,5 @@
 import { useState } from "react";
-import {
-  FileText,
-  Clock,
-  Package,
-  Check,
-} from "lucide-react";
+import { FileText, Clock, Package, Check } from "lucide-react";
 import {
   VerificationReminder,
   WelcomeSection,
@@ -14,11 +9,12 @@ import {
   type DashboardStat,
   type RequestData,
 } from "../components";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const ResidentDashboard = () => {
+  const { data: user } = useAuth();
   const [isVerified] = useState(false);
-  const [showVerificationReminder] =
-    useState(!isVerified);
+  const [showVerificationReminder] = useState(!isVerified);
 
   // Mock data for dashboard stats
   const dashboardStats: DashboardStat[] = [
@@ -120,7 +116,7 @@ const ResidentDashboard = () => {
       )}
 
       {/* Welcome Section */}
-      <WelcomeSection />
+      <WelcomeSection userName={user?.name} />
 
       {/* Stats Cards */}
       <StatsGrid

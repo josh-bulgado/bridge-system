@@ -1,5 +1,3 @@
-
-
 import { SignInForm } from "../components/SignInForm";
 import { AuthFeaturesList } from "../components/AuthFeaturesList";
 import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
@@ -9,7 +7,7 @@ export const SignInPage = () => {
   return (
     <div className="flex h-svh w-svw flex-col p-4 md:flex-row">
       <div className="bg-primary hidden h-full rounded-2xl bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
-        <BridgeIcon />
+        <BridgeIcon responsive="showOnLg" variant="secondary" />
 
         <div className="flex h-full flex-col justify-between py-16">
           <div>
@@ -29,7 +27,7 @@ export const SignInPage = () => {
 
       <div className="m-auto flex w-full flex-col items-center justify-center lg:w-1/2">
         {/* <ThemeSwitcherMultiButton /> */}
-        <BridgeIcon />
+        <BridgeIcon responsive="hideOnLg" />
 
         <SignInForm />
       </div>

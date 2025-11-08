@@ -13,17 +13,18 @@ import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
-import { toast } from "sonner";
 
 import { signInSchema, type SignInFormData } from "../schemas/signInSchema";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Separator } from "@/components/ui/separator";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
-import { authService } from "../services/authService";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { useSignIn } from "../hooks/useSignIn";
+import { toast } from "sonner";
 
 export const SignInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
+  const { mutate: signIn, isLoading } = useSignIn();
   const [error, setError] = useState<string>("");
   const navigate = useNavigate();
 
@@ -41,24 +42,7 @@ export const SignInForm = () => {
   };
 
   const onSubmit = async (data: SignInFormData) => {
-    try {
-      setError("");
-      const response = await authService.login(data);
-
-      toast.success("Login successful!", {
-        description: `Welcome back, ${response.name}!`,
-      });
-
-      // Navigate based on user role or to dashboard
-      // For now, navigate to a general dashboard
-      navigate("/dashboard");
-    } catch (error) {
-      // const errorMessage = error.message || "Login failed. Please try again.";
-      // setError(errorMessage);
-      // toast.error("Login failed", {
-      //   description: errorMessage,
-      // });
-    }
+    signIn(data);
   };
 
   return (

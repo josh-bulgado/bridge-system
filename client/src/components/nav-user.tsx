@@ -1,7 +1,6 @@
 import {
   IconCreditCard,
   IconDotsVertical,
-  IconLogout,
   IconNotification,
   IconUserCircle,
 } from "@tabler/icons-react";
@@ -22,7 +21,8 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { Link } from "react-router-dom";
+import { LogOut } from "lucide-react";
+import { useSignOut } from "@/features/auth/hooks/useSignOut";
 
 export function NavUser({
   user,
@@ -34,6 +34,7 @@ export function NavUser({
   };
 }) {
   const { isMobile } = useSidebar();
+  const { mutate: signOut, isPending } = useSignOut();
 
   return (
     <SidebarMenu>
@@ -93,12 +94,14 @@ export function NavUser({
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <Link to="/" className="bg-red-500 hover:bg-red-500">
-              <DropdownMenuItem>
-                <IconLogout />
-                Log out
-              </DropdownMenuItem>
-            </Link>
+            <DropdownMenuItem
+              variant="destructive"
+              onSelect={() => signOut()}
+              disabled={isPending}
+            >
+              <LogOut />
+              Log out
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </SidebarMenuItem>

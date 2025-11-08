@@ -16,7 +16,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { Badge } from "@/components/ui/badge";
 import { formatLocalDate } from "@/lib/date";
 // import { User, Hash, Calendar, Info } from "lucide-react";
@@ -33,13 +32,13 @@ const StepPersonalInfo = () => {
       </CardHeader>
       <CardContent className="space-y-3">
         {/* Name Fields */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 items-start">
+        <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
           <FormField
             control={control}
             name="firstName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-1 h-6">
+                <FormLabel className="flex h-6 items-center gap-1">
                   First Name
                   <span className="text-red-500">*</span>
                 </FormLabel>
@@ -57,9 +56,11 @@ const StepPersonalInfo = () => {
             name="middleName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-1 h-6">
+                <FormLabel className="flex h-6 items-center gap-1">
                   Middle Name
-                  <Badge variant="secondary" className="text-xs ml-1">Optional</Badge>
+                  <Badge variant="secondary" className="ml-1 text-xs">
+                    Optional
+                  </Badge>
                 </FormLabel>
                 <FormControl>
                   <Input
@@ -87,13 +88,13 @@ const StepPersonalInfo = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-2 items-start">
+        <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
           <FormField
             control={control}
             name="lastName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-1 h-6">
+                <FormLabel className="flex h-6 items-center gap-1">
                   Last Name
                   <span className="text-red-500">*</span>
                 </FormLabel>
@@ -111,7 +112,7 @@ const StepPersonalInfo = () => {
             name="extensionName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-1 h-6">
+                <FormLabel className="flex h-6 items-center gap-1">
                   Extension
                 </FormLabel>
                 <Select
@@ -149,7 +150,7 @@ const StepPersonalInfo = () => {
             name="dateOfBirth"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex items-center gap-2 text-sm font-medium mb-1">
+                <FormLabel className="mb-1 flex items-center gap-2 text-sm font-medium">
                   Date of Birth
                   <span className="text-red-500">*</span>
                 </FormLabel>
