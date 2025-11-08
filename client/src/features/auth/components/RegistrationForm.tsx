@@ -3,7 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 
-import { StepPersonalInfo, StepContactInfo } from "./";
+import { StepPersonalInfo, StepContactInfo, StepSecuritySetup } from "./";
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -15,6 +15,11 @@ import { useRegistration } from "../hooks/useRegistration";
 
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Separator } from "@/components/ui/separator";
+import { Card, CardContent } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
+// import { Alert, AlertDescription } from "@/components/ui/alert";
+// import { CheckCircle, User, Mail, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
 
 export const RegistrationForm = () => {
   const [step, setStep] = useState(1);
@@ -36,6 +41,7 @@ export const RegistrationForm = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      agreeToTerms: false,
     },
     mode: "onBlur",
   });
@@ -44,23 +50,21 @@ export const RegistrationForm = () => {
 
   // Watch required fields for each step
   const step1Fields = watch(["firstName", "lastName", "dateOfBirth"]);
-  const step2Fields = watch([
-    "contactNumber",
-    "email",
-    "password",
-    "confirmPassword",
-  ]);
+  const step2Fields = watch(["contactNumber", "email"]);
+  const step3Fields = watch(["password", "confirmPassword", "agreeToTerms"]);
 
   // Check if step 1 required fields are filled
   const isStep1Valid = step1Fields[0] && step1Fields[1] && step1Fields[2];
 
-  // Check if step 2 required fields are filled and passwords match
-  const isStep2Valid =
-    step2Fields[0] &&
-    step2Fields[1] &&
-    step2Fields[2] &&
-    step2Fields[3] &&
-    step2Fields[2] === step2Fields[3]; // password === confirmPassword
+  // Check if step 2 required fields are filled
+  const isStep2Valid = step2Fields[0] && step2Fields[1];
+
+  // Check if step 3 required fields are filled and passwords match
+  const isStep3Valid =
+    step3Fields[0] &&
+    step3Fields[1] &&
+    step3Fields[2] &&
+    step3Fields[0] === step3Fields[1]; // password === confirmPassword
 
   // Handle successful registration
   useEffect(() => {
@@ -80,11 +84,15 @@ export const RegistrationForm = () => {
   }, [success, data, navigate, clearError]);
 
   const nextStep = () => {
-    setStep(2);
+    if (step < 3) {
+      setStep(step + 1);
+    }
   };
 
   const prevStep = () => {
-    setStep(1);
+    if (step > 1) {
+      setStep(step - 1);
+    }
   };
 
   const onSubmit = (data: RegisterFormData) => {
@@ -97,60 +105,105 @@ export const RegistrationForm = () => {
   };
 
   return (
-    <div className="bg-card flex flex-col gap-6 rounded-xl border pb-8 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
+    <div className="bg-card flex flex-col gap-3 rounded-xl border pb-4 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
       <FormProvider {...methods}>
         <form
           onSubmit={methods.handleSubmit(onSubmit)}
-          className="darktext-white p-6 md:p-8"
+          className="darktext-white p-4 md:p-6"
         >
-          <div className="mb-8 flex flex-col gap-2">
-            <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
-              Create account
-            </h2>
-            <p className="leading-7 not-first:mt-0">
+          <div className="mb-4 flex flex-col gap-3">
+            <div className="flex items-center justify-between">
+              <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight">
+                Create account
+              </h2>
+              <Badge variant="outline" className="flex items-center gap-1">
+                {step === 1 ? "👤" : step === 2 ? "📧" : "🔒"}
+                Step {step} of 3
+              </Badge>
+            </div>
+            
+            <p className="text-muted-foreground">
               Get instant access to barangay services - verify your identity
               later when needed
             </p>
+            
+            {/* Progress Bar */}
+            <div className="space-y-1">
+              <Progress value={(step / 3) * 100} className="h-2" />
+              <div className="flex justify-between text-xs text-muted-foreground">
+                <span className={step >= 1 ? "text-primary font-medium" : ""}>
+                  Personal Info
+                </span>
+                <span className={step >= 2 ? "text-primary font-medium" : ""}>
+                  Contact Info
+                </span>
+                <span className={step >= 3 ? "text-primary font-medium" : ""}>
+                  Security Setup
+                </span>
+              </div>
+            </div>
           </div>
           {step === 1 && <StepPersonalInfo />}
           {step === 2 && <StepContactInfo />}
+          {step === 3 && <StepSecuritySetup />}
 
           {/* Error Message Display */}
           {error && (
-            <div className="my-4 rounded-md border border-red-200 bg-red-50 p-3">
+            <div className="my-4 rounded-md border border-red-200 bg-red-50 p-4 flex items-center gap-2">
+              <span className="text-red-600">⚠️</span>
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
 
-          <div className="my-6 flex justify-between">
-            {step === 2 && (
+          <div className="my-6 flex items-center justify-between gap-4">
+            {step > 1 && (
               <Button
                 type="button"
                 variant="outline"
                 onClick={prevStep}
                 disabled={isLoading}
+                className="flex items-center gap-2"
               >
-                Back
+                ← Back
               </Button>
             )}
 
             {step === 1 ? (
               <Button
                 type="button"
-                className="ml-auto"
+                className="ml-auto flex items-center gap-2"
                 onClick={nextStep}
                 variant="default"
                 disabled={!isStep1Valid || isLoading}
               >
-                Next
+                Next →
+              </Button>
+            ) : step === 2 ? (
+              <Button
+                type="button"
+                className="ml-auto flex items-center gap-2"
+                onClick={nextStep}
+                variant="default"
+                disabled={!isStep2Valid || isLoading}
+              >
+                Next →
               </Button>
             ) : (
               <Button
                 type="submit"
-                className="ml-auto bg-green-600 text-white"
-                disabled={!isStep2Valid || isLoading}
+                className="ml-auto flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                disabled={!isStep3Valid || isLoading}
               >
-                {isLoading ? "Creating Account..." : "Create Account"}
+                {isLoading ? (
+                  <>
+                    <div className="h-4 w-4 animate-spin rounded-full border-2 border-white border-t-transparent" />
+                    Creating Account...
+                  </>
+                ) : (
+                  <>
+                    ✓ Create Account
+                  </>
+                )}
               </Button>
             )}
           </div>
@@ -162,19 +215,6 @@ export const RegistrationForm = () => {
         </form>
       </FormProvider>
 
-      <Separator />
-
-      <p className="text-muted-foreground px-6 text-center text-sm">
-        By clicking continue, you agree to our{" "}
-        <a href="#" className="hover:text-primary underline underline-offset-4">
-          Terms of Service
-        </a>{" "}
-        and{" "}
-        <a href="#" className="hover:text-primary underline underline-offset-4">
-          Privacy Policy
-        </a>
-        .
-      </p>
     </div>
   );
 };

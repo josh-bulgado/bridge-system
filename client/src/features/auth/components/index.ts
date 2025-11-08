@@ -7,6 +7,7 @@ export { ForgotPasswordForm } from "./ForgotPasswordForm";
 // Registration components
 export { default as StepPersonalInfo } from "./StepPersonalInfo";
 export { default as StepContactInfo } from "./StepContactInfo";
+export { default as StepSecuritySetup } from "./StepSecuritySetup";
 export { RegistrationForm } from "./RegistrationForm";
 export { RegistrationFeaturesList } from "./RegistrationFeaturesList";
 

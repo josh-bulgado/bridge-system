@@ -24,10 +24,13 @@ export const registerSchema = z
           /^639[0-9]{9}$/, // 639XXXXXXXXX format (without + symbol)
         ];
         return philippinePatterns.some((pattern) => pattern.test(digitsOnly));
-      }, "Please enter a valid Philippine mobile number (e.g., 09123456789 or +639123456789)"),
+      }, "Invalid format. Use: 09XXXXXXXXX or +639XXXXXXXXX"),
     email: z.email("Please enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),
+    agreeToTerms: z.boolean().refine((val) => val === true, {
+      message: "You must agree to the terms and conditions",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",

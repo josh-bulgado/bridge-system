@@ -1,8 +1,6 @@
 import { useFormContext } from "react-hook-form";
 import { Input } from "@/components/ui/input";
-import { useState } from "react";
-import { Eye, EyeOff } from "lucide-react";
-import { PasswordStrength } from "@/components/ui/password-strength";
+import { Mail, Phone, Check } from "lucide-react";
 import {
   FormControl,
   FormField,
@@ -10,157 +8,113 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 const StepContactInfo = () => {
   const { control, watch } = useFormContext();
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const password = watch("password") || "";
+  const email = watch("email") || "";
+  const contactNumber = watch("contactNumber") || "";
 
-  const togglePasswordVisibility = () => {
-    setShowPassword(!showPassword);
+  // Email validation helper
+  const isValidEmail = (email: string) => {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
   };
 
-  const toggleConfirmPasswordVisibility = () => {
-    setShowConfirmPassword(!showConfirmPassword);
+  // Phone validation helper
+  const isValidPhone = (phone: string) => {
+    const digitsOnly = phone.replace(/\D/g, "");
+    return /^09[0-9]{9}$/.test(digitsOnly);
   };
 
   return (
-    <div className="flex flex-col gap-4">
-      <FormField
-        control={control}
-        name="email"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Email</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                type="email"
-                placeholder="john.doe@example.com"
-                onInput={(e) => {
-                  // Convert to lowercase and remove spaces
-                  const value = e.currentTarget.value.toLowerCase().trim();
-                  e.currentTarget.value = value;
-                  field.onChange(value);
-                }}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <FormField
-        control={control}
-        name="contactNumber"
-        render={({ field }) => (
-          <FormItem>
-            <FormLabel>Phone Number (for directory)</FormLabel>
-            <FormControl>
-              <Input
-                {...field}
-                type="tel"
-                placeholder="09123456789"
-                onInput={(e) => {
-                  // Only allow numbers and limit to 11 digits
-                  let value = e.currentTarget.value.replace(/[^0-9]/g, "");
-                  if (value.length > 11) {
-                    value = value.slice(0, 11);
-                  }
-                  e.currentTarget.value = value;
-                  field.onChange(value);
-                }}
-                maxLength={11}
-              />
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )}
-      />
-
-      <div className="flex flex-col gap-4">
-        <FormField
-          control={control}
-          name="password"
-          render={({ field }) => (
-            <FormItem className="flex-1">
-              <FormLabel>Password</FormLabel>
-              <FormControl>
-                <div className="relative">
+    <Card>
+      <CardHeader className="pb-2">
+        <CardTitle className="text-base font-semibold flex items-center gap-2">
+          <Mail className="h-4 w-4" />
+          Contact Information
+        </CardTitle>
+        <CardDescription>
+          How can we reach you for important updates?
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <FormField
+            control={control}
+            name="email"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-1">
+                  Email Address
+                  <span className="text-red-500">*</span>
+                  {email && isValidEmail(email) && (
+                    <Badge variant="secondary" className="text-green-600 bg-green-50 border-green-200 ml-2">
+                      <Check className="h-3 w-3 mr-1" />
+                      Valid
+                    </Badge>
+                  )}
+                </FormLabel>
+                <FormControl>
                   <Input
                     {...field}
-                    type={showPassword ? "text" : "password"}
-                    className="pr-10"
+                    type="email"
+                    placeholder="your.email@example.com"
+                    className="h-10"
+                    onInput={(e) => {
+                      const value = e.currentTarget.value.toLowerCase().trim();
+                      e.currentTarget.value = value;
+                      field.onChange(value);
+                    }}
                   />
-                  <Button
-                    variant="ghost"
-                    className="text-muted-foreground hover:text-foreground focus:ring-opacity-50 absolute top-1/2 right-3 -translate-y-1/2 rounded-sm p-0.5 transition-all duration-200 ease-in-out hover:scale-110 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                    onClick={togglePasswordVisibility}
-                    aria-label={
-                      showPassword ? "Hide password" : "Show password"
-                    }
-                  >
-                    <div className="transition-transform duration-200 ease-in-out">
-                      {showPassword ? (
-                        <EyeOff className="h-4 w-4 transition-opacity duration-150 ease-in-out" />
-                      ) : (
-                        <Eye className="h-4 w-4 transition-opacity duration-150 ease-in-out" />
-                      )}
-                    </div>
-                  </Button>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-        <FormField
-          control={control}
-          name="confirmPassword"
-          render={({ field }) => (
-            <FormItem className="flex-1">
-              <FormLabel>Confirm Password</FormLabel>
-              <FormControl>
-                <div className="relative">
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="contactNumber"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel className="flex items-center gap-1">
+                  <Phone className="h-4 w-4" />
+                  Phone Number
+                  <span className="text-red-500">*</span>
+                  {contactNumber && isValidPhone(contactNumber) && (
+                    <Badge variant="secondary" className="text-green-600 bg-green-50 border-green-200 ml-2">
+                      <Check className="h-3 w-3 mr-1" />
+                      Valid
+                    </Badge>
+                  )}
+                </FormLabel>
+                <FormControl>
                   <Input
                     {...field}
-                    type={showConfirmPassword ? "text" : "password"}
-                    className="pr-10"
+                    type="tel"
+                    placeholder="09123456789"
+                    className="h-10"
+                    onInput={(e) => {
+                      let value = e.currentTarget.value.replace(/[^0-9]/g, "");
+                      if (value.length > 11) {
+                        value = value.slice(0, 11);
+                      }
+                      e.currentTarget.value = value;
+                      field.onChange(value);
+                    }}
+                    maxLength={11}
                   />
-                  <button
-                    type="button"
-                    className="text-muted-foreground hover:text-foreground focus:ring-opacity-50 absolute top-1/2 right-3 -translate-y-1/2 rounded-sm p-0.5 transition-all duration-200 ease-in-out hover:scale-110 focus:ring-2 focus:ring-green-500 focus:outline-none"
-                    onClick={toggleConfirmPasswordVisibility}
-                    aria-label={
-                      showConfirmPassword ? "Hide password" : "Show password"
-                    }
-                  >
-                    <div className="transition-transform duration-200 ease-in-out">
-                      {showConfirmPassword ? (
-                        <EyeOff className="h-4 w-4 transition-opacity duration-150 ease-in-out" />
-                      ) : (
-                        <Eye className="h-4 w-4 transition-opacity duration-150 ease-in-out" />
-                      )}
-                    </div>
-                  </button>
-                </div>
-              </FormControl>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-      </div>
-
-      {/* Password Strength Indicator */}
-      {password && (
-        <div className="mt-2">
-          <PasswordStrength password={password} />
+                </FormControl>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
         </div>
-      )}
-    </div>
+      </CardContent>
+    </Card>
   );
 };
 
