@@ -12,11 +12,13 @@ namespace server.Controllers
   {
     private readonly UserService _userService;
     private readonly ResidentService _residentService;
+    private readonly JwtService _jwtService;
 
-    public AuthController(UserService userService, ResidentService residentService)
+    public AuthController(UserService userService, ResidentService residentService, JwtService jwtService)
     {
       _userService = userService;
       _residentService = residentService;
+      _jwtService = jwtService;
     }
 
     [HttpPost("register")]
@@ -60,5 +62,35 @@ namespace server.Controllers
       // 4️⃣ Return clean response
       return Ok(new { message = "Registration successful. Please verify your email." });
     }
+
+    [HttpPost("login")]
+    public async Task<IActionResult> Login([FromBody] SignInRequest dto)
+    {
+      // 1️⃣ Check if user exists
+      var user = await _userService.GetByEmailAsync(dto.Email);
+      if (user == null)
+        return Unauthorized(new { message = "Invalid email or password." });
+
+      // 2️⃣ Verify password
+      bool isPasswordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
+      if (!isPasswordValid)
+        return Unauthorized(new { message = "Invalid email or password." });
+
+      // 3️⃣ Generate JWT Token
+      var token = _jwtService.GenerateToken(user);
+
+      // 4️⃣ Return token and basic user info
+      return Ok(new
+      {
+        token,
+        user = new
+        {
+          id = user.Id,
+          email = user.Email,
+          role = user.Role
+        }
+      });
+    }
+
   }
 }
