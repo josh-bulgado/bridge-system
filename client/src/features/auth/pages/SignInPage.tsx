@@ -5,9 +5,9 @@ import BridgeIcon from "@/components/bridge-icon";
 
 export const SignInPage = () => {
   return (
-    <div className="flex h-svh w-svw flex-col p-4 md:flex-row">
+    <div className="flex h-svh w-svw flex-col gap-4 p-4 md:flex-row">
       <div className="bg-primary hidden h-full rounded-2xl bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
-        <BridgeIcon responsive="showOnLg" variant="secondary" />
+        <BridgeIcon variant="secondary" />
 
         <div className="flex h-full flex-col justify-between py-16">
           <div>
@@ -25,8 +25,8 @@ export const SignInPage = () => {
         </div>
       </div>
 
-      <div className="m-auto flex w-full flex-col items-center justify-center lg:w-1/2">
-        {/* <ThemeSwitcherMultiButton /> */}
+      <div className="m-auto flex flex-col items-center justify-center pb-4 lg:w-1/2">
+        <ThemeSwitcherMultiButton />
         <BridgeIcon responsive="hideOnLg" />
 
         <SignInForm />

@@ -14,6 +14,7 @@ export const registrationApi = {
       contactNumber: data.contactNumber, // Map contactNumber to phoneNumber
       password: data.password,
     };
+    console.log("Sending registration data:", serverData);
     return api.post("/auth/register", serverData).then((res) => res.data);
   },
 

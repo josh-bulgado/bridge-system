@@ -13,7 +13,7 @@ export const registerSchema = z
       .refine((val) => !isNaN(Date.parse(val)), "Invalid date"),
     contactNumber: z
       .string()
-      .min(1, "Phone number is required for directory purposes")
+      .min(1, "Phone number is required")
       .refine((val) => {
         // Remove all non-digit characters
         const digitsOnly = val.replace(/\D/g, "");
@@ -24,7 +24,7 @@ export const registerSchema = z
           /^639[0-9]{9}$/, // 639XXXXXXXXX format (without + symbol)
         ];
         return philippinePatterns.some((pattern) => pattern.test(digitsOnly));
-      }, "Invalid format. Use: 09XXXXXXXXX or +639XXXXXXXXX"),
+      }, ""),
     email: z.email("Please enter a valid email address"),
     password: z.string().min(8, "Password must be at least 8 characters"),
     confirmPassword: z.string().min(1, "Please confirm your password"),

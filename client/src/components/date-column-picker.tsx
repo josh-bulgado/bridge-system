@@ -89,15 +89,15 @@ export function DateColumnPicker({ value, onDateChange, className }: DateColumnP
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="grid grid-cols-3 gap-2">
+      <div className="flex gap-3">
         {/* Month Select */}
-        <div className="space-y-1">
-          <label className="text-xs font-medium text-muted-foreground">Month</label>
+        <div className="flex-1 space-y-2">
+          <label className="text-sm font-medium text-foreground">Month</label>
           <Select value={selectedMonth.toString()} onValueChange={handleMonthChange}>
-            <SelectTrigger className="h-9">
+            <SelectTrigger className="h-10">
               <SelectValue placeholder="Month" />
             </SelectTrigger>
-            <SelectContent className="max-h-60">
+            <SelectContent className="max-h-80">
               {months.map((month, index) => (
                 <SelectItem key={index} value={index.toString()}>
                   {month}
@@ -108,13 +108,13 @@ export function DateColumnPicker({ value, onDateChange, className }: DateColumnP
         </div>
 
         {/* Day Select */}
-        <div className="space-y-1 -ml-10">
-          <label className="text-xs font-medium text-muted-foreground text-left">Day</label>
+        <div className="flex-1 space-y-2">
+          <label className="text-sm font-medium text-foreground">Day</label>
           <Select value={selectedDay.toString()} onValueChange={handleDayChange}>
-            <SelectTrigger className="h-9">
+            <SelectTrigger className="h-10">
               <SelectValue placeholder="Day" />
             </SelectTrigger>
-            <SelectContent className="max-h-60">
+            <SelectContent className="max-h-80">
               {days.map((day) => (
                 <SelectItem key={day} value={day.toString()}>
                   {day}
@@ -125,13 +125,13 @@ export function DateColumnPicker({ value, onDateChange, className }: DateColumnP
         </div>
 
         {/* Year Select */}
-        <div className="space-y-1 -ml-30">
-          <label className="text-xs font-medium text-muted-foreground text-left">Year</label>
+        <div className="flex-1 space-y-2">
+          <label className="text-sm font-medium text-foreground">Year</label>
           <Select value={selectedYear.toString()} onValueChange={handleYearChange}>
-            <SelectTrigger className="h-9">
+            <SelectTrigger className="h-10">
               <SelectValue placeholder="Year" />
             </SelectTrigger>
-            <SelectContent className="max-h-60">
+            <SelectContent className="max-h-80">
               {years.map((year) => (
                 <SelectItem key={year} value={year.toString()}>
                   {year}

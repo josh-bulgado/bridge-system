@@ -1,5 +1,6 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { registrationApi } from "../services/registrationService";
+import { AxiosError } from "axios";
 
 export const useRegistration = () => {
   const queryClient = useQueryClient();
@@ -13,9 +14,24 @@ export const useRegistration = () => {
     },
 
     onError: (error) => {
-      console.error("❌ Registration failed:", error.message || error);
+      console.error("❌ Registration failed:", error);
     },
   });
+
+  // Extract the error message from the response
+  const getErrorMessage = () => {
+    if (!mutation.error) return null;
+    
+    const error = mutation.error as AxiosError<{ message?: string }>;
+    
+    // Try to get the message from the server response
+    if (error.response?.data?.message) {
+      return error.response.data.message;
+    }
+    
+    // Fallback to the error message
+    return error.message || "Registration failed";
+  };
 
   return {
     register: mutation.mutate,
@@ -23,7 +39,7 @@ export const useRegistration = () => {
     isLoading: mutation.isPending,
     isSuccess: mutation.isSuccess,
     success: mutation.isSuccess,
-    error: mutation.error?.message || null,
+    error: getErrorMessage(),
     data: mutation.data,
     reset: mutation.reset,
     clearError: mutation.reset,

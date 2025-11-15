@@ -1,41 +1,60 @@
 import { Link } from "react-router-dom";
-
 import { ForgotPasswordForm } from "../components/ForgotPasswordForm";
+import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
+import BridgeIcon from "@/components/bridge-icon";
 
 export const ForgotPasswordPage = () => {
   return (
-    <div className="flex h-svh w-svw flex-col p-4 md:flex-row">
-      <div className="hidden h-full rounded-2xl bg-green-500 bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
-        <Link
-          className="text-4xl font-extrabold tracking-tight text-balance"
-          to="/"
-        >
-          bridge
-        </Link>
-
-        <div className="flex h-full flex-col py-16">
-          <div>
-            <h1 className="scroll-m-20 text-6xl font-extrabold tracking-tight text-balance md:text-5xl">
-              Reset Your <br /> Password <br /> Securely
-            </h1>
-
-            <h4 className="mt-2 scroll-m-20 text-xl font-semibold tracking-tight md:text-lg">
-              Don't worry, it happens to the best of us. Enter your email and
-              we'll send you a link to get back into your account.
-            </h4>
-          </div>
-        </div>
+    <div className="relative flex h-svh w-svw items-center justify-center p-4">
+      {/* Background Pattern */}
+      <div className="absolute inset-0 bg-gradient-to-br from-background via-background to-muted/20" />
+      
+      {/* Theme Switcher - Top Right */}
+      <div className="absolute right-4 top-4 z-10">
+        <ThemeSwitcherMultiButton />
       </div>
 
-      <div className="m-auto flex w-full flex-col items-center justify-center bg-white lg:w-1/2">
-        <Link
-          className="mb-8 text-4xl font-extrabold tracking-tight text-balance text-green-500 lg:hidden"
-          to="/"
-        >
-          bridge
-        </Link>
+      {/* Floating Card */}
+      <div className="relative z-10 w-full max-w-md">
+        {/* Bridge Icon */}
+        <div className="mb-6 flex justify-center">
+          <BridgeIcon />
+        </div>
 
-        <ForgotPasswordForm />
+        {/* Floating Card with Shadow */}
+        <div className="rounded-lg border bg-card p-6 shadow-2xl md:p-8">
+          <div className="mb-6 flex flex-col space-y-1.5 text-center">
+            <h2 className="text-2xl font-semibold leading-none tracking-tight">
+              Reset Password
+            </h2>
+            <p className="text-sm text-muted-foreground">
+              Enter your email address and we'll send you a link to reset your password
+            </p>
+          </div>
+
+          <ForgotPasswordForm />
+
+          {/* Back to Sign In */}
+          <div className="mt-6 text-center border-t pt-6">
+            <Link
+              to="/sign-in"
+              className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+            >
+              ← Back to Sign In
+            </Link>
+          </div>
+        </div>
+
+        {/* Footer Text */}
+        <p className="mt-4 text-center text-xs text-muted-foreground">
+          Remember your password?{" "}
+          <Link
+            to="/sign-in"
+            className="font-medium text-primary hover:underline underline-offset-4 transition-all"
+          >
+            Sign in
+          </Link>
+        </p>
       </div>
     </div>
   );

@@ -13,6 +13,11 @@ export interface LoginResponse {
     id: string;
     email: string;
     role: "resident" | "staff" | "admin";
+    isEmailVerified: boolean;
+    firstName?: string;
+    lastName?: string;
+    middleName?: string;
+    fullName?: string;
   };
 }
 
@@ -75,6 +80,34 @@ class AuthService {
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
     return !!token;
+  }
+
+  // Verify email with OTP
+  async verifyEmail(email: string, otp: string): Promise<{ message: string }> {
+    try {
+      const { data } = await api.post<{ message: string }>(
+        `${this.baseUrl}/verify-email`,
+        { email, otp }
+      );
+      return data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Verification failed";
+      throw new Error(errorMessage);
+    }
+  }
+
+  // Resend OTP
+  async resendOtp(email: string): Promise<{ message: string }> {
+    try {
+      const { data } = await api.post<{ message: string }>(
+        `${this.baseUrl}/resend-otp`,
+        { email }
+      );
+      return data;
+    } catch (error: any) {
+      const errorMessage = error.response?.data?.message || "Failed to resend code";
+      throw new Error(errorMessage);
+    }
   }
 }
 

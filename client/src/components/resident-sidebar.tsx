@@ -20,52 +20,63 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import BridgeIcon from "./bridge-icon";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
-const residentData = {
-  user: {
-    name: "Resident User",
-    email: "resident@example.com",
-    avatar: "/avatars/resident.jpg",
+const navMainItems = [
+  {
+    title: "Dashboard",
+    url: "/resident",
+    icon: LayoutDashboard,
   },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/resident",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Community",
-      url: "/resident/community",
-      icon: Users,
-    },
-    {
-      title: "Reports",
-      url: "/resident/reports",
-      icon: FileText,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/resident/settings",
-      icon: Settings,
-    },
-    {
-      title: "Get Help",
-      url: "/resident/help",
-      icon: HelpCircle,
-    },
-    {
-      title: "Search",
-      url: "/resident/search",
-      icon: Search,
-    },
-  ],
-};
+  {
+    title: "Community",
+    url: "/resident/community",
+    icon: Users,
+  },
+  {
+    title: "Reports",
+    url: "/resident/reports",
+    icon: FileText,
+  },
+];
+
+const navSecondaryItems = [
+  {
+    title: "Settings",
+    url: "/resident/settings",
+    icon: Settings,
+  },
+  {
+    title: "Get Help",
+    url: "/resident/help",
+    icon: HelpCircle,
+  },
+  {
+    title: "Search",
+    url: "/resident/search",
+    icon: Search,
+  },
+];
 
 export function ResidentSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const { data: user } = useAuth();
+
+  // Format user data for NavUser component
+  const userName = user?.fullName || 
+    (user?.firstName && user?.lastName 
+      ? `${user.firstName} ${user.lastName}` 
+      : "Resident User");
+
+  const userEmail = user?.email || "resident@example.com";
+
+  const userData = {
+    name: userName,
+    email: userEmail,
+    avatar: "/avatars/resident.jpg",
+  };
+
   return (
     <Sidebar collapsible="icon" {...props}>
       <SidebarHeader>
@@ -81,11 +92,11 @@ export function ResidentSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent>
-        <NavMain items={residentData.navMain} />
-        <NavSecondary items={residentData.navSecondary} className="mt-auto" />
+        <NavMain items={navMainItems} />
+        <NavSecondary items={navSecondaryItems} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={residentData.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );

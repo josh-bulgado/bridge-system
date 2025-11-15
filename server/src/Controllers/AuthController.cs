@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 using server.Models;
 using server.Services;
 using server.DTOs;
+using server.DTOs.Auth;
 using BCrypt.Net;
 
 namespace server.Controllers
@@ -13,12 +14,14 @@ namespace server.Controllers
     private readonly UserService _userService;
     private readonly ResidentService _residentService;
     private readonly JwtService _jwtService;
+    private readonly EmailService _emailService;
 
-    public AuthController(UserService userService, ResidentService residentService, JwtService jwtService)
+    public AuthController(UserService userService, ResidentService residentService, JwtService jwtService, EmailService emailService)
     {
       _userService = userService;
       _residentService = residentService;
       _jwtService = jwtService;
+      _emailService = emailService;
     }
 
     [HttpPost("register")]
@@ -44,7 +47,11 @@ namespace server.Controllers
 
       await _residentService.CreateAsync(resident);
 
-      // 3️⃣ Create User linked to Resident
+      // 3️⃣ Generate OTP
+      var otp = _emailService.GenerateOtp();
+      var otpExpiry = DateTime.UtcNow.AddMinutes(10);
+
+      // 4️⃣ Create User linked to Resident
       var user = new User
       {
         Email = dto.Email,
@@ -53,14 +60,23 @@ namespace server.Controllers
         ResidentId = resident.Id,
         IsActive = true,
         IsEmailVerified = false,
+        EmailVerificationOtp = otp,
+        OtpExpiresAt = otpExpiry,
         CreatedAt = DateTime.UtcNow,
         UpdatedAt = DateTime.UtcNow,
       };
 
       await _userService.CreateAsync(user);
 
-      // 4️⃣ Return clean response
-      return Ok(new { message = "Registration successful. Please verify your email." });
+      // 5️⃣ Send verification email
+      var emailSent = await _emailService.SendVerificationEmailAsync(dto.Email, otp);
+      if (!emailSent)
+      {
+        return StatusCode(500, new { message = "Registration successful but failed to send verification email. Please try resending." });
+      }
+
+      // 6️⃣ Return clean response
+      return Ok(new { message = "Registration successful. Please check your email for the verification code." });
     }
 
     [HttpPost("login")]
@@ -79,17 +95,86 @@ namespace server.Controllers
       // 3️⃣ Generate JWT Token
       var token = _jwtService.GenerateToken(user);
 
-      // 4️⃣ Return token and basic user info
-      return Ok(new
+      // 4️⃣ Get resident information if user is a resident
+      object userResponse;
+      if (user.Role == "resident" && !string.IsNullOrEmpty(user.ResidentId))
       {
-        token,
-        user = new
+        var resident = await _residentService.GetByIdAsync(user.ResidentId);
+        userResponse = new
         {
           id = user.Id,
           email = user.Email,
-          role = user.Role
-        }
+          role = user.Role,
+          isEmailVerified = user.IsEmailVerified,
+          firstName = resident?.FirstName,
+          lastName = resident?.LastName,
+          middleName = resident?.MiddleName,
+          fullName = resident?.FullName
+        };
+      }
+      else
+      {
+        userResponse = new
+        {
+          id = user.Id,
+          email = user.Email,
+          role = user.Role,
+          isEmailVerified = user.IsEmailVerified
+        };
+      }
+
+      // 5️⃣ Return token and user info
+      return Ok(new
+      {
+        token,
+        user = userResponse
       });
+    }
+
+    [HttpPost("verify-email")]
+    public async Task<IActionResult> VerifyEmail([FromBody] VerifyEmailRequest dto)
+    {
+      var isVerified = await _userService.VerifyOtpAsync(dto.Email, dto.Otp);
+      
+      if (!isVerified)
+      {
+        return BadRequest(new { message = "Invalid or expired verification code." });
+      }
+
+      return Ok(new { message = "Email verified successfully!" });
+    }
+
+    [HttpPost("resend-otp")]
+    public async Task<IActionResult> ResendOtp([FromBody] ResendOtpRequest dto)
+    {
+      var user = await _userService.GetByEmailAsync(dto.Email);
+      
+      if (user == null)
+      {
+        return NotFound(new { message = "User not found." });
+      }
+
+      if (user.IsEmailVerified)
+      {
+        return BadRequest(new { message = "Email is already verified." });
+      }
+
+      // Generate new OTP
+      var otp = _emailService.GenerateOtp();
+      var otpExpiry = DateTime.UtcNow.AddMinutes(10);
+
+      user.EmailVerificationOtp = otp;
+      user.OtpExpiresAt = otpExpiry;
+      await _userService.UpdateAsync(user.Id!, user);
+
+      // Send verification email
+      var emailSent = await _emailService.SendVerificationEmailAsync(dto.Email, otp);
+      if (!emailSent)
+      {
+        return StatusCode(500, new { message = "Failed to send verification email. Please try again." });
+      }
+
+      return Ok(new { message = "Verification code resent successfully. Please check your email." });
     }
 
   }
