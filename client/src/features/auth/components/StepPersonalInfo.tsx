@@ -55,7 +55,7 @@ const StepPersonalInfo = () => {
             name="middleName"
             render={({ field }) => (
               <FormItem>
-                <FormLabel className="flex h-6 items-center gap-1">
+                <FormLabel className="flex h-6 items-center gap-1 bg-red500">
                   Middle Name
                   <Badge variant="secondary" className="ml-1 text-xs">
                     Optional
@@ -65,7 +65,6 @@ const StepPersonalInfo = () => {
                   <Input
                     {...field}
                     placeholder="Santos"
-                    className="h-9"
                     onInput={(e) => {
                       // Only allow letters and spaces, capitalize first letter
                       let value = e.currentTarget.value.replace(

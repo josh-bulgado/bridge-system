@@ -13,44 +13,10 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const ResidentDashboard = () => {
   const { data: user } = useAuth();
-  const [isVerified] = useState(false);
+  const [isVerified] = useState(true);
   const [showVerificationReminder] = useState(!isVerified);
 
   // Mock data for dashboard stats
-  const dashboardStats: DashboardStat[] = [
-    {
-      title: "Total Requests",
-      count: 12,
-      description: "All submitted requests",
-      icon: FileText,
-      color: "text-blue-600",
-      bgColor: "bg-blue-50",
-    },
-    {
-      title: "Action Required",
-      count: 3,
-      description: "Requests needing your action",
-      icon: Clock,
-      color: "text-orange-600",
-      bgColor: "bg-orange-50",
-    },
-    {
-      title: "Ready for Pickup",
-      count: 2,
-      description: "Documents ready to collect",
-      icon: Package,
-      color: "text-green-600",
-      bgColor: "bg-green-50",
-    },
-    {
-      title: "Completed",
-      count: 7,
-      description: "Successfully processed",
-      icon: Check,
-      color: "text-emerald-600",
-      bgColor: "bg-emerald-50",
-    },
-  ];
 
   // Mock recent requests data
   const recentRequests: RequestData[] = [
@@ -116,14 +82,10 @@ const ResidentDashboard = () => {
       )}
 
       {/* Welcome Section */}
-      <WelcomeSection userName={user?.name} />
+      <WelcomeSection />
 
       {/* Stats Cards */}
-      <StatsGrid
-        stats={dashboardStats}
-        isVerified={isVerified}
-        onStatClick={handleStatClick}
-      />
+      <StatsGrid isVerified={isVerified} onStatClick={handleStatClick} />
 
       {/* Quick Actions */}
       <QuickActions

@@ -30,6 +30,7 @@ import {
   X,
 } from "lucide-react";
 import { UploadDropzone } from "@/components/upload-dropzone";
+import { uploadFile } from "better-upload/client";
 
 // Zod schema for verification form
 const verificationSchema = z.object({
@@ -295,28 +296,21 @@ const VerificationPage = () => {
                   <h3 className="text-lg font-semibold">Required Documents</h3>
 
                   {/* Government ID Front */}
-                  <UploadDropzone
-                    control={form.control}
-                    accept="image/*"
-                    description={{
-                      maxFileSize: "5MB",
-                      fileTypes: "JPEG and PNG",
-                    }}
-                  />
+                  
 
                   <FormField
                     control={form.control}
                     name="governmentIdFront"
                     render={({ field }) => (
                       <FormItem>
-                        <UploadDropzone />
-                        {/* <FileUpload
+                        <UploadDropzone control={field} />
+                        <FileUpload
                           field={field}
                           label="Government ID (Front Side)"
                           description="Upload a clear photo of the front side of your valid government ID"
                           accept="image/*"
                           onChange={(file) => field.onChange(file)}
-                        /> */}
+                        />
                         <FormMessage />
                       </FormItem>
                     )}

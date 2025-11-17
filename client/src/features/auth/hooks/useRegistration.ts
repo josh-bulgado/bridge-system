@@ -1,11 +1,12 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { registrationApi } from "../services/registrationService";
+import type { RegisterFormData } from "../schemas/registerSchema";
 
 export const useRegistration = () => {
   const queryClient = useQueryClient();
 
   const mutation = useMutation({
-    mutationFn: registrationApi.register, // ✅ uses your service directly
+    mutationFn: (data: RegisterFormData) => registrationApi.register(data), // ✅ uses your service directly
 
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["user"] });

@@ -8,13 +8,19 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 const StepContactInfo = () => {
   const { control, watch } = useFormContext();
 
-  const email = watch("email") || "";
+  const email = watch("email");
   const contactNumber = watch("contactNumber") || "";
 
   // Email validation helper
@@ -32,7 +38,7 @@ const StepContactInfo = () => {
   return (
     <Card>
       <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold flex items-center gap-2">
+        <CardTitle className="flex items-center gap-2 text-base font-semibold">
           <Mail className="h-4 w-4" />
           Contact Information
         </CardTitle>
@@ -41,7 +47,7 @@ const StepContactInfo = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
           <FormField
             control={control}
             name="email"
@@ -51,8 +57,11 @@ const StepContactInfo = () => {
                   Email Address
                   <span className="text-red-500">*</span>
                   {email && isValidEmail(email) && (
-                    <Badge variant="secondary" className="text-green-600 bg-green-50 border-green-200 ml-2">
-                      <Check className="h-3 w-3 mr-1" />
+                    <Badge
+                      variant="secondary"
+                      className="ml-2 border-green-200 bg-green-50 text-green-600"
+                    >
+                      <Check className="mr-1 h-3 w-3" />
                       Valid
                     </Badge>
                   )}
@@ -85,8 +94,11 @@ const StepContactInfo = () => {
                   Phone Number
                   <span className="text-red-500">*</span>
                   {contactNumber && isValidPhone(contactNumber) && (
-                    <Badge variant="secondary" className="text-green-600 bg-green-50 border-green-200 ml-2">
-                      <Check className="h-3 w-3 mr-1" />
+                    <Badge
+                      variant="secondary"
+                      className="ml-2 border-green-200 bg-green-50 text-green-600"
+                    >
+                      <Check className="mr-1 h-3 w-3" />
                       Valid
                     </Badge>
                   )}
@@ -95,7 +107,7 @@ const StepContactInfo = () => {
                   <Input
                     {...field}
                     type="tel"
-                    placeholder="09123456789"
+                    placeholder="09XXXXXXXXX"
                     className="h-10"
                     onInput={(e) => {
                       let value = e.currentTarget.value.replace(/[^0-9]/g, "");

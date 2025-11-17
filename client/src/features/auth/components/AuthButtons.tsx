@@ -1,19 +1,17 @@
 import { Button } from "@/components/ui/button";
 import clsx from "clsx";
-
 import { Link } from "react-router-dom";
-
 interface AuthButtonsProps {
-  signInText?: string;
-  signInPath?: string;
+  secondaryText?: string;
+  secondaryPath?: string;
   mainText?: string;
   mainPath?: string;
   reverse?: boolean;
 }
 
 const AuthButtons = ({
-  signInText = "Sign in",
-  signInPath = "/sign-in",
+  secondaryText = "Sign in",
+  secondaryPath = "/sign-in",
   mainText = "Get Started",
   mainPath = "/register",
   reverse = false,
@@ -26,16 +24,17 @@ const AuthButtons = ({
       )}
     >
       <Link to={mainPath}>
-        <Button className="min-w-[120px] transition-colors duration-200">
+        <Button className="min-w-30 transition-colors duration-200">
           {mainText}
         </Button>
       </Link>
-      <Link to={signInPath}>
+
+      <Link to={secondaryPath}>
         <Button
           variant="secondary"
-          className="min-w-[100px] transition-colors duration-200"
+          className="min-w-25 transition-colors duration-200"
         >
-          {signInText}
+          {secondaryText}
         </Button>
       </Link>
     </div>

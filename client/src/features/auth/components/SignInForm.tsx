@@ -9,7 +9,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Link, useNavigate } from "react-router-dom";
+import { Link } from "react-router-dom";
 import { useState } from "react";
 import { Eye, EyeOff, AlertCircle } from "lucide-react";
 import { useForm } from "react-hook-form";
@@ -20,13 +20,11 @@ import { Separator } from "@/components/ui/separator";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useSignIn } from "../hooks/useSignIn";
-import { toast } from "sonner";
 
 export const SignInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
-  const { mutate: signIn, isLoading } = useSignIn();
-  const [error, setError] = useState<string>("");
-  const navigate = useNavigate();
+  const { mutate: signIn } = useSignIn();
+  const [error] = useState<string>("");
 
   const form = useForm<SignInFormData>({
     resolver: zodResolver(signInSchema),

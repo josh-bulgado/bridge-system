@@ -36,17 +36,17 @@ export const StatCard: React.FC<StatCardProps> = ({
         <div className="flex items-center justify-between">
           <div>
             <p
-              className={`text-sm font-medium ${isLocked ? "text-gray-400" : "text-gray-600"}`}
+              className={`text-sm font-medium ${isLocked ? "text-gray-400" : "text-gray-600 dark:text-neutral-300"}`}
             >
               {title}
             </p>
             <p
-              className={`text-3xl font-bold ${isLocked ? "text-gray-400" : "text-gray-900"}`}
+              className={`text-3xl font-bold ${isLocked ? "text-gray-400" : "text-gray-900 dark:text-neutral-50"}`}
             >
               {isLocked ? "--" : count}
             </p>
             <p
-              className={`mt-1 text-xs ${isLocked ? "text-gray-300" : "text-gray-500"}`}
+              className={`mt-1 text-xs ${isLocked ? "text-gray-300" : "text-gray-500 dark:text-neutral-400"}`}
             >
               {isLocked ? "Verification required" : description}
             </p>

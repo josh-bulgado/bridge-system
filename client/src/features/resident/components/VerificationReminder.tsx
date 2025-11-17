@@ -32,19 +32,25 @@ export const VerificationReminder: React.FC<VerificationReminderProps> = ({
   return (
     <Item
       variant="outline"
-      className="border-l-4 border-orange-200 border-l-orange-500 bg-orange-50"
+      className="border-orange-200 bg-orange-50 dark:border-orange-800 dark:bg-orange-950/50"
     >
-      <ItemMedia variant="icon" className="border-orange-200 bg-orange-100">
-        <ShieldCheck className="h-4 w-4 text-orange-600" />
+      <ItemMedia
+        variant="icon"
+        className="border-orange-200 bg-orange-100 dark:border-orange-600 dark:bg-orange-900"
+      >
+        <ShieldCheck
+          className="text-orange-600 dark:text-orange-200"
+          size={16}
+        />
       </ItemMedia>
       <ItemContent>
-        <ItemTitle className="text-orange-800">
+        <ItemTitle className="text-orange-800 dark:text-orange-200">
           Verify Your Residency
         </ItemTitle>
-        <ItemDescription className="text-orange-700">
+        <ItemDescription className="text-orange-700 dark:text-orange-300">
           Please verify your residency to access all barangay services and
-          submit requests. Verification ensures you're a legitimate resident
-          of this barangay.
+          submit requests. Verification ensures you're a legitimate resident of
+          this barangay.
         </ItemDescription>
       </ItemContent>
       <ItemActions>

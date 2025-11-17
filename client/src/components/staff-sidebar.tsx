@@ -22,6 +22,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { LayoutDashboard } from "lucide-react";
 
 const staffData = {
   user: {
@@ -33,7 +34,7 @@ const staffData = {
     {
       title: "Dashboard",
       url: "/staff",
-      icon: IconDashboard,
+      icon: LayoutDashboard,
     },
     {
       title: "All Requests",

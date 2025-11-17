@@ -8,7 +8,13 @@ export const Header = () => {
         <BridgeIcon variant="secondary" />
       </div>
 
-      <AuthButtons />
+      <AuthButtons
+        reverse
+        mainText="Sign in"
+        mainPath="/sign-in"
+        secondaryText="Get Started"
+        secondaryPath="/register"
+      />
     </div>
   );
 };

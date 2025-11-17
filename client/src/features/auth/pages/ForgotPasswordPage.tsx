@@ -1,17 +1,11 @@
-import { Link } from "react-router-dom";
-
 import { ForgotPasswordForm } from "../components/ForgotPasswordForm";
+import BridgeIcon from "@/components/bridge-icon";
 
 export const ForgotPasswordPage = () => {
   return (
     <div className="flex h-svh w-svw flex-col p-4 md:flex-row">
       <div className="hidden h-full rounded-2xl bg-green-500 bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">
-        <Link
-          className="text-4xl font-extrabold tracking-tight text-balance"
-          to="/"
-        >
-          bridge
-        </Link>
+        <BridgeIcon variant="secondary" />
 
         <div className="flex h-full flex-col py-16">
           <div>
@@ -27,13 +21,8 @@ export const ForgotPasswordPage = () => {
         </div>
       </div>
 
-      <div className="m-auto flex w-full flex-col items-center justify-center bg-white lg:w-1/2">
-        <Link
-          className="mb-8 text-4xl font-extrabold tracking-tight text-balance text-green-500 lg:hidden"
-          to="/"
-        >
-          bridge
-        </Link>
+      <div className="m-auto flex w-full flex-col items-center justify-center lg:w-1/2">
+        <BridgeIcon />
 
         <ForgotPasswordForm />
       </div>

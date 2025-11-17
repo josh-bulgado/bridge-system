@@ -14,7 +14,7 @@ export const Hero = () => {
             </h1>
           </div>
 
-          <h4 className="mx-auto max-w-md text-center text-lg font-semibold tracking-tight text-gray-600 sm:max-w-lg sm:text-xl md:max-w-xl lg:max-w-2xl">
+          <h4 className="mx-auto max-w-md text-center text-lg font-semibold tracking-tight text-gray-600 sm:max-w-lg sm:text-xl md:max-w-xl lg:max-w-2xl dark:text-gray-400">
             Bridge makes requesting barangay documents faster, safer, and more
             transparent — connecting residents and local offices with ease.
           </h4>
@@ -22,11 +22,6 @@ export const Hero = () => {
 
         <div className="flex w-full justify-center gap-4">
           <AuthButtons mainText="Create account" reverse />
-          {/* <Button>Create account</Button>
-
-          <Button variant="secondary" className="">
-            Sign in
-          </Button> */}
         </div>
       </div>
     </>

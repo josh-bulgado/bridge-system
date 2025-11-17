@@ -25,12 +25,13 @@ const RegisterPage = () => {
           <RegistrationFeaturesList />
         </div>
       </div>
-
-      <div className="m-auto flex flex-col items-center justify-center pb-4 lg:w-1/2">
+      <div className="mx-auto flex flex-col pb-4 lg:w-1/2 items-end">
         <ThemeSwitcherMultiButton />
-        <BridgeIcon responsive="hideOnLg" />
+        <div className="m-auto flex flex-col items-center justify-center">
+          <BridgeIcon responsive="hideOnLg" />
 
-        <RegistrationForm />
+          <RegistrationForm />
+        </div>
       </div>
     </div>
   );

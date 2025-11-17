@@ -23,7 +23,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { FieldDescription, FieldGroup } from "@/components/ui/field";
 
 export const ForgotPasswordForm = () => {
-  const [error, setError] = useState<string>("");
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
 
@@ -36,7 +35,7 @@ export const ForgotPasswordForm = () => {
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
     try {
-      setError("");
+      console.log("hello");
 
       // TODO: Implement forgot password API call
       // const response = await authService.forgotPassword(data);
@@ -54,7 +53,6 @@ export const ForgotPasswordForm = () => {
     } catch (error: any) {
       const errorMessage =
         error.message || "Failed to send reset email. Please try again.";
-      setError(errorMessage);
       toast.error("Failed to send reset email", {
         description: errorMessage,
       });
@@ -63,7 +61,7 @@ export const ForgotPasswordForm = () => {
 
   if (isSubmitted) {
     return (
-      <div className="flex flex-col gap-6 rounded-md border bg-white pb-8 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
+      <div className="flex flex-col gap-6 rounded-md border pb-8 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
         <div className="p-6 md:p-8">
           <div className="grid gap-6">
             <div className="mb-8 flex flex-col items-center gap-4 text-center">
@@ -102,7 +100,7 @@ export const ForgotPasswordForm = () => {
               <FieldDescription className="text-center">
                 Remember your password?{" "}
                 <Link
-                  to="/signin"
+                  to="/sign-in"
                   className="hover:text-primary underline underline-offset-4"
                 >
                   Back to sign in
@@ -116,7 +114,7 @@ export const ForgotPasswordForm = () => {
   }
 
   return (
-    <div className="flex flex-col gap-6 rounded-md border bg-white pb-8 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
+    <div className="flex flex-col gap-6 rounded-md border pb-8 shadow-sm lg:rounded-none lg:border-none lg:shadow-none">
       <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="p-6 md:p-8">
           <div className="grid gap-6">
@@ -130,12 +128,12 @@ export const ForgotPasswordForm = () => {
               </p>
             </div>
 
-            {error && (
+            {/* {error && (
               <Alert variant="destructive">
                 <AlertCircle className="h-4 w-4" />
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
-            )}
+            )} */}
 
             <FormField
               control={form.control}

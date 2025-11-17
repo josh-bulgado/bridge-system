@@ -96,11 +96,7 @@ export const RegistrationForm = () => {
   };
 
   const onSubmit = (data: RegisterFormData) => {
-    // Clear any previous errors
-    console.log(data);
-    // clearError();
-
-    // Submit registration data
+    clearError();
     register(data);
   };
 

@@ -24,7 +24,7 @@ export function useSignIn() {
           break;
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       toast.error(error.message || "Sign-in failed");
     },
   });
