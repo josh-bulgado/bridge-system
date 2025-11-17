@@ -75,7 +75,7 @@ export function ResidentSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <BridgeIcon path="/resident" />
+              <BridgeIcon path="/resident" size="small" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
