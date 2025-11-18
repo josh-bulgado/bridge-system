@@ -31,6 +31,12 @@ namespace server.Models
     [BsonElement("emailVerifiedAt")]
     public DateTime? EmailVerifiedAt { get; set; }
 
+    [BsonElement("emailVerificationOtp")]
+    public string? EmailVerificationOtp { get; set; }
+
+    [BsonElement("otpExpiresAt")]
+    public DateTime? OtpExpiresAt { get; set; }
+
     [BsonElement("createdAt")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

@@ -26,6 +26,29 @@ namespace server.Services
       return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
     }
 
+    public async Task UpdateAsync(string id, User user)
+    {
+      user.UpdatedAt = DateTime.UtcNow;
+      await _users.ReplaceOneAsync(x => x.Id == id, user);
+    }
+
+    public async Task<bool> VerifyOtpAsync(string email, string otp)
+    {
+      var user = await GetByEmailAsync(email);
+      if (user == null) return false;
+
+      if (user.EmailVerificationOtp == otp && user.OtpExpiresAt > DateTime.UtcNow)
+      {
+        user.IsEmailVerified = true;
+        user.EmailVerifiedAt = DateTime.UtcNow;
+        user.EmailVerificationOtp = null;
+        user.OtpExpiresAt = null;
+        await UpdateAsync(user.Id!, user);
+        return true;
+      }
+
+      return false;
+    }
   }
 
 

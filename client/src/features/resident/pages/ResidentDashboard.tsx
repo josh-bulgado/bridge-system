@@ -74,6 +74,9 @@ const ResidentDashboard = () => {
     console.log("Request clicked:", request.id);
   };
 
+  // Get the user's first name for the greeting
+  const firstName = user?.firstName || user?.email?.split('@')[0] || "Resident";
+
   return (
     <div className="space-y-6 px-4 lg:px-6">
       {/* Verification Reminder */}
@@ -82,7 +85,7 @@ const ResidentDashboard = () => {
       )}
 
       {/* Welcome Section */}
-      <WelcomeSection />
+      <WelcomeSection userName={firstName} />
 
       {/* Stats Cards */}
       <StatsGrid isVerified={isVerified} onStatClick={handleStatClick} />

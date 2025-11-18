@@ -17,6 +17,12 @@ builder.Services.AddSingleton<UserService>();
 // 🟢 Register JwtService (since it now uses IConfiguration)
 builder.Services.AddSingleton<JwtService>();
 
+// 🟢 Register HttpClient for EmailService
+builder.Services.AddHttpClient();
+
+// 🟢 Register EmailService
+builder.Services.AddSingleton<EmailService>();
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();

@@ -29,23 +29,24 @@ const StepPersonalInfo = () => {
           Personal Information
         </CardTitle>
       </CardHeader>
-      <CardContent className="space-y-3">
+      <CardContent className="space-y-4">
         {/* Name Fields */}
-        <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <FormField
             control={control}
             name="firstName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex h-6 items-center gap-1">
+              <FormItem className="space-y-2">
+                <FormLabel className="flex items-center gap-1 h-5">
                   First Name
                   <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Juan" className="h-9" />
+                  <Input {...field} placeholder="Juan" className="h-10" autoFocus />
                 </FormControl>
-                <FormMessage />
-                <div className="h-5"></div>
+                <div className="h-5 text-sm">
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
@@ -54,10 +55,10 @@ const StepPersonalInfo = () => {
             control={control}
             name="middleName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex h-6 items-center gap-1 bg-red500">
+              <FormItem className="space-y-2">
+                <FormLabel className="flex items-center gap-1 h-5">
                   Middle Name
-                  <Badge variant="secondary" className="ml-1 text-xs">
+                  <Badge variant="secondary" className="text-xs">
                     Optional
                   </Badge>
                 </FormLabel>
@@ -65,6 +66,7 @@ const StepPersonalInfo = () => {
                   <Input
                     {...field}
                     placeholder="Santos"
+                    className="h-10"
                     onInput={(e) => {
                       // Only allow letters and spaces, capitalize first letter
                       let value = e.currentTarget.value.replace(
@@ -79,28 +81,30 @@ const StepPersonalInfo = () => {
                     }}
                   />
                 </FormControl>
-                <FormMessage />
-                <div className="h-5"></div>
+                <div className="h-5 text-sm">
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-2 md:grid-cols-2">
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <FormField
             control={control}
             name="lastName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex h-6 items-center gap-1">
+              <FormItem className="space-y-2">
+                <FormLabel className="flex items-center gap-1 h-5">
                   Last Name
                   <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
-                  <Input {...field} placeholder="Dela Cruz" className="h-9" />
+                  <Input {...field} placeholder="Dela Cruz" className="h-10" />
                 </FormControl>
-                <FormMessage />
-                <div className="h-5"></div>
+                <div className="h-5 text-sm">
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
@@ -109,8 +113,8 @@ const StepPersonalInfo = () => {
             control={control}
             name="extensionName"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex h-6 items-center gap-1">
+              <FormItem className="space-y-2">
+                <FormLabel className="flex items-center gap-1 h-5">
                   Extension
                 </FormLabel>
                 <Select
@@ -121,7 +125,7 @@ const StepPersonalInfo = () => {
                   value={field.value ?? "none"}
                 >
                   <FormControl>
-                    <SelectTrigger className="h-9">
+                    <SelectTrigger className="h-10">
                       <SelectValue placeholder="Select" />
                     </SelectTrigger>
                   </FormControl>
@@ -134,37 +138,38 @@ const StepPersonalInfo = () => {
                     <SelectItem value="iv">IV</SelectItem>
                   </SelectContent>
                 </Select>
-                <FormMessage />
-                <div className="h-5"></div>
+                <div className="h-5 text-sm">
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />
         </div>
 
         {/* Date of Birth Section */}
-        <div className="pt-1">
-          <FormField
-            control={control}
-            name="dateOfBirth"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel className="mb-1 flex items-center gap-2 text-sm font-medium">
-                  Date of Birth
-                  <span className="text-red-500">*</span>
-                </FormLabel>
-                <FormControl>
-                  <DateColumnPicker
-                    value={field.value ? new Date(field.value) : undefined}
-                    onDateChange={(date) => {
-                      field.onChange(formatLocalDate(date));
-                    }}
-                  />
-                </FormControl>
+        <FormField
+          control={control}
+          name="dateOfBirth"
+          render={({ field }) => (
+            <FormItem className="space-y-2">
+              <FormLabel className="flex items-center gap-1 h-5">
+                Date of Birth
+                <span className="text-red-500">*</span>
+              </FormLabel>
+              <FormControl>
+                <DateColumnPicker
+                  value={field.value ? new Date(field.value) : undefined}
+                  onDateChange={(date) => {
+                    field.onChange(formatLocalDate(date));
+                  }}
+                />
+              </FormControl>
+              <div className="h-5 text-sm">
                 <FormMessage />
-              </FormItem>
-            )}
-          />
-        </div>
+              </div>
+            </FormItem>
+          )}
+        />
       </CardContent>
     </Card>
   );

@@ -36,9 +36,6 @@ const StepSecuritySetup = () => {
         <CardTitle className="text-base font-semibold">
           Security Setup
         </CardTitle>
-        <CardDescription>
-          Create a strong password to protect your account
-        </CardDescription>
       </CardHeader>
       <CardContent className="space-y-4">
         {/* Password Fields */}
@@ -48,19 +45,21 @@ const StepSecuritySetup = () => {
               control={control}
               name="password"
               render={({ field }) => (
-                <FormItem>
-                  <FormLabel className="flex items-center gap-2">
-                    <Shield size={16} />
+                <FormItem className="space-y-2">
+                  <FormLabel className="flex items-center gap-1 h-5">
                     Password
                     <span className="text-red-500">*</span>
                   </FormLabel>
                   <FormControl>
                     <PasswordInput
                       {...field}
-                      placeholder="Enter a secure password"
+                      placeholder=""
+                      autoFocus
                     />
                   </FormControl>
-                  <FormMessage />
+                  <div className="h-5 text-sm">
+                    <FormMessage />
+                  </div>
                 </FormItem>
               )}
             />
@@ -70,22 +69,21 @@ const StepSecuritySetup = () => {
             control={control}
             name="confirmPassword"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel className="flex items-center gap-2">
-                  <Shield size={16} />
+              <FormItem className="space-y-2">
+                <FormLabel className="flex items-center gap-1 h-5">
                   Confirm Password
                   <span className="text-red-500">*</span>
                   {passwordsMatch && (
                     <Badge
                       variant="secondary"
-                      className="border-green-200 bg-green-50 text-green-600"
+                      className="border-green-200 bg-green-50 text-green-600 ml-auto animate-in fade-in zoom-in-95 duration-200"
                     >
                       <Check className="mr-1" size={12} />
                       Match
                     </Badge>
                   )}
                   {confirmPassword && !passwordsMatch && (
-                    <Badge variant="destructive">
+                    <Badge variant="destructive" className="ml-auto animate-in fade-in zoom-in-95 duration-200">
                       <AlertCircle className="mr-1" size={12} />
                       No Match
                     </Badge>
@@ -94,10 +92,12 @@ const StepSecuritySetup = () => {
                 <FormControl>
                   <PasswordInput
                     {...field}
-                    placeholder="Confirm your password"
+                    placeholder=""
                   />
                 </FormControl>
-                <FormMessage />
+                <div className="h-5 text-sm">
+                  <FormMessage />
+                </div>
               </FormItem>
             )}
           />

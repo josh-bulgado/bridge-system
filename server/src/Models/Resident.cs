@@ -38,7 +38,41 @@ namespace server.Models
 
         // Helper property for full name
         [BsonIgnore]
-        public string FullName => $"{FirstName} {MiddleName} {LastName} {Extension}".Trim().Replace("  ", " ");
+        public string FullName
+        {
+            get
+            {
+                var parts = new List<string> { FirstName };
+                if (!string.IsNullOrWhiteSpace(MiddleName))
+                    parts.Add(MiddleName);
+                parts.Add(LastName);
+                if (!string.IsNullOrWhiteSpace(Extension))
+                    parts.Add(FormatExtension(Extension));
+                return string.Join(" ", parts);
+            }
+        }
+
+        // Helper method to format extension with proper capitalization
+        private string FormatExtension(string extension)
+        {
+            if (string.IsNullOrWhiteSpace(extension))
+                return string.Empty;
+
+            var ext = extension.Trim().ToLower();
+            
+            // Handle common extensions
+            return ext switch
+            {
+                "jr" or "jr." => "Jr.",
+                "sr" or "sr." => "Sr.",
+                "i" or "i." => "I",
+                "ii" or "ii." => "II",
+                "iii" or "iii." => "III",
+                "iv" or "iv." => "IV",
+                "v" or "v." => "V",
+                _ => char.ToUpper(ext[0]) + ext.Substring(1) // Capitalize first letter
+            };
+        }
 
         // Resident Verification
         [BsonElement("isResidentVerified")]

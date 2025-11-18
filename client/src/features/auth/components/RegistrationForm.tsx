@@ -23,6 +23,7 @@ import { Spinner } from "@/components/ui/spinner";
 
 export const RegistrationForm = () => {
   const [step, setStep] = useState(1);
+  const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const navigate = useNavigate();
 
   // TanStack Query + Axios hook
@@ -72,26 +73,33 @@ export const RegistrationForm = () => {
       // Clear any previous errors
       clearError();
 
-      // Navigate to success page or sign-in page
-      // You can customize this based on your app flow
-      navigate("/sign-in", {
+      // Get the email from the form
+      const registeredEmail = methods.getValues("email");
+
+      // Navigate to account created page
+      navigate("/account-created", {
         state: {
-          message: "Registration successful! Please sign in to continue.",
-          registeredEmail: data.data.email,
+          email: registeredEmail,
         },
       });
     }
-  }, [success, data, navigate, clearError]);
+  }, [success, data, navigate, clearError, methods]);
 
   const nextStep = () => {
     if (step < 3) {
+      setDirection("forward");
       setStep(step + 1);
+      // Scroll to top smoothly
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const prevStep = () => {
     if (step > 1) {
+      setDirection("backward");
       setStep(step - 1);
+      // Scroll to top smoothly
+      window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
@@ -103,10 +111,7 @@ export const RegistrationForm = () => {
   return (
     <div className="flex flex-col gap-3 rounded-xl lg:rounded-none lg:border-none lg:shadow-none">
       <FormProvider {...methods}>
-        <form
-          onSubmit={methods.handleSubmit(onSubmit)}
-          className="darktext-white p-4 md:p-6"
-        >
+        <form onSubmit={methods.handleSubmit(onSubmit)} className="p-4 md:p-6">
           <div className="mb-4 flex flex-col gap-3">
             <div className="flex items-center justify-between">
               <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight">
@@ -118,35 +123,62 @@ export const RegistrationForm = () => {
               </Badge>
             </div>
 
-            <p className="text-muted-foreground">
-              Get instant access to barangay services - verify your identity
-              later when needed
-            </p>
-
             {/* Progress Bar */}
             <div className="space-y-1">
-              <Progress value={(step / 3) * 100} className="h-2" />
+              <Progress
+                value={(step / 3) * 100}
+                className="h-2 transition-all duration-500 ease-in-out"
+              />
               <div className="text-muted-foreground flex justify-between text-xs">
-                <span className={step >= 1 ? "text-primary font-medium" : ""}>
-                  Personal Info
+                <span
+                  className={`transition-colors duration-300 ${step >= 1 ? "text-primary font-medium" : ""}`}
+                >
+                  {step > 1 && "✓ "}Personal Info
                 </span>
-                <span className={step >= 2 ? "text-primary font-medium" : ""}>
-                  Contact Info
+                <span
+                  className={`transition-colors duration-300 ${step >= 2 ? "text-primary font-medium" : ""}`}
+                >
+                  {step > 2 && "✓ "}Contact Info
                 </span>
-                <span className={step >= 3 ? "text-primary font-medium" : ""}>
+                <span
+                  className={`transition-colors duration-300 ${step >= 3 ? "text-primary font-medium" : ""}`}
+                >
                   Security Setup
                 </span>
               </div>
             </div>
           </div>
 
-          {step === 1 && <StepPersonalInfo />}
-          {step === 2 && <StepContactInfo />}
-          {step === 3 && <StepSecuritySetup />}
+          <div className="relative min-h-[400px]">
+            {step === 1 && (
+              <div
+                key="step-1"
+                className={`animate-in fade-in ${direction === "forward" ? "slide-in-from-right-4" : "slide-in-from-left-4"} duration-300`}
+              >
+                <StepPersonalInfo />
+              </div>
+            )}
+            {step === 2 && (
+              <div
+                key="step-2"
+                className={`animate-in fade-in ${direction === "forward" ? "slide-in-from-right-4" : "slide-in-from-left-4"} duration-300`}
+              >
+                <StepContactInfo />
+              </div>
+            )}
+            {step === 3 && (
+              <div
+                key="step-3"
+                className={`animate-in fade-in ${direction === "forward" ? "slide-in-from-right-4" : "slide-in-from-left-4"} duration-300`}
+              >
+                <StepSecuritySetup />
+              </div>
+            )}
+          </div>
 
           {/* Error Message Display */}
           {error && (
-            <div className="my-4 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-4">
+            <div className="animate-in fade-in slide-in-from-top-2 my-4 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-4 duration-300">
               <span className="text-red-600">⚠️</span>
               <p className="text-sm text-red-600">{error}</p>
             </div>
@@ -159,7 +191,7 @@ export const RegistrationForm = () => {
                 variant="outline"
                 onClick={prevStep}
                 disabled={isLoading}
-                className="flex items-center gap-2"
+                className="flex items-center gap-2 transition-all hover:scale-105"
               >
                 ← Back
               </Button>
@@ -168,7 +200,7 @@ export const RegistrationForm = () => {
             {step === 1 ? (
               <Button
                 type="button"
-                className="ml-auto flex items-center gap-2"
+                className="ml-auto flex items-center gap-2 transition-all hover:scale-105"
                 onClick={nextStep}
                 variant="default"
                 disabled={!isStep1Valid || isLoading}
@@ -178,7 +210,7 @@ export const RegistrationForm = () => {
             ) : step === 2 ? (
               <Button
                 type="button"
-                className="ml-auto flex items-center gap-2"
+                className="ml-auto flex items-center gap-2 transition-all hover:scale-105"
                 onClick={nextStep}
                 variant="default"
                 disabled={!isStep2Valid || isLoading}
@@ -188,12 +220,12 @@ export const RegistrationForm = () => {
             ) : (
               <Button
                 type="submit"
-                className="ml-auto flex items-center gap-2 bg-green-600 hover:bg-green-700"
+                className="ml-auto flex items-center gap-2 bg-green-600 transition-all hover:scale-105 hover:bg-green-700 hover:shadow-lg"
                 disabled={!isStep3Valid || isLoading}
               >
                 {isLoading ? (
                   <>
-                    <Spinner />
+                    <Spinner className="animate-spin" />
                     Creating Account...
                   </>
                 ) : (

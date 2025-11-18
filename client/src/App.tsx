@@ -2,6 +2,8 @@ import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SignInPage } from "./features/auth/pages/SignInPage";
 import RegisterPage from "./features/auth/pages/RegisterPage";
+import { AccountCreatedPage } from "./features/auth/pages/AccountCreatedPage";
+import { EmailConfirmationPage } from "./features/auth/pages/EmailConfirmationPage";
 import VerifyOTPPage from "./features/auth/pages/VerifyOTPPage";
 import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import ResidentLayout from "./features/resident/layout/ResidentLayout";
@@ -42,6 +44,8 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/register" element={<RegisterPage />} />
+            <Route path="/account-created" element={<AccountCreatedPage />} />
+            <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 

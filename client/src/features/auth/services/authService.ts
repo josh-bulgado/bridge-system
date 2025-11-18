@@ -13,6 +13,12 @@ export interface LoginResponse {
     id: string;
     email: string;
     role: "resident" | "staff" | "admin";
+    isActive: boolean;
+    isEmailVerified: boolean;
+    firstName: string;
+    lastName: string;
+    middleName?: string;
+    fullName?: string;
   };
 }
 
@@ -32,19 +38,19 @@ class AuthService {
         password: data.password,
       };
 
-      console.log("baseUrl =", this.baseUrl);
-
       const { data: response } = await api.post<LoginResponse>(
         `${this.baseUrl}/login`,
         loginData,
       );
+
+      console.log("AuthService login response =", response);
 
       const storage = data.rememberMe ? localStorage : sessionStorage;
       storage.setItem("user", JSON.stringify(response.user));
       storage.setItem("auth_token", response.token);
 
       return response;
-    } catch (error: any) {
+    } catch (error: Error | any) {
       const errorMessage = error.response?.data?.message || "Login failed";
       throw new Error(errorMessage);
     }
@@ -59,7 +65,7 @@ class AuthService {
   }
 
   // Get current user from storage
-  getCurrentUser(): LoginResponse | null {
+  getCurrentUser(): LoginResponse {
     try {
       const userData =
         localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -75,6 +81,36 @@ class AuthService {
       localStorage.getItem("auth_token") ||
       sessionStorage.getItem("auth_token");
     return !!token;
+  }
+
+  // Verify email with OTP
+  async verifyEmail(email: string, otp: string): Promise<{ message: string }> {
+    try {
+      const { data } = await api.post<{ message: string }>(
+        `${this.baseUrl}/verify-email`,
+        { email, otp },
+      );
+      return data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Verification failed";
+      throw new Error(errorMessage);
+    }
+  }
+
+  // Resend OTP
+  async resendOtp(email: string): Promise<{ message: string }> {
+    try {
+      const { data } = await api.post<{ message: string }>(
+        `${this.baseUrl}/resend-otp`,
+        { email },
+      );
+      return data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to resend code";
+      throw new Error(errorMessage);
+    }
   }
 }
 

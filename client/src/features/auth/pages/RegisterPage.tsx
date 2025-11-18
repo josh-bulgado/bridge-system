@@ -1,5 +1,3 @@
-import { Link } from "react-router-dom";
-
 import { RegistrationForm, RegistrationFeaturesList } from "../components";
 import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
 import BridgeIcon from "@/components/bridge-icon";
@@ -25,13 +23,11 @@ const RegisterPage = () => {
           <RegistrationFeaturesList />
         </div>
       </div>
-      <div className="mx-auto flex flex-col pb-4 lg:w-1/2 items-end">
+      <div className="m-auto flex flex-col items-center justify-center pb-4 lg:w-1/2">
         <ThemeSwitcherMultiButton />
-        <div className="m-auto flex flex-col items-center justify-center">
-          <BridgeIcon responsive="hideOnLg" />
+        <BridgeIcon responsive="hideOnLg" />
 
-          <RegistrationForm />
-        </div>
+        <RegistrationForm />
       </div>
     </div>
   );
