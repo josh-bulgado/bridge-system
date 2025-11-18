@@ -22,8 +22,6 @@ export function useSignIn() {
         return;
       }
 
-      toast.success(`Welcome back, ${data.user.email || data.user.email}!`);
-
       // Redirect by role
       switch (data.user.role) {
         case "admin":
@@ -37,10 +35,11 @@ export function useSignIn() {
           break;
       }
     },
-    onError: (error: any) => {
+    onError: (error: Error) => {
       // Extract error message from axios error response
       const axiosError = error as AxiosError<{ message?: string }>;
-      const errorMessage = axiosError.response?.data?.message || error.message || "Sign-in failed";
+      const errorMessage =
+        axiosError.response?.data?.message || error.message || "Sign-in failed";
       toast.error(errorMessage);
     },
   });

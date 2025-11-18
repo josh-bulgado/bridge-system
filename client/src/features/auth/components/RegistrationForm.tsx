@@ -18,6 +18,7 @@ import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
 import { Lock, Mail, User } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import StepContactInfo_New from "./StepContactInfo_New";
 // import { Alert, AlertDescription } from "@/components/ui/alert";
 // import { CheckCircle, User, Mail, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
 
@@ -109,7 +110,7 @@ export const RegistrationForm = () => {
   };
 
   return (
-    <div className="flex flex-col gap-3 rounded-xl lg:rounded-none lg:border-none lg:shadow-none">
+    <div className="flex flex-col gap-3 rounded-xl max-w-xl lg:rounded-none lg:border-none lg:shadow-none">
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)} className="p-4 md:p-6">
           <div className="mb-4 flex flex-col gap-3">
@@ -163,7 +164,7 @@ export const RegistrationForm = () => {
                 key="step-2"
                 className={`animate-in fade-in ${direction === "forward" ? "slide-in-from-right-4" : "slide-in-from-left-4"} duration-300`}
               >
-                <StepContactInfo />
+                <StepContactInfo_New />
               </div>
             )}
             {step === 3 && (

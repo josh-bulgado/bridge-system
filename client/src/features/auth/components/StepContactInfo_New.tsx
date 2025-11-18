@@ -14,7 +14,7 @@ import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 
-const StepContactInfo = () => {
+const StepContactInfo_New = () => {
   const { control, formState: { errors } } = useFormContext();
   const [emailFocused, setEmailFocused] = useState(false);
   const [phoneFocused, setPhoneFocused] = useState(false);
@@ -160,4 +160,4 @@ const StepContactInfo = () => {
   );
 };
 
-export default StepContactInfo;
+export default StepContactInfo_New;

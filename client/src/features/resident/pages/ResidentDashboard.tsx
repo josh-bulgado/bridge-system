@@ -13,7 +13,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 
 const ResidentDashboard = () => {
   const { data: user } = useAuth();
-  const [isVerified] = useState(true);
+  const [isVerified] = useState(false);
   const [showVerificationReminder] = useState(!isVerified);
 
   // Mock data for dashboard stats

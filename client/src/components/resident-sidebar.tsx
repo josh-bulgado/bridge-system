@@ -66,17 +66,17 @@ export function ResidentSidebar({
 
   // Format user data for NavUser component
   const userName =
-    user?.user.fullName ||
-    (user?.user.firstName && user?.user.lastName
-      ? `${user.user.firstName} ${user.user.lastName}`
+    user?.fullName ||
+    (user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
       : "Resident User");
 
-  const userEmail = user?.user.email;
+  const userEmail = user?.email || "user@example.com";
 
   const userData = {
     name: userName,
     email: userEmail,
-    avatar: "/avatars/resident.jpg",
+    avatar: user?.user?.avatar, // Use user's avatar if available, otherwise initials will be shown
   };
 
   return (

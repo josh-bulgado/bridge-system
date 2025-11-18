@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/form";
 import { Link } from "react-router-dom";
 import { useState } from "react";
-import { AlertCircle, CheckCircle, Mail } from "lucide-react";
+import { CheckCircle, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 

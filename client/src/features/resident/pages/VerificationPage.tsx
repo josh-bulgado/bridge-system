@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import  { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -12,7 +12,6 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Form,
   FormControl,
@@ -29,8 +28,8 @@ import {
   CheckCircle,
   X,
 } from "lucide-react";
-import { UploadDropzone } from "@/components/upload-dropzone";
-import { uploadFile } from "better-upload/client";
+import { useDropzone } from "react-dropzone";
+import { cn } from "@/lib/utils";
 
 // Zod schema for verification form
 const verificationSchema = z.object({
@@ -103,8 +102,8 @@ const VerificationPage = () => {
     }
   };
 
-  // File upload component
-  const FileUpload = ({
+  // Drag and drop file upload component
+  const DragDropFileUpload = ({
     field,
     label,
     description,
@@ -117,34 +116,38 @@ const VerificationPage = () => {
     accept?: string;
     onChange: (file: File | undefined) => void;
   }) => {
-    const fileInputRef = React.useRef<HTMLInputElement>(null);
-
-    const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      onChange(file);
-    };
+    const { getRootProps, getInputProps, isDragActive } = useDropzone({
+      onDrop: (acceptedFiles) => {
+        if (acceptedFiles.length > 0) {
+          onChange(acceptedFiles[0]);
+        }
+      },
+      accept: accept === "image/*,application/pdf" 
+        ? { 'image/*': [], 'application/pdf': [] }
+        : { 'image/*': [] },
+      maxFiles: 1,
+      multiple: false,
+    });
 
     const removeFile = () => {
       onChange(undefined);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
     };
 
     return (
       <div className="space-y-2">
-        <Label>{label}</Label>
+        <FormLabel>{label}</FormLabel>
         <p className="text-sm text-gray-600">{description}</p>
 
-        <div className="rounded-lg border-2 border-dashed border-gray-300 p-4 text-center transition-colors hover:border-gray-400">
-          <input
-            ref={fileInputRef}
-            type="file"
-            accept={accept}
-            onChange={handleFileSelect}
-            className="hidden"
-            id={`file-${label.replace(/\s+/g, "-").toLowerCase()}`}
-          />
+        <div
+          {...getRootProps()}
+          className={cn(
+            "rounded-lg border-2 border-dashed p-4 text-center transition-colors cursor-pointer",
+            isDragActive
+              ? "border-orange-500 bg-orange-50"
+              : "border-gray-300 hover:border-gray-400"
+          )}
+        >
+          <input {...getInputProps()} />
 
           {field.value ? (
             <div className="space-y-2">
@@ -160,7 +163,9 @@ const VerificationPage = () => {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={() => fileInputRef.current?.click()}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                  }}
                 >
                   <Upload className="mr-1 h-3 w-3" />
                   Replace
@@ -169,7 +174,10 @@ const VerificationPage = () => {
                   type="button"
                   variant="outline"
                   size="sm"
-                  onClick={removeFile}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeFile();
+                  }}
                 >
                   <X className="mr-1 h-3 w-3" />
                   Remove
@@ -178,17 +186,22 @@ const VerificationPage = () => {
             </div>
           ) : (
             <div className="space-y-2">
-              <FileImage className="mx-auto h-8 w-8 text-gray-400" />
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => fileInputRef.current?.click()}
-              >
-                <Upload className="mr-1 h-3 w-3" />
-                Upload File
-              </Button>
-              <p className="text-xs text-gray-500">Max size: 5MB</p>
+              {isDragActive ? (
+                <>
+                  <Upload className="mx-auto h-8 w-8 text-orange-600 animate-bounce" />
+                  <p className="text-sm font-medium text-orange-600">
+                    Drop file here...
+                  </p>
+                </>
+              ) : (
+                <>
+                  <FileImage className="mx-auto h-8 w-8 text-gray-400" />
+                  <p className="text-sm font-medium">
+                    Drag and drop file here, or click to select
+                  </p>
+                  <p className="text-xs text-gray-500">Max size: 5MB</p>
+                </>
+              )}
             </div>
           )}
         </div>
@@ -296,15 +309,12 @@ const VerificationPage = () => {
                   <h3 className="text-lg font-semibold">Required Documents</h3>
 
                   {/* Government ID Front */}
-                  
-
                   <FormField
                     control={form.control}
                     name="governmentIdFront"
                     render={({ field }) => (
                       <FormItem>
-                        <UploadDropzone control={field} />
-                        <FileUpload
+                        <DragDropFileUpload
                           field={field}
                           label="Government ID (Front Side)"
                           description="Upload a clear photo of the front side of your valid government ID"
@@ -322,7 +332,7 @@ const VerificationPage = () => {
                     name="governmentIdBack"
                     render={({ field }) => (
                       <FormItem>
-                        <FileUpload
+                        <DragDropFileUpload
                           field={field}
                           label="Government ID (Back Side)"
                           description="Upload a clear photo of the back side of your valid government ID"
@@ -340,7 +350,7 @@ const VerificationPage = () => {
                     name="proofOfResidency"
                     render={({ field }) => (
                       <FormItem>
-                        <FileUpload
+                        <DragDropFileUpload
                           field={field}
                           label="Proof of Residency"
                           description="Upload any document showing your current address (Utility Bill, Lease Contract, Certificate of Residency, etc.)"

@@ -1,6 +1,6 @@
-
 using MongoDB.Driver;
 using Microsoft.Extensions.Options;
+using DotNetEnv;
 
 namespace server.Services
 {
@@ -10,7 +10,15 @@ namespace server.Services
 
         public MongoDBContext(IOptions<MongoDBSettings> mongoSettings)
         {
-            var client = new MongoClient(mongoSettings.Value.ConnectionURI);
+            // Get value from environment variable (.env)
+            var connectionUri = Env.GetString(mongoSettings.Value.ConnectionURI);
+
+            if (string.IsNullOrEmpty(connectionUri))
+            {
+                throw new Exception($"Environment variable '{mongoSettings.Value.ConnectionURI}' is missing or empty.");
+            }
+
+            var client = new MongoClient(connectionUri);
             _database = client.GetDatabase(mongoSettings.Value.DatabaseName);
         }
 
