@@ -76,6 +76,9 @@ builder.Services.AddAuthentication(options =>
 
 builder.Services.AddAuthorization();
 
+// Register background services
+builder.Services.AddHostedService<AccountCleanupService>();
+
 var app = builder.Build();
 
 app.UseCors("_myAllowSpecificOrigins");

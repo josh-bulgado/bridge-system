@@ -187,14 +187,24 @@ export const VerifyOTPForm = ({
       const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
       const user = userStr ? JSON.parse(userStr) : null;
 
-      // Redirect to appropriate dashboard after 2 seconds
+      // If user is logged in, redirect to dashboard; otherwise redirect to sign-in
       setTimeout(() => {
-        if (user?.role === "admin") {
-          navigate("/admin");
-        } else if (user?.role === "staff") {
-          navigate("/staff");
+        if (user) {
+          // User is logged in - redirect to appropriate dashboard
+          if (user.role === "admin") {
+            navigate("/admin");
+          } else if (user.role === "staff") {
+            navigate("/staff");
+          } else {
+            navigate("/resident");
+          }
         } else {
-          navigate("/resident");
+          // User is not logged in - redirect to sign-in page after verification
+          navigate("/sign-in", {
+            state: {
+              message: "Email verified successfully! Please sign in to continue.",
+            },
+          });
         }
       }, 2000);
     } catch (error: any) {

@@ -1,9 +1,7 @@
 import { useLocation, useNavigate } from "react-router-dom";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
 import BridgeIcon from "@/components/bridge-icon";
-import { authService } from "../services/authService";
-import { toast } from "sonner";
 
 interface LocationState {
   email?: string;
@@ -16,8 +14,6 @@ export const EmailConfirmationPage = () => {
   const state = location.state as LocationState;
   const email = state?.email;
 
-  const [isSending, setIsSending] = useState(false);
-
   // Redirect to sign-in if no email is provided
   useEffect(() => {
     if (!email) {
@@ -25,26 +21,17 @@ export const EmailConfirmationPage = () => {
     }
   }, [email, navigate]);
 
-  const handleVerifyEmail = async () => {
+  const handleVerifyEmail = () => {
     if (!email) return;
 
-    setIsSending(true);
-    try {
-      await authService.resendOtp(email);
-      toast.success("Verification code sent to your email!");
-      
-      // Redirect to OTP verification page
-      navigate("/verify-otp", {
-        state: {
-          email: email,
-          message: "Enter the 6-digit code we sent to your email.",
-        },
-      });
-    } catch (error: any) {
-      toast.error(error.message || "Failed to send verification code");
-    } finally {
-      setIsSending(false);
-    }
+    // Don't resend OTP - it was already sent during registration
+    // Just redirect to OTP verification page
+    navigate("/verify-otp", {
+      state: {
+        email: email,
+        message: "Enter the 6-digit code we sent to your email.",
+      },
+    });
   };
 
   if (!email) return null;
@@ -61,8 +48,39 @@ export const EmailConfirmationPage = () => {
             Verify Your Email
           </h2>
           <p className="text-sm text-muted-foreground mt-4">
-            You have entered <span className="font-medium text-foreground">{email}</span> as the email address for your account. To verify your email, we will send a verification code to this address.
+            {state?.message || (
+              <>
+                You have entered <span className="font-medium text-foreground">{email}</span> as the email address for your account. To verify your email, we will send a verification code to this address.
+              </>
+            )}
           </p>
+        </div>
+
+        {/* Warning Alert */}
+        <div className="rounded-md border border-orange-200 bg-orange-50 p-4 dark:border-orange-900 dark:bg-orange-950">
+          <div className="flex items-start gap-3">
+            <svg
+              className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+              strokeWidth="2"
+            >
+              <path
+                strokeLinecap="round"
+                strokeLinejoin="round"
+                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
+              />
+            </svg>
+            <div className="flex-1 min-w-0">
+              <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
+                Verify within 3 days
+              </p>
+              <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
+                Your account will be automatically deleted if not verified within 3 days to keep our database clean.
+              </p>
+            </div>
+          </div>
         </div>
 
         {/* Email Display Card */}
@@ -93,51 +111,22 @@ export const EmailConfirmationPage = () => {
         {/* Verify Button */}
         <button
           onClick={handleVerifyEmail}
-          disabled={isSending}
           className="inline-flex h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
         >
-          {isSending ? (
-            <>
-              <svg
-                className="h-4 w-4 animate-spin"
-                xmlns="http://www.w3.org/2000/svg"
-                fill="none"
-                viewBox="0 0 24 24"
-              >
-                <circle
-                  className="opacity-25"
-                  cx="12"
-                  cy="12"
-                  r="10"
-                  stroke="currentColor"
-                  strokeWidth="4"
-                />
-                <path
-                  className="opacity-75"
-                  fill="currentColor"
-                  d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                />
-              </svg>
-              Sending code...
-            </>
-          ) : (
-            <>
-              <svg
-                className="h-4 w-4"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-                strokeWidth="2"
-              >
-                <path
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                  d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
-                />
-              </svg>
-              Verify Your Email
-            </>
-          )}
+          <svg
+            className="h-4 w-4"
+            fill="none"
+            stroke="currentColor"
+            viewBox="0 0 24 24"
+            strokeWidth="2"
+          >
+            <path
+              strokeLinecap="round"
+              strokeLinejoin="round"
+              d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
+            />
+          </svg>
+          Continue to Verification
         </button>
 
         {/* Back Link */}

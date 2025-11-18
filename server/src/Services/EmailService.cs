@@ -68,11 +68,19 @@ namespace server.Services
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PostAsync("emails", content);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+          var errorContent = await response.Content.ReadAsStringAsync();
+          Console.WriteLine($"Email sending failed. Status: {response.StatusCode}, Error: {errorContent}");
+        }
+        
         return response.IsSuccessStatusCode;
       }
       catch (Exception ex)
       {
         Console.WriteLine($"Error sending email: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
         return false;
       }
     }
@@ -81,6 +89,65 @@ namespace server.Services
     {
       var random = new Random();
       return random.Next(100000, 999999).ToString();
+    }
+
+    // Generic email sending method for reminders and notifications
+    public async Task<bool> SendEmailAsync(string toEmail, string subject, string htmlBody)
+    {
+      try
+      {
+        var emailData = new
+        {
+          from = $"{_fromName} <{_fromEmail}>",
+          to = new[] { toEmail },
+          subject = subject,
+          html = $@"
+<!DOCTYPE html>
+<html>
+<head>
+    <style>
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
+        .header {{ background-color: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
+        .content {{ background-color: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }}
+        .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #666; }}
+    </style>
+</head>
+<body>
+    <div class='container'>
+        <div class='header'>
+            <h1>🌉 Bridge System</h1>
+        </div>
+        <div class='content'>
+            {htmlBody}
+        </div>
+        <div class='footer'>
+            <p>&copy; 2025 Bridge System. All rights reserved.</p>
+        </div>
+    </div>
+</body>
+</html>"
+        };
+
+        var jsonContent = JsonSerializer.Serialize(emailData);
+        var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
+
+        var response = await _httpClient.PostAsync("emails", content);
+        
+        if (!response.IsSuccessStatusCode)
+        {
+          var errorContent = await response.Content.ReadAsStringAsync();
+          Console.WriteLine($"Email sending failed. Status: {response.StatusCode}, Error: {errorContent}");
+        }
+        
+        return response.IsSuccessStatusCode;
+      }
+      catch (Exception ex)
+      {
+        Console.WriteLine($"Error sending email: {ex.Message}");
+        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        return false;
+      }
     }
   }
 }

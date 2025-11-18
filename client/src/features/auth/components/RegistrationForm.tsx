@@ -3,7 +3,7 @@ import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
 
-import { StepPersonalInfo, StepContactInfo, StepSecuritySetup } from "./";
+import { StepPersonalInfo, StepSecuritySetup } from "./";
 
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
@@ -25,6 +25,7 @@ import StepContactInfo_New from "./StepContactInfo_New";
 export const RegistrationForm = () => {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
+  const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
 
   // TanStack Query + Axios hook
@@ -68,7 +69,7 @@ export const RegistrationForm = () => {
     step3Fields[2] &&
     step3Fields[0] === step3Fields[1]; // password === confirmPassword
 
-  // Handle successful registration
+  // Handle successful registration - redirect directly to email verification
   useEffect(() => {
     if (success && data) {
       // Clear any previous errors
@@ -77,14 +78,22 @@ export const RegistrationForm = () => {
       // Get the email from the form
       const registeredEmail = methods.getValues("email");
 
-      // Navigate to account created page
-      navigate("/account-created", {
+      // Navigate directly to email confirmation page for immediate verification
+      navigate("/email-confirmation", {
         state: {
           email: registeredEmail,
+          message: "Please verify your email to activate your account. Check your inbox for the verification code.",
         },
       });
     }
   }, [success, data, navigate, clearError, methods]);
+
+  // Reset isSubmitting when loading completes (success or error)
+  useEffect(() => {
+    if (!isLoading) {
+      setIsSubmitting(false);
+    }
+  }, [isLoading]);
 
   const nextStep = () => {
     if (step < 3) {
@@ -105,6 +114,13 @@ export const RegistrationForm = () => {
   };
 
   const onSubmit = (data: RegisterFormData) => {
+    // Prevent duplicate submissions
+    if (isSubmitting || isLoading) {
+      console.log("⚠️ Submission already in progress, ignoring duplicate call");
+      return;
+    }
+    
+    setIsSubmitting(true);
     clearError();
     register(data);
   };

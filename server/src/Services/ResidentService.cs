@@ -42,6 +42,10 @@ namespace server.Services
         public async Task RemoveAsync(string id) =>
             await _residents.DeleteOneAsync(x => x.Id == id);
 
+        // Delete resident (alias for compatibility)
+        public async Task DeleteAsync(string id) =>
+            await _residents.DeleteOneAsync(x => x.Id == id);
+
 
         // Search residents by name
         public async Task<List<Resident>> SearchByNameAsync(string searchTerm)

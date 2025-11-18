@@ -49,6 +49,31 @@ namespace server.Services
 
       return false;
     }
+
+    public async Task<List<User>> GetUnverifiedUsersOlderThan(DateTime cutoffDate)
+    {
+      var filter = Builders<User>.Filter.And(
+        Builders<User>.Filter.Eq(u => u.IsEmailVerified, false),
+        Builders<User>.Filter.Lt(u => u.CreatedAt, cutoffDate)
+      );
+      return await _users.Find(filter).ToListAsync();
+    }
+
+    public async Task<List<User>> GetUnverifiedUsersBetween(DateTime startDate, DateTime endDate)
+    {
+      var filter = Builders<User>.Filter.And(
+        Builders<User>.Filter.Eq(u => u.IsEmailVerified, false),
+        Builders<User>.Filter.Gte(u => u.CreatedAt, startDate),
+        Builders<User>.Filter.Lt(u => u.CreatedAt, endDate)
+      );
+      return await _users.Find(filter).ToListAsync();
+    }
+
+    public async Task<bool> DeleteUserByEmail(string email)
+    {
+      var result = await _users.DeleteOneAsync(u => u.Email == email);
+      return result.DeletedCount > 0;
+    }
   }
 
 

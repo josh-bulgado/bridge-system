@@ -8,7 +8,10 @@ export const useRegistration = () => {
 
   const mutation = useMutation({
     mutationFn: (data: RegisterFormData) => registrationApi.register(data), // ✅ uses your service directly
-
+    
+    // Prevent duplicate mutations
+    retry: false,
+    
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
       console.log("✅ Registration successful:", data);
