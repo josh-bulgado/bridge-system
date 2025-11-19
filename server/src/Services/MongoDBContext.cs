@@ -26,5 +26,7 @@ namespace server.Services
         {
             return _database.GetCollection<T>(name);
         }
+
+        public IMongoDatabase Database => _database;
     }
 }

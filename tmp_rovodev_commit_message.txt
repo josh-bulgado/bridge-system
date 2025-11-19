@@ -1,0 +1,39 @@
+feat(upload): implement MongoDB GridFS file upload system
+
+Backend:
+- Add FileStorageService with GridFS integration for MongoDB
+- Create FileUploadController with upload/download/delete endpoints
+- Implement file validation (5MB max, JPG/PNG/PDF only)
+- Store files in 1MB chunks with metadata (contentType, originalFileName)
+- Add JWT authentication for secure file access
+- Register FileStorageService in Program.cs
+
+Frontend:
+- Create custom drag-and-drop FileUploadZone component
+- Remove @better-upload dependency (now unused)
+- Implement native HTML5 drag-and-drop functionality
+- Add real-time upload progress indicators
+- Integrate file upload with VerificationPage form
+- Add toast notifications for upload success/errors
+- Support three upload fields (ID front, ID back, proof of residency)
+
+Features:
+- No external storage needed (S3, Azure Blob)
+- Files stored directly in MongoDB using GridFS
+- Automatic file replication with MongoDB
+- Visual feedback (idle, dragging, uploading, uploaded states)
+- One-click file removal
+- Full TypeScript type safety
+- RESTful API endpoints (/api/FileUpload)
+
+Storage:
+- Files chunked into 1MB pieces for efficient streaming
+- Metadata stored separately from file data
+- URL format: /api/FileUpload/{objectId}
+- Files can be downloaded via GET request
+- Admin/staff can delete files via DELETE request
+
+Documentation:
+- Add FILE_UPLOAD_SUMMARY.md with implementation details
+- Update UPLOAD_INTEGRATION_CHANGES.md with technical details
+- Include API response formats and testing checklists
