@@ -21,6 +21,8 @@ builder.Services.Configure<MongoDBSettings>(builder.Configuration.GetSection("Mo
 builder.Services.AddSingleton<MongoDBContext>();
 builder.Services.AddSingleton<ResidentService>();
 builder.Services.AddSingleton<UserService>();
+builder.Services.AddSingleton<DocumentRequestService>();
+builder.Services.AddSingleton<DocumentTypeService>();
 
 // 🟢 Bind JWT settings from configuration (.env or appsettings.json)
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));

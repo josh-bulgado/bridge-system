@@ -20,6 +20,9 @@ import DocumentGeneration from "./features/staff/pages/DocumentGeneration";
 import StaffSidebarDemo from "./features/staff/pages/StaffSidebarDemo";
 import { ErrorBoundary } from "./components/ui/error-boundary";
 import VerificationPage from "./features/resident/pages/VerificationPage";
+import NewRequestPage from "./features/resident/pages/NewRequestPage";
+import RequestsPage from "./features/resident/pages/RequestsPage";
+import RequestDetailsPage from "./features/resident/pages/RequestDetailsPage";
 
 const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
 
@@ -53,6 +56,9 @@ function App() {
             <Route path="/resident" element={<ResidentLayout />}>
               <Route index element={<ResidentDashboard />} />
               <Route path="verify" element={<VerificationPage />} />
+              <Route path="new-request" element={<NewRequestPage />} />
+              <Route path="requests" element={<RequestsPage />} />
+              <Route path="requests/:id" element={<RequestDetailsPage />} />
               {/* Add more resident routes here */}
             </Route>
 
