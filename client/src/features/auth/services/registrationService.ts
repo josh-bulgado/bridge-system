@@ -4,14 +4,14 @@ import type { RegisterFormData } from "../schemas/registerSchema";
 export const registrationApi = {
   register: (data: RegisterFormData) => {
     const serverData = {
-      firstName: data.firstName,
-      middleName: data.middleName,
-      lastName: data.lastName,
-      extension: data.extensionName, // Map extensionName to extension
-      dateOfBirth: data.dateOfBirth,
-      email: data.email,
-      contactNumber: data.contactNumber, // Map contactNumber to phoneNumber
-      password: data.password,
+      FirstName: data.firstName,
+      MiddleName: data.middleName || null,
+      LastName: data.lastName,
+      Extension: data.extensionName || null,
+      DateOfBirth: data.dateOfBirth,
+      Email: data.email,
+      ContactNumber: data.contactNumber,
+      Password: data.password,
     };
     return api.post("/auth/register", serverData).then((res) => res.data);
   },

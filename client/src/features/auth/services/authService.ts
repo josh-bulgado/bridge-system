@@ -34,8 +34,8 @@ class AuthService {
   async login(data: SignInFormData): Promise<LoginResponse> {
     try {
       const loginData = {
-        email: data.email,
-        password: data.password,
+        Email: data.email,
+        Password: data.password,
       };
 
       const { data: response } = await api.post<LoginResponse>(
@@ -88,7 +88,7 @@ class AuthService {
     try {
       const { data } = await api.post<{ message: string }>(
         `${this.baseUrl}/verify-email`,
-        { email, otp },
+        { Email: email, Otp: otp },
       );
       return data;
     } catch (error: any) {
@@ -103,7 +103,7 @@ class AuthService {
     try {
       const { data } = await api.post<{ message: string }>(
         `${this.baseUrl}/resend-otp`,
-        { email },
+        { Email: email },
       );
       return data;
     } catch (error: any) {
