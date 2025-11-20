@@ -20,13 +20,15 @@ import DocumentGeneration from "./features/staff/pages/DocumentGeneration";
 import StaffSidebarDemo from "./features/staff/pages/StaffSidebarDemo";
 import { ErrorBoundary } from "./components/ui/error-boundary";
 import VerificationPage from "./features/resident/pages/VerificationPage";
+import ResidentManagementPage from "./features/resident/pages/ResidentManagementPage";
+import StaffManagementPage from "./features/staff/pages/StaffManagementPage";
 
 const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
 
 function App() {
   return (
     <ErrorBoundary>
-      <BrowserRouter >
+      <BrowserRouter>
         <Suspense
           fallback={
             <div className="flex min-h-screen items-center justify-center">
@@ -45,7 +47,10 @@ function App() {
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/register" element={<RegisterPage />} />
             {/* AccountCreatedPage route removed - users go directly to email verification */}
-            <Route path="/email-confirmation" element={<EmailConfirmationPage />} />
+            <Route
+              path="/email-confirmation"
+              element={<EmailConfirmationPage />}
+            />
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
 
@@ -59,17 +64,28 @@ function App() {
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
+              <Route path="residents" element={<ResidentManagementPage />} />
+              <Route path="staff" element={<StaffManagementPage />} />
               {/* Add more admin routes here */}
             </Route>
 
             {/* Staff Routes */}
             <Route path="/staff" element={<StaffLayout />}>
               <Route index element={<StaffDashboard />} />
-              <Route path="payment-verification" element={<PaymentVerification />} />
-              <Route path="document-generation" element={<DocumentGeneration />} />
+              <Route
+                path="payment-verification"
+                element={<PaymentVerification />}
+              />
+              <Route
+                path="document-generation"
+                element={<DocumentGeneration />}
+              />
               <Route path="demo" element={<StatCardDemo />} />
               <Route path="request-demo" element={<RequestCardDemo />} />
-              <Route path="variants-demo" element={<RequestCardVariantsDemo />} />
+              <Route
+                path="variants-demo"
+                element={<RequestCardVariantsDemo />}
+              />
               <Route path="sidebar-demo" element={<StaffSidebarDemo />} />
               {/* Add more staff routes here */}
             </Route>
