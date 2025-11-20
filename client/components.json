@@ -20,7 +20,7 @@
   },
   "registries": {
     "@better-upload": "https://better-upload.com/r/{name}.json",
-    "@elements": "https://tryelements.dev/r/{name}.json"
-    
+    "@elements": "https://tryelements.dev/r/{name}.json",
+    "@blocks": "https://blocks.so/r/{name}.json"
   }
 }
