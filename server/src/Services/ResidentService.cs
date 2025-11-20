@@ -56,5 +56,44 @@ namespace server.Services
             );
             return await _residents.Find(filter).ToListAsync();
         }
+
+        // Submit verification request
+        public async Task<Resident?> SubmitVerificationAsync(string residentId, string streetPurok, string houseNumberUnit, 
+            string governmentIdFront, string governmentIdBack, string proofOfResidency)
+        {
+            var resident = await GetByIdAsync(residentId);
+            if (resident == null)
+                return null;
+
+            // Initialize address if null
+            if (resident.Address == null)
+            {
+                resident.Address = new Address();
+            }
+
+            // Update address information
+            resident.Address.StreetPurok = streetPurok;
+            resident.Address.HouseNumberUnit = houseNumberUnit;
+
+            // Update verification documents
+            resident.VerificationDocuments = new VerificationDocuments
+            {
+                GovernmentIdFront = governmentIdFront,
+                GovernmentIdBack = governmentIdBack,
+                ProofOfResidency = proofOfResidency,
+                SubmittedAt = DateTime.UtcNow
+            };
+
+            // Update verification status
+            resident.ResidentVerificationStatus = "Pending";
+            resident.LastUpdated = DateTime.UtcNow;
+
+            await UpdateAsync(residentId, resident);
+            return resident;
+        }
+
+        // Get resident by user ID
+        public async Task<Resident?> GetByUserIdAsync(string userId) =>
+            await _residents.Find(x => x.Id == userId).FirstOrDefaultAsync();
     }
 }

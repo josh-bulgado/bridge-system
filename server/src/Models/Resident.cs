@@ -96,6 +96,11 @@ namespace server.Models
         [BsonIgnoreIfNull]
         public Address? Address { get; set; }
 
+        // Verification Documents
+        [BsonElement("verificationDocuments")]
+        [BsonIgnoreIfNull]
+        public VerificationDocuments? VerificationDocuments { get; set; }
+
 
     }
 
@@ -115,5 +120,26 @@ namespace server.Models
 
         [BsonElement("zipCode")]
         public string? ZipCode { get; set; }
+
+        [BsonElement("streetPurok")]
+        public string? StreetPurok { get; set; }
+
+        [BsonElement("houseNumberUnit")]
+        public string? HouseNumberUnit { get; set; }
+    }
+
+    public class VerificationDocuments
+    {
+        [BsonElement("governmentIdFront")]
+        public string? GovernmentIdFront { get; set; }
+
+        [BsonElement("governmentIdBack")]
+        public string? GovernmentIdBack { get; set; }
+
+        [BsonElement("proofOfResidency")]
+        public string? ProofOfResidency { get; set; }
+
+        [BsonElement("submittedAt")]
+        public DateTime SubmittedAt { get; set; } = DateTime.UtcNow;
     }
 }

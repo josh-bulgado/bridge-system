@@ -51,7 +51,9 @@ const ResidentDashboard = () => {
 
   const handleStatClick = (stat: DashboardStat, index: number) => {
     // TODO: Navigate to specific stat details
+
     console.log("Stat clicked:", stat.title);
+    console.log("Stat index:", index);
   };
 
   const handleNewRequest = () => {
@@ -75,7 +77,7 @@ const ResidentDashboard = () => {
   };
 
   // Get the user's first name for the greeting
-  const firstName = user?.firstName || user?.email?.split('@')[0] || "Resident";
+  const firstName = user?.firstName || user?.email?.split("@")[0] || "Resident";
 
   return (
     <div className="space-y-6 px-4 lg:px-6">
