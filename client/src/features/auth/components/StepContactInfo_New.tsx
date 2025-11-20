@@ -68,6 +68,7 @@ const StepContactInfo_New = () => {
                   </Badge>
                 )}
               </FormLabel>
+
               <FormControl>
                 <div className="relative">
                   <Input
@@ -89,7 +90,7 @@ const StepContactInfo_New = () => {
                   )}
                 </div>
               </FormControl>
-              {emailFocused && !email && (
+              {emailFocused && (
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
@@ -155,7 +156,7 @@ const StepContactInfo_New = () => {
                   )}
                 </div>
               </FormControl>
-              {phoneFocused && !contactNumber && (
+              {phoneFocused && (
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>

@@ -48,6 +48,7 @@ class AuthService {
       const storage = data.rememberMe ? localStorage : sessionStorage;
       storage.setItem("user", JSON.stringify(response.user));
       storage.setItem("auth_token", response.token);
+      console.log(storage);
 
       return response;
     } catch (error: Error | any) {
@@ -65,10 +66,11 @@ class AuthService {
   }
 
   // Get current user from storage
-  getCurrentUser(): LoginResponse {
+  getCurrentUser(): LoginResponse | null {
     try {
       const userData =
         localStorage.getItem("user") || sessionStorage.getItem("user");
+      console.log("AuthService getCurrentUser userData =", userData);
       return userData ? JSON.parse(userData) : null;
     } catch {
       return null;
@@ -84,12 +86,23 @@ class AuthService {
   }
 
   // Verify email with OTP
-  async verifyEmail(email: string, otp: string): Promise<{ message: string }> {
+  async verifyEmail(
+    email: string,
+    otp: string,
+  ): Promise<LoginResponse & { message: string }> {
     try {
-      const { data } = await api.post<{ message: string }>(
+      const { data } = await api.post<LoginResponse & { message: string }>(
         `${this.baseUrl}/verify-email`,
         { Email: email, Otp: otp },
       );
+
+      // Automatically store user data and token after successful verification
+      if (data.token && data.user) {
+        // Store in localStorage by default (user just verified, likely wants to stay logged in)
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("auth_token", data.token);
+      }
+
       return data;
     } catch (error: any) {
       const errorMessage =

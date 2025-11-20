@@ -14,3 +14,9 @@ export { RegistrationFeaturesList } from "./RegistrationFeaturesList";
 // Verification components
 export { VerifyOTPForm } from "./VerifyOTPForm";
 export { VerificationFeaturesList } from "./VerificationFeaturesList";
+
+// OTP Components (New modular components)
+export { OtpInputField } from "./OtpInputField";
+export { OtpTimer } from "./OtpTimer";
+export { OtpSuccessView } from "./OtpSuccessView";
+export { OtpErrorMessage } from "./OtpErrorMessage";

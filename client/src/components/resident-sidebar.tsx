@@ -61,6 +61,7 @@ const navSecondaryItems = [
 export function ResidentSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  
   const { data: user } = useAuth();
   console.log("ResidentSidebar user =", user);
 
