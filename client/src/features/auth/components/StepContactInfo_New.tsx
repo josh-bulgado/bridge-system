@@ -12,10 +12,17 @@ import { Input } from "@/components/ui/input";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 
 const StepContactInfo_New = () => {
-  const { control, formState: { errors } } = useFormContext();
+  const {
+    control,
+    formState: { errors },
+  } = useFormContext();
   const [emailFocused, setEmailFocused] = useState(false);
   const [phoneFocused, setPhoneFocused] = useState(false);
 
@@ -49,12 +56,14 @@ const StepContactInfo_New = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center gap-2">
-                <Mail className="h-4 w-4" />
                 Email Address
                 <span className="text-red-500">*</span>
                 {email && isValidEmail(email) && (
-                  <Badge variant="secondary" className="text-green-600 bg-green-50 border-green-200">
-                    <Check className="h-3 w-3 mr-1" />
+                  <Badge
+                    variant="secondary"
+                    className="border-green-200 bg-green-50 text-green-600"
+                  >
+                    <Check className="mr-1 h-3 w-3" />
                     Valid
                   </Badge>
                 )}
@@ -65,7 +74,7 @@ const StepContactInfo_New = () => {
                     {...field}
                     type="email"
                     placeholder="your.email@example.com"
-                    className={`pl-10 h-10 ${email && isValidEmail(email) ? 'border-green-300 focus:border-green-500' : ''}`}
+                    className={`h-10 pl-10 ${email && isValidEmail(email) ? "border-green-300 focus:border-green-500" : ""}`}
                     onFocus={() => setEmailFocused(true)}
                     onBlur={() => setEmailFocused(false)}
                     onInput={(e) => {
@@ -74,9 +83,9 @@ const StepContactInfo_New = () => {
                       field.onChange(value);
                     }}
                   />
-                  <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                   {email && isValidEmail(email) && (
-                    <Check className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-600" />
+                    <Check className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-green-600" />
                   )}
                 </div>
               </FormControl>
@@ -84,7 +93,8 @@ const StepContactInfo_New = () => {
                 <Alert>
                   <Info className="h-4 w-4" />
                   <AlertDescription>
-                    Enter a valid email address for account verification and important notifications
+                    Enter a valid email address for account verification and
+                    important notifications
                   </AlertDescription>
                 </Alert>
               )}
@@ -100,20 +110,22 @@ const StepContactInfo_New = () => {
           render={({ field }) => (
             <FormItem>
               <FormLabel className="flex items-center gap-2">
-                <Phone className="h-4 w-4" />
                 Phone Number
                 <span className="text-red-500">*</span>
                 <Tooltip>
                   <TooltipTrigger>
-                    <Info className="h-4 w-4 text-muted-foreground" />
+                    <Info className="text-muted-foreground h-4 w-4" />
                   </TooltipTrigger>
                   <TooltipContent>
                     <p>Used for resident directory and emergency contact</p>
                   </TooltipContent>
                 </Tooltip>
                 {contactNumber && isValidPhone(contactNumber) && (
-                  <Badge variant="secondary" className="text-green-600 bg-green-50 border-green-200">
-                    <Check className="h-3 w-3 mr-1" />
+                  <Badge
+                    variant="secondary"
+                    className="border-green-200 bg-green-50 text-green-600"
+                  >
+                    <Check className="mr-1 h-3 w-3" />
                     Valid
                   </Badge>
                 )}
@@ -124,7 +136,7 @@ const StepContactInfo_New = () => {
                     {...field}
                     type="tel"
                     placeholder="09123456789"
-                    className={`pl-10 h-10 ${contactNumber && isValidPhone(contactNumber) ? 'border-green-300 focus:border-green-500' : ''}`}
+                    className={`h-10 pl-10 ${contactNumber && isValidPhone(contactNumber) ? "border-green-300 focus:border-green-500" : ""}`}
                     onFocus={() => setPhoneFocused(true)}
                     onBlur={() => setPhoneFocused(false)}
                     onInput={(e) => {
@@ -137,9 +149,9 @@ const StepContactInfo_New = () => {
                     }}
                     maxLength={11}
                   />
-                  <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Phone className="text-muted-foreground absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 transform" />
                   {contactNumber && isValidPhone(contactNumber) && (
-                    <Check className="absolute right-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-green-600" />
+                    <Check className="absolute top-1/2 right-3 h-4 w-4 -translate-y-1/2 transform text-green-600" />
                   )}
                 </div>
               </FormControl>

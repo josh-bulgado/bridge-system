@@ -13,9 +13,9 @@ namespace server.Services
 
     public EmailService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
-      _apiKey = configuration["Resend:ApiKey"] ?? throw new ArgumentNullException("Resend:ApiKey");
-      _fromEmail = configuration["Resend:FromEmail"] ?? "onboarding@resend.dev";
-      _fromName = configuration["Resend:FromName"] ?? "Bridge System";
+      _apiKey = configuration["RESEND_API_KEY"] ?? throw new ArgumentNullException("RESEND_API_KEY is not configured.");
+      _fromEmail = configuration["RESEND_FROM_EMAIL"] ?? "onboarding@resend.dev";
+      _fromName = configuration["RESEND_FROM_NAME"] ?? "Bridge System";
 
       _httpClient = httpClientFactory.CreateClient();
       _httpClient.BaseAddress = new Uri("https://api.resend.com/");
@@ -36,18 +36,18 @@ namespace server.Services
 <html>
 <head>
     <style>
-        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #262626; }}
         .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-        .header {{ background-color: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
-        .content {{ background-color: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }}
-        .otp-code {{ font-size: 32px; font-weight: bold; color: #4F46E5; text-align: center; letter-spacing: 8px; padding: 20px; background-color: white; border-radius: 8px; margin: 20px 0; }}
-        .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #666; }}
+        .header {{ background-color: #22c55e; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
+        .content {{ background-color: #fafafa; padding: 30px; border-radius: 0 0 8px 8px; }}
+        .otp-code {{ font-size: 32px; font-weight: bold; color: #22c55e; text-align: center; letter-spacing: 8px; padding: 20px; background-color: white; border-radius: 8px; margin: 20px 0; }}
+        .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #737373; }}
     </style>
 </head>
 <body>
     <div class='container'>
         <div class='header'>
-            <h1>🌉 Bridge System</h1>
+            <h1>bridge</h1>
         </div>
         <div class='content'>
             <h2>Welcome to Bridge System!</h2>
@@ -68,13 +68,13 @@ namespace server.Services
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PostAsync("emails", content);
-        
+
         if (!response.IsSuccessStatusCode)
         {
           var errorContent = await response.Content.ReadAsStringAsync();
           Console.WriteLine($"Email sending failed. Status: {response.StatusCode}, Error: {errorContent}");
         }
-        
+
         return response.IsSuccessStatusCode;
       }
       catch (Exception ex)
@@ -106,17 +106,17 @@ namespace server.Services
 <html>
 <head>
     <style>
-        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #333; }}
+        body {{ font-family: Arial, sans-serif; line-height: 1.6; color: #262626; }}
         .container {{ max-width: 600px; margin: 0 auto; padding: 20px; }}
-        .header {{ background-color: #4F46E5; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
-        .content {{ background-color: #f9f9f9; padding: 30px; border-radius: 0 0 8px 8px; }}
-        .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #666; }}
+        .header {{ background-color: #22c55e; color: white; padding: 20px; text-align: center; border-radius: 8px 8px 0 0; }}
+        .content {{ background-color: #fafafa; padding: 30px; border-radius: 0 0 8px 8px; }}
+        .footer {{ text-align: center; margin-top: 20px; font-size: 12px; color: #737373; }}
     </style>
 </head>
 <body>
     <div class='container'>
         <div class='header'>
-            <h1>🌉 Bridge System</h1>
+            <h1>Bridge System</h1>
         </div>
         <div class='content'>
             {htmlBody}
@@ -133,13 +133,13 @@ namespace server.Services
         var content = new StringContent(jsonContent, Encoding.UTF8, "application/json");
 
         var response = await _httpClient.PostAsync("emails", content);
-        
+
         if (!response.IsSuccessStatusCode)
         {
           var errorContent = await response.Content.ReadAsStringAsync();
           Console.WriteLine($"Email sending failed. Status: {response.StatusCode}, Error: {errorContent}");
         }
-        
+
         return response.IsSuccessStatusCode;
       }
       catch (Exception ex)

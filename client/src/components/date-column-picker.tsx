@@ -1,6 +1,12 @@
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 // import { Calendar, ChevronDown } from "lucide-react";
@@ -12,8 +18,18 @@ interface DateColumnPickerProps {
 }
 
 const months = [
-  "January", "February", "March", "April", "May", "June",
-  "July", "August", "September", "October", "November", "December"
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
 ];
 
 // Helper function to get the number of days in a month
@@ -26,15 +42,23 @@ const generateArray = (start: number, end: number) => {
   return Array.from({ length: end - start + 1 }, (_, i) => start + i);
 };
 
-export function DateColumnPicker({ value, onDateChange, className }: DateColumnPickerProps) {
+export function DateColumnPicker({
+  value,
+  onDateChange,
+  className,
+}: DateColumnPickerProps) {
   const currentYear = new Date().getFullYear();
   const minYear = currentYear - 100; // Allow ages up to 100
-  const maxYear = currentYear - 13;   // Minimum age of 13
+  const maxYear = currentYear - 13; // Minimum age of 13
 
   // Initialize state from value prop
-  const [selectedMonth, setSelectedMonth] = useState(value ? value.getMonth() : 0);
+  const [selectedMonth, setSelectedMonth] = useState(
+    value ? value.getMonth() : 0,
+  );
   const [selectedDay, setSelectedDay] = useState(value ? value.getDate() : 1);
-  const [selectedYear, setSelectedYear] = useState(value ? value.getFullYear() : maxYear);
+  const [selectedYear, setSelectedYear] = useState(
+    value ? value.getFullYear() : maxYear,
+  );
 
   // Update state when value prop changes
   useEffect(() => {
@@ -92,8 +116,11 @@ export function DateColumnPicker({ value, onDateChange, className }: DateColumnP
       <div className="flex gap-3">
         {/* Month Select */}
         <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium text-foreground">Month</label>
-          <Select value={selectedMonth.toString()} onValueChange={handleMonthChange}>
+          <label className="text-foreground text-sm font-medium">Month</label>
+          <Select
+            value={selectedMonth.toString()}
+            onValueChange={handleMonthChange}
+          >
             <SelectTrigger className="h-10">
               <SelectValue placeholder="Month" />
             </SelectTrigger>
@@ -109,8 +136,11 @@ export function DateColumnPicker({ value, onDateChange, className }: DateColumnP
 
         {/* Day Select */}
         <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium text-foreground">Day</label>
-          <Select value={selectedDay.toString()} onValueChange={handleDayChange}>
+          <label className="text-foreground text-sm font-medium">Day</label>
+          <Select
+            value={selectedDay.toString()}
+            onValueChange={handleDayChange}
+          >
             <SelectTrigger className="h-10">
               <SelectValue placeholder="Day" />
             </SelectTrigger>
@@ -126,8 +156,11 @@ export function DateColumnPicker({ value, onDateChange, className }: DateColumnP
 
         {/* Year Select */}
         <div className="flex-1 space-y-2">
-          <label className="text-sm font-medium text-foreground">Year</label>
-          <Select value={selectedYear.toString()} onValueChange={handleYearChange}>
+          <label className="text-foreground text-sm font-medium">Year</label>
+          <Select
+            value={selectedYear.toString()}
+            onValueChange={handleYearChange}
+          >
             <SelectTrigger className="h-10">
               <SelectValue placeholder="Year" />
             </SelectTrigger>

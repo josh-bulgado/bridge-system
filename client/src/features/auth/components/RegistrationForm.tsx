@@ -2,9 +2,6 @@ import { useState, useEffect } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
-
-import { StepPersonalInfo, StepSecuritySetup } from "./";
-
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
 import {
@@ -12,26 +9,21 @@ import {
   type RegisterFormData,
 } from "../schemas/registerSchema";
 import { useRegistration } from "../hooks/useRegistration";
-
-import { FieldDescription, FieldGroup } from "@/components/ui/field";
-import { Badge } from "@/components/ui/badge";
 import { Progress } from "@/components/ui/progress";
-import { Lock, Mail, User } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check } from "lucide-react";
 import { Spinner } from "@/components/ui/spinner";
+import StepPersonalInfo from "./StepPersonalInfo";
 import StepContactInfo_New from "./StepContactInfo_New";
-// import { Alert, AlertDescription } from "@/components/ui/alert";
-// import { CheckCircle, User, Mail, ArrowLeft, ArrowRight, AlertCircle } from "lucide-react";
+import StepSecuritySetup from "./StepSecuritySetup";
+import { FieldGroup, FieldDescription } from "@/components/ui/field";
 
 export const RegistrationForm = () => {
   const [step, setStep] = useState(1);
   const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
-
-  // TanStack Query + Axios hook
   const { register, isLoading, error, success, data, clearError } =
     useRegistration();
-
   const methods = useForm<RegisterFormData>({
     resolver: zodResolver(registerSchema),
     defaultValues: {
@@ -48,58 +40,45 @@ export const RegistrationForm = () => {
     },
     mode: "onBlur",
   });
-
   const { watch } = methods;
 
-  // Watch required fields for each step
-  const step1Fields = watch(["firstName", "lastName", "dateOfBirth"]);
-  const step2Fields = watch(["contactNumber", "email"]);
-  const step3Fields = watch(["password", "confirmPassword", "agreeToTerms"]);
+  const stepFields = [
+    watch(["firstName", "lastName", "dateOfBirth"]),
+    watch(["contactNumber", "email"]),
+    watch(["password", "confirmPassword", "agreeToTerms"]),
+  ];
 
-  // Check if step 1 required fields are filled
-  const isStep1Valid = step1Fields[0] && step1Fields[1] && step1Fields[2];
-
-  // Check if step 2 required fields are filled
-  const isStep2Valid = step2Fields[0] && step2Fields[1];
-
-  // Check if step 3 required fields are filled and passwords match
-  const isStep3Valid =
-    step3Fields[0] &&
-    step3Fields[1] &&
-    step3Fields[2] &&
-    step3Fields[0] === step3Fields[1]; // password === confirmPassword
+  // Validation checks for each step
+  const isStepValid = (stepIndex: number) => {
+    const fields = stepFields[stepIndex];
+    if (stepIndex === 2)
+      return fields[0] && fields[1] && fields[2] && fields[0] === fields[1]; // password match
+    return fields.every((field) => field); // for other steps, check if all fields are filled
+  };
 
   // Handle successful registration - redirect directly to email verification
   useEffect(() => {
     if (success && data) {
-      // Clear any previous errors
       clearError();
-
-      // Get the email from the form
       const registeredEmail = methods.getValues("email");
-
-      // Navigate directly to email confirmation page for immediate verification
       navigate("/email-confirmation", {
         state: {
           email: registeredEmail,
-          message: "Please verify your email to activate your account. Check your inbox for the verification code.",
+          message: "Please verify your email to activate your account.",
         },
       });
     }
   }, [success, data, navigate, clearError, methods]);
 
-  // Reset isSubmitting when loading completes (success or error)
+  // Reset isSubmitting when loading completes
   useEffect(() => {
-    if (!isLoading) {
-      setIsSubmitting(false);
-    }
+    if (!isLoading) setIsSubmitting(false);
   }, [isLoading]);
 
   const nextStep = () => {
     if (step < 3) {
       setDirection("forward");
       setStep(step + 1);
-      // Scroll to top smoothly
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
@@ -108,25 +87,50 @@ export const RegistrationForm = () => {
     if (step > 1) {
       setDirection("backward");
       setStep(step - 1);
-      // Scroll to top smoothly
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
   };
 
   const onSubmit = (data: RegisterFormData) => {
-    // Prevent duplicate submissions
-    if (isSubmitting || isLoading) {
-      console.log("⚠️ Submission already in progress, ignoring duplicate call");
-      return;
-    }
-    
+    if (isSubmitting || isLoading) return;
     setIsSubmitting(true);
     clearError();
+    console.log("Submitting registration with data:", data);
     register(data);
   };
 
+  // Handle Enter key press for navigation
+  const handleKeyPress = (e: KeyboardEvent) => {
+    if (e.key === "Enter" && !isLoading) {
+      if (step < 3 && isStepValid(step - 1)) {
+        nextStep();
+      } else if (step === 3 && isStepValid(2)) {
+        methods.handleSubmit(onSubmit)();
+      }
+    }
+  };
+
+  useEffect(() => {
+    window.addEventListener("keydown", handleKeyPress);
+    return () => {
+      window.removeEventListener("keydown", handleKeyPress);
+    };
+  }, [step, isLoading, isSubmitting]);
+
+  // Common Button Component
+  const StepButton = ({ type, onClick, disabled, children }) => (
+    <Button
+      type={type}
+      onClick={onClick}
+      disabled={disabled}
+      className="ml-auto flex items-center gap-2 transition-all hover:scale-105"
+    >
+      {children}
+    </Button>
+  );
+
   return (
-    <div className="flex flex-col gap-3 rounded-xl max-w-xl lg:rounded-none lg:border-none lg:shadow-none">
+    <div className="flex w-full max-w-xl flex-col gap-3 rounded-xl lg:rounded-none lg:border-none lg:shadow-none">
       <FormProvider {...methods}>
         <form onSubmit={methods.handleSubmit(onSubmit)} className="p-4 md:p-6">
           <div className="mb-4 flex flex-col gap-3">
@@ -134,68 +138,40 @@ export const RegistrationForm = () => {
               <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight">
                 Create account
               </h2>
-              <Badge variant="outline" className="flex items-center gap-1">
-                {step === 1 ? <User /> : step === 2 ? <Mail /> : <Lock />}
-                Step {step} of 3
-              </Badge>
             </div>
 
-            {/* Progress Bar */}
-            <div className="space-y-1">
-              <Progress
-                value={(step / 3) * 100}
-                className="h-2 transition-all duration-500 ease-in-out"
-              />
-              <div className="text-muted-foreground flex justify-between text-xs">
-                <span
-                  className={`transition-colors duration-300 ${step >= 1 ? "text-primary font-medium" : ""}`}
-                >
-                  {step > 1 && "✓ "}Personal Info
-                </span>
-                <span
-                  className={`transition-colors duration-300 ${step >= 2 ? "text-primary font-medium" : ""}`}
-                >
-                  {step > 2 && "✓ "}Contact Info
-                </span>
-                <span
-                  className={`transition-colors duration-300 ${step >= 3 ? "text-primary font-medium" : ""}`}
-                >
-                  Security Setup
-                </span>
-              </div>
+            <Progress
+              value={(step / 3) * 100}
+              className="h-2 transition-all duration-500 ease-in-out"
+            />
+
+            <div className="text-muted-foreground flex justify-between text-xs">
+              <span
+                className={`${step >= 1 ? "text-primary font-medium" : ""}`}
+              >
+                Personal Info
+              </span>
+              <span
+                className={`${step >= 2 ? "text-primary font-medium" : ""}`}
+              >
+                Contact Info
+              </span>
+              <span
+                className={`${step >= 3 ? "text-primary font-medium" : ""}`}
+              >
+                Security Setup
+              </span>
             </div>
           </div>
 
           <div className="relative min-h-[400px]">
-            {step === 1 && (
-              <div
-                key="step-1"
-                className={`animate-in fade-in ${direction === "forward" ? "slide-in-from-right-4" : "slide-in-from-left-4"} duration-300`}
-              >
-                <StepPersonalInfo />
-              </div>
-            )}
-            {step === 2 && (
-              <div
-                key="step-2"
-                className={`animate-in fade-in ${direction === "forward" ? "slide-in-from-right-4" : "slide-in-from-left-4"} duration-300`}
-              >
-                <StepContactInfo_New />
-              </div>
-            )}
-            {step === 3 && (
-              <div
-                key="step-3"
-                className={`animate-in fade-in ${direction === "forward" ? "slide-in-from-right-4" : "slide-in-from-left-4"} duration-300`}
-              >
-                <StepSecuritySetup />
-              </div>
-            )}
+            {step === 1 && <StepPersonalInfo />}
+            {step === 2 && <StepContactInfo_New />}
+            {step === 3 && <StepSecuritySetup />}
           </div>
 
-          {/* Error Message Display */}
           {error && (
-            <div className="animate-in fade-in slide-in-from-top-2 my-4 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-4 duration-300">
+            <div className="my-4 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-4">
               <span className="text-red-600">⚠️</span>
               <p className="text-sm text-red-600">{error}</p>
             </div>
@@ -203,42 +179,24 @@ export const RegistrationForm = () => {
 
           <div className="my-6 flex items-center justify-between gap-4">
             {step > 1 && (
-              <Button
-                type="button"
-                variant="outline"
-                onClick={prevStep}
-                disabled={isLoading}
-                className="flex items-center gap-2 transition-all hover:scale-105"
-              >
-                ← Back
-              </Button>
+              <StepButton type="button" onClick={prevStep} disabled={isLoading}>
+                <ArrowLeft /> Back
+              </StepButton>
             )}
 
-            {step === 1 ? (
-              <Button
+            {step < 3 ? (
+              <StepButton
                 type="button"
-                className="ml-auto flex items-center gap-2 transition-all hover:scale-105"
                 onClick={nextStep}
-                variant="default"
-                disabled={!isStep1Valid || isLoading}
+                disabled={!isStepValid(step - 1) || isLoading}
               >
-                Next →
-              </Button>
-            ) : step === 2 ? (
-              <Button
-                type="button"
-                className="ml-auto flex items-center gap-2 transition-all hover:scale-105"
-                onClick={nextStep}
-                variant="default"
-                disabled={!isStep2Valid || isLoading}
-              >
-                Next →
-              </Button>
+                Next <ArrowRight size={16} />
+              </StepButton>
             ) : (
-              <Button
+              <StepButton
                 type="submit"
-                className="ml-auto flex items-center gap-2 bg-green-600 transition-all hover:scale-105 hover:bg-green-700 hover:shadow-lg"
-                disabled={!isStep3Valid || isLoading}
+                onClick={nextStep}
+                disabled={!isStepValid(2) || isLoading}
               >
                 {isLoading ? (
                   <>
@@ -246,11 +204,14 @@ export const RegistrationForm = () => {
                     Creating Account...
                   </>
                 ) : (
-                  <>✓ Create Account</>
+                  <>
+                    <Check /> Create Account
+                  </>
                 )}
-              </Button>
+              </StepButton>
             )}
           </div>
+
           <FieldGroup>
             <FieldDescription className="text-center">
               Already have an account? <Link to="/sign-in">Sign in</Link>
