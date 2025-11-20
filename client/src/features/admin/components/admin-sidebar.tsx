@@ -1,20 +1,14 @@
 import * as React from "react";
 import {
-  IconCamera,
   IconChartBar,
   IconDashboard,
   IconDatabase,
-  IconFileAi,
-  IconFileDescription,
   IconFileWord,
-  IconFolder,
   IconHelp,
   IconInnerShadowTop,
-  IconListDetails,
   IconReport,
   IconSearch,
   IconSettings,
-  IconUsers,
 } from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
@@ -30,6 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
+import { UserCheck, Users } from "lucide-react";
 
 const adminData = {
   user: {
@@ -44,72 +39,19 @@ const adminData = {
       icon: IconDashboard,
     },
     {
-      title: "Lifecycle",
-      url: "/admin/lifecycle",
-      icon: IconListDetails,
+      title: "Resident Management",
+      url: "/admin/residents",
+      icon: Users,
+    },
+    {
+      title: "Staff Management",
+      url: "/admin/staff",
+      icon: UserCheck,
     },
     {
       title: "Analytics",
       url: "/admin/analytics",
       icon: IconChartBar,
-    },
-    {
-      title: "Projects",
-      url: "/admin/projects",
-      icon: IconFolder,
-    },
-    {
-      title: "Team",
-      url: "/admin/team",
-      icon: IconUsers,
-    },
-  ],
-  navClouds: [
-    {
-      title: "Capture",
-      icon: IconCamera,
-      isActive: true,
-      url: "/admin/capture",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/capture/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/capture/archived",
-        },
-      ],
-    },
-    {
-      title: "Proposal",
-      icon: IconFileDescription,
-      url: "/admin/proposals",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/proposals/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/proposals/archived",
-        },
-      ],
-    },
-    {
-      title: "Prompts",
-      icon: IconFileAi,
-      url: "/admin/prompts",
-      items: [
-        {
-          title: "Active Proposals",
-          url: "/admin/prompts/active",
-        },
-        {
-          title: "Archived",
-          url: "/admin/prompts/archived",
-        },
-      ],
     },
   ],
   navSecondary: [
@@ -158,7 +100,7 @@ export function AdminSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="/admin">
                 <IconInnerShadowTop size={5} />
