@@ -1,15 +1,4 @@
 import * as React from "react";
-import {
-  IconChartBar,
-  IconDashboard,
-  IconDatabase,
-  IconFileWord,
-  IconHelp,
-  IconInnerShadowTop,
-  IconReport,
-  IconSearch,
-  IconSettings,
-} from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
@@ -24,7 +13,17 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { UserCheck, Users, Settings2 } from "lucide-react";
+import {
+  UserCheck,
+  Users,
+  Settings2,
+  Settings,
+  HelpCircle,
+  Search,
+  Database,
+  Home,
+} from "lucide-react";
+import { IconInnerShadowTop } from "@tabler/icons-react";
 
 const adminData = {
   user: {
@@ -36,7 +35,7 @@ const adminData = {
     {
       title: "Dashboard",
       url: "/admin",
-      icon: IconDashboard,
+      icon: Home,
     },
     {
       title: "Resident Management",
@@ -49,10 +48,15 @@ const adminData = {
       icon: UserCheck,
     },
     {
-      title: "Analytics",
-      url: "/admin/analytics",
-      icon: IconChartBar,
+      title: "Document Configuration",
+      url: "/admin/config/document",
+      icon: Settings2,
     },
+    // {
+    //   title: "Analytics",
+    //   url: "/admin/analytics",
+    //   icon: IconChartBar,
+    // },
     {
       title: "Barangay Configuration",
       url: "/admin/config/barangay",
@@ -63,34 +67,24 @@ const adminData = {
     {
       title: "Settings",
       url: "/admin/settings",
-      icon: IconSettings,
+      icon: Settings,
     },
     {
       title: "Get Help",
       url: "/admin/help",
-      icon: IconHelp,
+      icon: HelpCircle,
     },
     {
       title: "Search",
       url: "/admin/search",
-      icon: IconSearch,
+      icon: Search,
     },
   ],
   documents: [
     {
       name: "Data Library",
       url: "/admin/data-library",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "/admin/reports",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "/admin/word-assistant",
-      icon: IconFileWord,
+      icon: Database,
     },
   ],
 };

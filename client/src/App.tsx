@@ -24,6 +24,7 @@ import VerificationPage from "./features/resident/pages/VerificationPage";
 import ResidentManagementPage from "./features/resident/pages/ResidentManagementPage";
 import StaffManagementPage from "./features/staff/pages/StaffManagementPage";
 import BarangayConfigPage from "./features/admin/pages/BarangayConfigPage";
+import DocumentManagementPage from "./features/document/pages/DocumentManagementPage";
 
 const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
 
@@ -70,6 +71,10 @@ function App() {
               <Route path="residents" element={<ResidentManagementPage />} />
               <Route path="staff" element={<StaffManagementPage />} />
               <Route path="config/barangay" element={<BarangayConfigPage />} />
+              <Route
+                path="config/document"
+                element={<DocumentManagementPage />}
+              />
               {/* Add more admin routes here */}
             </Route>
 
