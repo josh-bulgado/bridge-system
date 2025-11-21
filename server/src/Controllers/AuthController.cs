@@ -230,18 +230,14 @@ namespace server.Controllers
       #endif
       
       // 🔒 Security: Add cache headers to prevent response caching
-      Response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate");
-      Response.Headers.Add("Pragma", "no-cache");
-      Response.Headers.Add("Expires", "0");
-      
-      // 🔒 Security: Add security headers
-      Response.Headers.Add("X-Content-Type-Options", "nosniff");
-      Response.Headers.Add("X-Frame-Options", "DENY");
+      Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
+      Response.Headers["Pragma"] = "no-cache";
+      Response.Headers["Expires"] = "0";
       
       // 🔒 Security: Add rate limit information to response headers (for debugging)
       #if DEBUG
-      Response.Headers.Add("X-Rate-Limit-Remaining", "10");
-      Response.Headers.Add("X-Rate-Limit-Window", "60");
+      Response.Headers["X-Rate-Limit-Remaining"] = "10";
+      Response.Headers["X-Rate-Limit-Window"] = "60";
       #endif
       
       return Ok(new { available = existingUser == null });
