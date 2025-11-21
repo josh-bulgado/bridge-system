@@ -7,26 +7,12 @@ import {
   barangays,
 } from "select-philippines-address";
 import { toast } from "sonner";
-
-export interface BarangayConfigData {
-  name: string;
-  address: {
-    region: string;
-    regionCode: string;
-    province: string;
-    provinceCode: string;
-    municipality: string;
-    municipalityCode: string;
-    barangay: string;
-    barangayCode: string;
-    street: string;
-  };
-  contact: {
-    phone: string;
-    email: string;
-  };
-  officeHours: string;
-}
+import {
+  barangayConfigSchema,
+  type BarangayConfigFormData,
+} from "../schemas/barangayConfigSchema";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { barangayConfigService } from "../services/configService";
 
 export interface AddressOption {
   code: string;
@@ -35,19 +21,18 @@ export interface AddressOption {
 
 export const useBarangayConfig = () => {
   // Form management
-  const form = useForm<BarangayConfigData>({
+  const form = useForm<BarangayConfigFormData>({
+    resolver: zodResolver(barangayConfigSchema),
     defaultValues: {
-      name: "",
       address: {
-        region: "",
         regionCode: "",
-        province: "",
+        regionName: "",
         provinceCode: "",
-        municipality: "",
+        provinceName: "",
         municipalityCode: "",
-        barangay: "",
+        municipalityName: "",
         barangayCode: "",
-        street: "",
+        barangayName: "",
       },
       contact: {
         phone: "",
@@ -70,6 +55,7 @@ export const useBarangayConfig = () => {
   const [isLoadingProvinces, setIsLoadingProvinces] = useState(false);
   const [isLoadingMunicipalities, setIsLoadingMunicipalities] = useState(false);
   const [isLoadingBarangays, setIsLoadingBarangays] = useState(false);
+  const [isLoadingConfig, setIsLoadingConfig] = useState(true);
 
   // Watch for address changes to trigger cascading dropdowns
   const selectedRegion = form.watch("address.regionCode");
@@ -83,28 +69,29 @@ export const useBarangayConfig = () => {
   ) => {
     switch (type) {
       case "region":
-        form.setValue("address.region", option.name);
         form.setValue("address.regionCode", option.code);
+        form.setValue("address.regionName", option.name);
         break;
       case "province":
-        form.setValue("address.province", option.name);
         form.setValue("address.provinceCode", option.code);
+        form.setValue("address.provinceName", option.name);
         break;
       case "municipality":
-        form.setValue("address.municipality", option.name);
         form.setValue("address.municipalityCode", option.code);
+        form.setValue("address.municipalityName", option.name);
         break;
       case "barangay":
-        form.setValue("address.barangay", option.name);
         form.setValue("address.barangayCode", option.code);
+        form.setValue("address.barangayName", option.name);
         break;
     }
   };
 
-  // Load regions on component mount
+  // Load existing configuration and regions on component mount
   useEffect(() => {
-    const loadRegions = async () => {
+    const initializeData = async () => {
       try {
+        // Load regions first
         const regionData = await regions();
         setRegionOptions(
           regionData.map((region: any) => ({
@@ -112,14 +99,54 @@ export const useBarangayConfig = () => {
             name: region.region_name,
           })),
         );
+
+        // Load existing configuration if it exists
+        const existingConfig = await barangayConfigService.getBarangayConfig();
+        if (existingConfig) {
+          // Set form values
+          form.reset(existingConfig);
+
+          // Load dependent address options based on existing values
+          if (existingConfig.address.regionCode) {
+            const provinceData = await provinces(existingConfig.address.regionCode);
+            setProvinceOptions(
+              provinceData.map((province: any) => ({
+                code: province.province_code,
+                name: province.province_name,
+              })),
+            );
+
+            if (existingConfig.address.provinceCode) {
+              const municipalityData = await cities(existingConfig.address.provinceCode);
+              setMunicipalityOptions(
+                municipalityData.map((municipality: any) => ({
+                  code: municipality.city_code,
+                  name: municipality.city_name,
+                })),
+              );
+
+              if (existingConfig.address.municipalityCode) {
+                const barangayData = await barangays(existingConfig.address.municipalityCode);
+                setBarangayOptions(
+                  barangayData.map((barangay: any) => ({
+                    code: barangay.brgy_code,
+                    name: barangay.brgy_name,
+                  })),
+                );
+              }
+            }
+          }
+        }
       } catch (error) {
-        console.error("Error loading regions:", error);
-        toast.error("Failed to load regions");
+        console.error("Error initializing data:", error);
+        toast.error("Failed to load initial data");
+      } finally {
+        setIsLoadingConfig(false);
       }
     };
 
-    loadRegions(); // Load mock data for demonstration
-  }, []);
+    initializeData();
+  }, [form]);
 
   // Load provinces when region changes
   useEffect(() => {
@@ -140,12 +167,12 @@ export const useBarangayConfig = () => {
         );
 
         // Clear dependent fields
-        form.setValue("address.province", "");
         form.setValue("address.provinceCode", "");
-        form.setValue("address.municipality", "");
+        form.setValue("address.provinceName", "");
         form.setValue("address.municipalityCode", "");
-        form.setValue("address.barangay", "");
+        form.setValue("address.municipalityName", "");
         form.setValue("address.barangayCode", "");
+        form.setValue("address.barangayName", "");
         setMunicipalityOptions([]);
         setBarangayOptions([]);
       } catch (error) {
@@ -178,10 +205,10 @@ export const useBarangayConfig = () => {
         );
 
         // Clear dependent fields
-        form.setValue("address.municipality", "");
         form.setValue("address.municipalityCode", "");
-        form.setValue("address.barangay", "");
+        form.setValue("address.municipalityName", "");
         form.setValue("address.barangayCode", "");
+        form.setValue("address.barangayName", "");
         setBarangayOptions([]);
       } catch (error) {
         console.error("Error loading municipalities:", error);
@@ -213,7 +240,7 @@ export const useBarangayConfig = () => {
         );
 
         // Clear dependent field
-        form.setValue("address.barangay", "");
+        form.setValue("address.barangayName", "");
         form.setValue("address.barangayCode", "");
       } catch (error) {
         console.error("Error loading barangays:", error);
@@ -227,17 +254,15 @@ export const useBarangayConfig = () => {
   }, [selectedMunicipality, form]);
 
   // Save configuration
-  const onSubmit = async (data: BarangayConfigData) => {
+  const onSubmit = async (data: BarangayConfigFormData) => {
     setIsLoading(true);
     try {
-      // Mock API call - replace with actual API when backend is ready
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-
-      console.log("Saving barangay config:", data);
+      await barangayConfigService.saveBarangayConfig(data);
       toast.success("Barangay configuration saved successfully!");
     } catch (error) {
       console.error("Error saving configuration:", error);
-      toast.error("Failed to save configuration");
+      const errorMessage = error instanceof Error ? error.message : "Failed to save configuration";
+      toast.error(errorMessage);
     } finally {
       setIsLoading(false);
     }
@@ -255,6 +280,7 @@ export const useBarangayConfig = () => {
     barangayOptions,
 
     // Loading states
+    isLoadingConfig,
     isLoadingProvinces,
     isLoadingMunicipalities,
     isLoadingBarangays,

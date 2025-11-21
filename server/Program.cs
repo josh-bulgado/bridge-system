@@ -22,6 +22,7 @@ builder.Services.AddSingleton<MongoDBContext>();
 builder.Services.AddSingleton<ResidentService>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<FileStorageService>();
+builder.Services.AddSingleton<BarangayConfigService>();
 
 // 🟢 Bind JWT settings from configuration (.env or appsettings.json)
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));

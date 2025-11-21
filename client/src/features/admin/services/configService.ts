@@ -1,72 +1,114 @@
-import { BarangayConfigData } from '../hooks/useBarangayConfig';
+import api from "@/lib/api";
+import type { BarangayConfigFormData } from "../schemas/barangayConfigSchema";
 
-// Mock service for barangay configuration
-// This will be replaced with actual API calls when backend is ready
+export interface BarangayConfigResponse {
+  id: string;
+  address: {
+    regionCode: string;
+    regionName: string;
+    provinceCode: string;
+    provinceName: string;
+    municipalityCode: string;
+    municipalityName: string;
+    barangayCode: string;
+    barangayName: string;
+  };
+  contact: {
+    phone: string;
+    email: string;
+  };
+  officeHours: string;
+  createdAt: string;
+  updatedAt: string;
+}
 
-export const configService = {
+export interface BarangayConfigError {
+  message: string;
+  error?: string;
+}
+
+class BarangayConfigService {
+  private readonly baseUrl = "/BarangayConfig";
+
   // Get current barangay configuration
-  getBarangayConfig: async (): Promise<BarangayConfigData | null> => {
-    // Mock API delay
-    await new Promise(resolve => setTimeout(resolve, 500));
-    
-    // Return mock data or null if no config exists
-    const mockConfig: BarangayConfigData = {
-      name: 'Barangay San Antonio',
-      address: {
-        region: 'National Capital Region',
-        regionCode: '130000000',
-        province: 'Metro Manila',
-        provinceCode: '133900000',
-        municipality: 'Quezon City',
-        municipalityCode: '137404000',
-        barangay: 'San Antonio',
-        barangayCode: '137404015',
-        street: '123 Main Street, Subdivision ABC',
-      },
-      contact: {
-        phone: '+63 2 1234 5678',
-        email: 'sanantonio@barangay.gov.ph',
-      },
-      officeHours: 'Monday-Friday: 8:00 AM - 5:00 PM\nSaturday: 8:00 AM - 12:00 PM\nSunday: Closed',
-    };
-    
-    return mockConfig;
-  },
+  async getBarangayConfig(): Promise<BarangayConfigFormData | null> {
+    try {
+      const { data: response } = await api.get<BarangayConfigResponse>(
+        `${this.baseUrl}`,
+      );
 
-  // Update barangay configuration
-  updateBarangayConfig: async (config: BarangayConfigData): Promise<BarangayConfigData> => {
-    // Mock API delay
-    await new Promise(resolve => setTimeout(resolve, 1000));
-    
-    // In a real implementation, this would make an API call to update the configuration
-    console.log('Updating barangay configuration:', config);
-    
-    // Mock successful response
-    return config;
-  },
+      // Transform backend response to frontend format
+      return {
+        address: {
+          regionCode: response.address.regionCode,
+          regionName: response.address.regionName,
+          provinceCode: response.address.provinceCode,
+          provinceName: response.address.provinceName,
+          municipalityCode: response.address.municipalityCode,
+          municipalityName: response.address.municipalityName,
+          barangayCode: response.address.barangayCode,
+          barangayName: response.address.barangayName,
+        },
+        contact: {
+          phone: response.contact.phone,
+          email: response.contact.email,
+        },
+        officeHours: response.officeHours,
+      };
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Failed to fetch barangay config";
+      throw new Error(errorMessage);
+    }
+  }
 
-  // Validate configuration data
-  validateConfig: (config: Partial<BarangayConfigData>): string[] => {
-    const errors: string[] = [];
-    
-    if (!config.name?.trim()) {
-      errors.push('Barangay name is required');
+  // Create or update barangay configuration
+  async saveBarangayConfig(
+    config: BarangayConfigFormData,
+  ): Promise<BarangayConfigFormData> {
+    try {
+      const requestBody = {
+        address: {
+          regionCode: config.address.regionCode,
+          regionName: config.address.regionName,
+          provinceCode: config.address.provinceCode,
+          provinceName: config.address.provinceName,
+          municipalityCode: config.address.municipalityCode,
+          municipalityName: config.address.municipalityName,
+          barangayCode: config.address.barangayCode,
+          barangayName: config.address.barangayName,
+        },
+        contact: {
+          phone: config.contact.phone,
+          email: config.contact.email,
+        },
+        officeHours: config.officeHours,
+      };
+
+      const { data: response } = await api.post<BarangayConfigFormData>(
+        `${this.baseUrl}`,
+        requestBody,
+      );
+
+      return response;
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Failed to save barangay config";
+      throw new Error(errorMessage);
     }
-    
-    if (!config.contact?.email?.trim()) {
-      errors.push('Contact email is required');
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(config.contact.email)) {
-      errors.push('Contact email format is invalid');
+  }
+
+  // Check if configuration exists
+  async checkConfigExists(): Promise<boolean> {
+    try {
+      const { data } = await api.get<{ exists: boolean }>(
+        `${this.baseUrl}/exists`,
+      );
+
+      return data.exists;
+    } catch (error: any) {
+      const errorMessage = error?.response?.data?.message || "Failed to check if config exists";
+      throw new Error(errorMessage);
     }
-    
-    if (!config.contact?.phone?.trim()) {
-      errors.push('Contact phone is required');
-    }
-    
-    if (!config.address?.street?.trim()) {
-      errors.push('Street address is required');
-    }
-    
-    return errors;
-  },
-};
+  }
+}
+
+export const barangayConfigService = new BarangayConfigService();
