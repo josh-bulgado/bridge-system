@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { FileText, Clock, Package, Check } from "lucide-react";
 import {
   VerificationReminder,
   WelcomeSection,

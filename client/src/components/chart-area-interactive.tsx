@@ -266,6 +266,7 @@ export function ChartAreaInteractive() {
                 />
               }
             />
+            
             <Area
               dataKey="mobile"
               type="natural"
