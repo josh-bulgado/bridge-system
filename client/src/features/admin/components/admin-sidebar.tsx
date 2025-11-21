@@ -24,7 +24,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { UserCheck, Users } from "lucide-react";
+import { UserCheck, Users, Settings2 } from "lucide-react";
 
 const adminData = {
   user: {
@@ -52,6 +52,11 @@ const adminData = {
       title: "Analytics",
       url: "/admin/analytics",
       icon: IconChartBar,
+    },
+    {
+      title: "Barangay Configuration",
+      url: "/admin/config/barangay",
+      icon: Settings2,
     },
   ],
   navSecondary: [

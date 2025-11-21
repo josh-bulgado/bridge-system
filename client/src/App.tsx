@@ -23,6 +23,7 @@ import { ErrorBoundary } from "./components/ui/error-boundary";
 import VerificationPage from "./features/resident/pages/VerificationPage";
 import ResidentManagementPage from "./features/resident/pages/ResidentManagementPage";
 import StaffManagementPage from "./features/staff/pages/StaffManagementPage";
+import BarangayConfigPage from "./features/admin/pages/BarangayConfigPage";
 
 const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
 
@@ -68,6 +69,7 @@ function App() {
               <Route index element={<AdminDashboard />} />
               <Route path="residents" element={<ResidentManagementPage />} />
               <Route path="staff" element={<StaffManagementPage />} />
+              <Route path="config/barangay" element={<BarangayConfigPage />} />
               {/* Add more admin routes here */}
             </Route>
 
