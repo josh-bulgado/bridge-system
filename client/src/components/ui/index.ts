@@ -4,3 +4,4 @@ export { RequestCard } from './request-card';
 export { RequestCardCompact } from './request-card-compact';
 export { RequestCardList } from './request-card-list';
 export { RequestCardContainer } from './request-card-container';
+export { Switch } from './switch';

@@ -63,13 +63,13 @@ const BarangayConfigPage: React.FC = () => {
   const watchedAddress = watch("address");
 
   return (
-    <div className="mx-auto max-w-4xl px-4 lg:px-6 lg:w-2xl">
+    <div className="mx-auto max-w-4xl px-4 lg:w-2xl lg:px-6">
       <div className="mb-6 flex items-center justify-between">
         <div>
-          <h1 className="text-3xl font-bold text-gray-900">
+          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
             Barangay Configuration
           </h1>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-neutral-600">
             Configure basic information about your barangay
           </p>
         </div>
@@ -147,7 +147,7 @@ const BarangayConfigPage: React.FC = () => {
                 </SelectContent>
               </Select>
               {isLoadingProvinces && (
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Loading provinces...
                 </div>
@@ -194,7 +194,7 @@ const BarangayConfigPage: React.FC = () => {
                 </SelectContent>
               </Select>
               {isLoadingMunicipalities && (
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Loading municipalities...
                 </div>
@@ -263,7 +263,7 @@ const BarangayConfigPage: React.FC = () => {
                 </PopoverContent>
               </Popover>
               {isLoadingBarangays && (
-                <div className="flex items-center gap-2 text-sm text-gray-500">
+                <div className="flex items-center gap-2 text-sm text-neutral-500">
                   <Loader2 className="h-4 w-4 animate-spin" />
                   Loading barangays...
                 </div>
@@ -271,22 +271,21 @@ const BarangayConfigPage: React.FC = () => {
             </div>
 
             {/* Address Preview */}
-            {(watchedAddress.region ||
-              watchedAddress.province ||
-              watchedAddress.municipality ||
-              watchedAddress.barangay) && (
+            {(watchedAddress.regionName ||
+              watchedAddress.provinceName ||
+              watchedAddress.municipalityName ||
+              watchedAddress.barangayName) && (
               <div className="mt-4 rounded-lg bg-neutral-100 p-4 dark:bg-neutral-700">
                 <Label className="text-sm font-medium">
                   Complete Address Preview:
                 </Label>
                 <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
                   {[
-                    watchedAddress.street,
-                    watchedAddress.barangay &&
-                      `Barangay ${watchedAddress.barangay}`,
-                    watchedAddress.municipality,
-                    watchedAddress.province,
-                    watchedAddress.region,
+                    watchedAddress.barangayName &&
+                      `Barangay ${watchedAddress.barangayName}`,
+                    watchedAddress.municipalityName,
+                    watchedAddress.provinceName,
+                    watchedAddress.regionName,
                   ]
                     .filter(Boolean)
                     .join(", ")}
