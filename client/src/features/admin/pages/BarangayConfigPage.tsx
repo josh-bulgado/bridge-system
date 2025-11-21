@@ -275,11 +275,11 @@ const BarangayConfigPage: React.FC = () => {
               watchedAddress.province ||
               watchedAddress.municipality ||
               watchedAddress.barangay) && (
-              <div className="mt-4 rounded-lg bg-gray-50 p-4">
+              <div className="mt-4 rounded-lg bg-neutral-100 p-4 dark:bg-neutral-700">
                 <Label className="text-sm font-medium">
                   Complete Address Preview:
                 </Label>
-                <p className="mt-1 text-sm text-gray-700">
+                <p className="mt-1 text-sm text-neutral-700 dark:text-neutral-300">
                   {[
                     watchedAddress.street,
                     watchedAddress.barangay &&
@@ -366,7 +366,7 @@ const BarangayConfigPage: React.FC = () => {
                 rows={4}
                 className="resize-none"
               />
-              <p className="text-sm text-gray-500">
+              <p className="text-sm text-neutral-500">
                 Enter the operating hours for barangay services
               </p>
             </div>
