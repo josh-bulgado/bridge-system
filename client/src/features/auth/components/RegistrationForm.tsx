@@ -95,7 +95,6 @@ export const RegistrationForm = () => {
     if (isSubmitting || isLoading) return;
     setIsSubmitting(true);
     clearError();
-    console.log("Submitting registration with data:", data);
     register(data);
   };
 

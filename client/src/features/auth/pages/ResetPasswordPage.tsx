@@ -1,9 +1,9 @@
 import { Link } from "react-router-dom";
-import { ForgotPasswordForm } from "../components/ForgotPasswordForm";
+import { ResetPasswordForm } from "../components/ResetPasswordForm";
 import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
 import BridgeIcon from "@/components/bridge-icon";
 
-export const ForgotPasswordPage = () => {
+export const ResetPasswordPage = () => {
   return (
     <div className="relative flex h-svh w-svw items-center justify-center p-4">
       {/* Background Pattern */}
@@ -23,20 +23,24 @@ export const ForgotPasswordPage = () => {
 
         {/* Floating Card with Shadow */}
         <div className="rounded-lg border bg-card p-6 shadow-2xl md:p-8">
-          <ForgotPasswordForm />
+          <ResetPasswordForm />
+          
+          {/* Footer inside card */}
+          <div className="mt-6 pt-6 border-t text-center">
+            <p className="text-sm text-muted-foreground">
+              Remember your password?{" "}
+              <Link
+                to="/sign-in"
+                className="font-medium text-primary hover:underline underline-offset-4 transition-all"
+              >
+                Sign in
+              </Link>
+            </p>
+          </div>
         </div>
-
-        {/* Footer Text */}
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Remember your password?{" "}
-          <Link
-            to="/sign-in"
-            className="font-medium text-primary hover:underline underline-offset-4 transition-all"
-          >
-            Sign in
-          </Link>
-        </p>
       </div>
     </div>
   );
 };
+
+export default ResetPasswordPage;

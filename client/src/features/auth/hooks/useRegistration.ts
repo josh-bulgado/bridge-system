@@ -14,11 +14,15 @@ export const useRegistration = () => {
     
     onSuccess: (data) => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
-      console.log("✅ Registration successful:", data);
+      if (import.meta.env.DEV) {
+        console.log("✅ Registration successful:", data);
+      }
     },
 
     onError: (error) => {
-      console.error("❌ Registration failed:", error);
+      if (import.meta.env.DEV) {
+        console.error("❌ Registration failed:", error);
+      }
     },
   });
 

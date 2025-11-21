@@ -30,9 +30,10 @@ export const useVerification = () => {
   const onSubmit = async (data: VerificationFormData) => {
     setIsSubmitting(true);
     try {
-      console.log("=== FORM SUBMISSION DEBUG ===");
-      console.log("Raw form data:", data);
-      console.log("Form field values:", {
+      if (import.meta.env.DEV) {
+        console.log("=== FORM SUBMISSION DEBUG ===");
+        console.log("Raw form data:", data);
+        console.log("Form field values:", {
         streetPurok: data.streetPurok,
         houseNumberUnit: data.houseNumberUnit,
         governmentIdFront: data.governmentIdFront || "MISSING",
@@ -40,13 +41,17 @@ export const useVerification = () => {
         proofOfResidency: data.proofOfResidency || "MISSING",
       });
       
+      }
+      
       // Validate that all required files are uploaded
       if (!data.governmentIdFront || !data.governmentIdBack || !data.proofOfResidency) {
-        console.error("Missing file uploads:", {
-          governmentIdFront: !data.governmentIdFront,
-          governmentIdBack: !data.governmentIdBack,
-          proofOfResidency: !data.proofOfResidency,
-        });
+        if (import.meta.env.DEV) {
+          console.error("Missing file uploads:", {
+            governmentIdFront: !data.governmentIdFront,
+            governmentIdBack: !data.governmentIdBack,
+            proofOfResidency: !data.proofOfResidency,
+          });
+        }
         toast.error("Please upload all required documents before submitting.");
         return;
       }
@@ -60,22 +65,28 @@ export const useVerification = () => {
         ProofOfResidency: data.proofOfResidency,
       };
       
-      console.log("Mapped submission data:", submissionData);
+      if (import.meta.env.DEV) {
+        console.log("Mapped submission data:", submissionData);
+      }
       
       const response = await verificationService.submitVerification(submissionData);
 
-      console.log("✅ Verification submitted successfully:", response);
+      if (import.meta.env.DEV) {
+        console.log("✅ Verification submitted successfully:", response);
+      }
       toast.success("Verification submitted successfully!");
       setIsSubmitted(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      console.error("❌ Submission failed:", error);
-      console.error("Error details:", {
+      if (import.meta.env.DEV) {
+        console.error("❌ Submission failed:", error);
+        console.error("Error details:", {
         message: error.message,
         response: error.response?.data,
         status: error.response?.status,
-        statusText: error.response?.statusText,
-      });
+          statusText: error.response?.statusText,
+        });
+      }
       
       const errorMessage =
         error.response?.data?.message || 

@@ -24,11 +24,13 @@ export const useFileUpload = () => {
     setUploading: (loading: boolean) => void,
     fieldOnChange: (id: string) => void,
   ) => {
-    console.log("📤 Starting file upload:", {
-      name: file.name,
-      size: file.size,
-      type: file.type,
-    });
+    if (import.meta.env.DEV) {
+      console.log("📤 Starting file upload:", {
+        name: file.name,
+        size: file.size,
+        type: file.type,
+      });
+    }
 
     // Validate file size (5MB)
     if (file.size > 5 * 1024 * 1024) {
@@ -40,19 +42,23 @@ export const useFileUpload = () => {
     try {
       const uploadedFile = await verificationService.uploadFile(file);
 
-      console.log("✅ Upload successful:", uploadedFile);
+      if (import.meta.env.DEV) {
+        console.log("✅ Upload successful:", uploadedFile);
+        console.log("Updating form field with file ID:", uploadedFile.id);
+      }
 
       setUploaded(uploadedFile);
-      console.log("Updating form field with file ID:", uploadedFile.id);
       
       // Update the form field with the file ID
       fieldOnChange(uploadedFile.id);
       
       toast.success("File uploaded successfully");
     } catch (error: any) {
-      console.error("❌ Upload failed:", error);
-      console.error("❌ Error response:", error.response?.data);
-      console.error("❌ Error status:", error.response?.status);
+      if (import.meta.env.DEV) {
+        console.error("❌ Upload failed:", error);
+        console.error("❌ Error response:", error.response?.data);
+        console.error("❌ Error status:", error.response?.status);
+      }
 
       const errorMessage =
         error.response?.data?.message || "Failed to upload file";

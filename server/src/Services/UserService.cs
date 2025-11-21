@@ -74,6 +74,24 @@ namespace server.Services
       var result = await _users.DeleteOneAsync(u => u.Email == email);
       return result.DeletedCount > 0;
     }
+
+    public async Task<bool> ResetPasswordAsync(string email, string otp, string newPasswordHash)
+    {
+      var user = await GetByEmailAsync(email);
+      if (user == null) return false;
+
+      // Verify OTP and expiry
+      if (user.EmailVerificationOtp == otp && user.OtpExpiresAt > DateTime.UtcNow)
+      {
+        user.PasswordHash = newPasswordHash;
+        user.EmailVerificationOtp = null;
+        user.OtpExpiresAt = null;
+        await UpdateAsync(user.Id!, user);
+        return true;
+      }
+
+      return false;
+    }
   }
 
 

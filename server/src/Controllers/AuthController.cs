@@ -177,5 +177,94 @@ namespace server.Controllers
       return Ok(new { message = "Verification code resent successfully. Please check your email." });
     }
 
+    [HttpPost("forgot-password")]
+    public async Task<IActionResult> ForgotPassword([FromBody] ForgotPasswordRequest dto)
+    {
+      var user = await _userService.GetByEmailAsync(dto.Email);
+      
+      if (user == null)
+      {
+        // Don't reveal if email exists for security reasons
+        return Ok(new { message = "If the email exists, a password reset code has been sent." });
+      }
+
+      // Generate OTP for password reset
+      var otp = _emailService.GenerateOtp();
+      var otpExpiry = DateTime.UtcNow.AddMinutes(10);
+
+      user.EmailVerificationOtp = otp;
+      user.OtpExpiresAt = otpExpiry;
+      await _userService.UpdateAsync(user.Id!, user);
+
+      // Send password reset email
+      var emailSent = await _emailService.SendPasswordResetEmailAsync(dto.Email, otp);
+      if (!emailSent)
+      {
+        return StatusCode(500, new { message = "Failed to send password reset email. Please try again later." });
+      }
+
+      return Ok(new { message = "If the email exists, a password reset code has been sent." });
+    }
+
+    [HttpPost("verify-reset-otp")]
+    public async Task<IActionResult> VerifyResetOtp([FromBody] VerifyEmailRequest dto)
+    {
+      var user = await _userService.GetByEmailAsync(dto.Email);
+      
+      if (user == null)
+      {
+        Console.WriteLine($"DEBUG: User not found for email: {dto.Email}");
+        return BadRequest(new { message = "Invalid or expired reset code." });
+      }
+
+      // Trim whitespace from input OTP
+      var receivedOtp = dto.Otp?.Trim();
+      var storedOtp = user.EmailVerificationOtp?.Trim();
+
+      Console.WriteLine($"DEBUG: Received OTP: '{receivedOtp}' (Length: {receivedOtp?.Length})");
+      Console.WriteLine($"DEBUG: Stored OTP: '{storedOtp}' (Length: {storedOtp?.Length})");
+      Console.WriteLine($"DEBUG: OTP Expiry: {user.OtpExpiresAt}, Current UTC: {DateTime.UtcNow}");
+      Console.WriteLine($"DEBUG: OTPs Match: {storedOtp == receivedOtp}");
+      Console.WriteLine($"DEBUG: Not Expired: {user.OtpExpiresAt > DateTime.UtcNow}");
+
+      // Check if OTP expired
+      if (user.OtpExpiresAt == null || user.OtpExpiresAt <= DateTime.UtcNow)
+      {
+        return BadRequest(new { message = "Reset code has expired. Please request a new one." });
+      }
+
+      // Verify OTP
+      if (storedOtp == receivedOtp)
+      {
+        return Ok(new { message = "Code verified successfully!" });
+      }
+
+      return BadRequest(new { message = "Invalid reset code. Please check and try again." });
+    }
+
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordRequest dto)
+    {
+      var user = await _userService.GetByEmailAsync(dto.Email);
+      
+      if (user == null)
+      {
+        return BadRequest(new { message = "Invalid or expired reset code." });
+      }
+
+      // Hash the new password
+      var newPasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
+
+      // Reset password with OTP verification
+      var isReset = await _userService.ResetPasswordAsync(dto.Email, dto.Otp, newPasswordHash);
+      
+      if (!isReset)
+      {
+        return BadRequest(new { message = "Invalid or expired reset code." });
+      }
+
+      return Ok(new { message = "Password reset successfully! You can now login with your new password." });
+    }
+
   }
 }

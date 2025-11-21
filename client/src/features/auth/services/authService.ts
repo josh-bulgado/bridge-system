@@ -43,7 +43,9 @@ class AuthService {
         loginData,
       );
 
-      console.log("AuthService login response =", response);
+      if (import.meta.env.DEV) {
+        console.log("AuthService login response =", response);
+      }
 
       const storage = data.rememberMe ? localStorage : sessionStorage;
       storage.setItem("user", JSON.stringify(response.user));
@@ -109,6 +111,51 @@ class AuthService {
     } catch (error: any) {
       const errorMessage =
         error.response?.data?.message || "Failed to resend code";
+      throw new Error(errorMessage);
+    }
+  }
+
+  // Forgot Password
+  async forgotPassword(email: string): Promise<{ message: string }> {
+    try {
+      const { data } = await api.post<{ message: string }>(
+        `${this.baseUrl}/forgot-password`,
+        { Email: email },
+      );
+      return data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to send reset email";
+      throw new Error(errorMessage);
+    }
+  }
+
+  // Verify OTP for password reset (validate before showing password fields)
+  async verifyResetOtp(email: string, otp: string): Promise<{ message: string }> {
+    try {
+      const { data } = await api.post<{ message: string }>(
+        `${this.baseUrl}/verify-reset-otp`,
+        { Email: email, Otp: otp },
+      );
+      return data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Invalid or expired code";
+      throw new Error(errorMessage);
+    }
+  }
+
+  // Reset Password
+  async resetPassword(email: string, otp: string, newPassword: string): Promise<{ message: string }> {
+    try {
+      const { data } = await api.post<{ message: string }>(
+        `${this.baseUrl}/reset-password`,
+        { Email: email, Otp: otp, NewPassword: newPassword },
+      );
+      return data;
+    } catch (error: any) {
+      const errorMessage =
+        error.response?.data?.message || "Failed to reset password";
       throw new Error(errorMessage);
     }
   }

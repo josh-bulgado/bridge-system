@@ -52,18 +52,22 @@ export const verificationService = {
   submitVerification: async (
     data: VerificationSubmissionData,
   ): Promise<VerificationResponse> => {
-    console.log("Submitting verification data:", data);
-    const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-    console.log("Request headers:", {
-      "Content-Type": "application/json",
-      Authorization: token ? `Bearer ${token}` : "No token found",
-    });
+    if (import.meta.env.DEV) {
+      console.log("Submitting verification data:", data);
+      const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
+      console.log("Request headers:", {
+        "Content-Type": "application/json",
+        Authorization: token ? `Bearer ${token}` : "No token found",
+      });
+    }
     const response = await api.post("/resident/verification", data, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    console.log("Verification submission response:", response.data);
+    if (import.meta.env.DEV) {
+      console.log("Verification submission response:", response.data);
+    }
     return response.data;
   },
 

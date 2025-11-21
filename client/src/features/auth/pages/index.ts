@@ -4,3 +4,4 @@ export { AccountCreatedPage } from "./AccountCreatedPage";
 export { EmailConfirmationPage } from "./EmailConfirmationPage";
 export { default as VerifyOTPPage } from "./VerifyOTPPage";
 export { ForgotPasswordPage } from "./ForgotPasswordPage";
+export { default as ResetPasswordPage } from "./ResetPasswordPage";
