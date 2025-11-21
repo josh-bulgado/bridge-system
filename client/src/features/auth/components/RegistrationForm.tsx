@@ -51,8 +51,23 @@ export const RegistrationForm = () => {
   // Validation checks for each step
   const isStepValid = (stepIndex: number) => {
     const fields = stepFields[stepIndex];
-    if (stepIndex === 2)
-      return fields[0] && fields[1] && fields[2] && fields[0] === fields[1]; // password match
+    if (stepIndex === 2) {
+      const isValid = fields[0] && fields[1] && fields[2] && fields[0] === fields[1];
+      
+      // Debug logging in development
+      if (import.meta.env.DEV) {
+        console.log('Step 3 Validation:', {
+          password: fields[0] ? '✓ Filled' : '✗ Empty',
+          confirmPassword: fields[1] ? '✓ Filled' : '✗ Empty',
+          agreeToTerms: fields[2] ? '✓ Checked' : '✗ Unchecked',
+          passwordsMatch: fields[0] === fields[1] ? '✓ Match' : '✗ No Match',
+          isValid: isValid ? '✓ Valid' : '✗ Invalid',
+          formErrors: methods.formState.errors
+        });
+      }
+      
+      return isValid;
+    }
     return fields.every((field) => field); // for other steps, check if all fields are filled
   };
 
@@ -190,22 +205,45 @@ export const RegistrationForm = () => {
                     Next <ArrowRight className="h-4 w-4" />
                   </Button>
                 ) : (
-                  <Button
-                    type="submit"
-                    disabled={!isStepValid(2) || isLoading}
-                    className="gap-2"
-                  >
-                    {isLoading ? (
-                      <>
-                        <Spinner className="mr-2 h-4 w-4 animate-spin" />
-                        Creating...
-                      </>
-                    ) : (
-                      <>
-                        <Check className="h-4 w-4" /> Create Account
-                      </>
+                  <>
+                    <Button
+                      type="submit"
+                      disabled={!isStepValid(2) || isLoading || Object.keys(methods.formState.errors).length > 0}
+                      className="gap-2"
+                      onClick={() => {
+                        if (import.meta.env.DEV) {
+                          const hasErrors = Object.keys(methods.formState.errors).length > 0;
+                          console.log('Create Account button clicked', {
+                            isStepValid: isStepValid(2),
+                            isLoading,
+                            hasFormErrors: hasErrors,
+                            formErrors: methods.formState.errors,
+                            errorFields: Object.keys(methods.formState.errors),
+                          });
+                          
+                          if (hasErrors) {
+                            console.warn('❌ Form has validation errors. Please fix them before submitting.');
+                          }
+                        }
+                      }}
+                    >
+                      {isLoading ? (
+                        <>
+                          <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                          Creating...
+                        </>
+                      ) : (
+                        <>
+                          <Check className="h-4 w-4" /> Create Account
+                        </>
+                      )}
+                    </Button>
+                    {import.meta.env.DEV && Object.keys(methods.formState.errors).length > 0 && (
+                      <p className="text-sm text-red-500 mt-2">
+                        ⚠️ Please fix validation errors in previous steps
+                      </p>
                     )}
-                  </Button>
+                  </>
                 )}
               </div>
 

@@ -17,14 +17,9 @@ export const registerSchema = z
       .refine((val) => {
         // Remove all non-digit characters
         const digitsOnly = val.replace(/\D/g, "");
-        // Philippine mobile numbers: 09XXXXXXXXX (11 digits) or +639XXXXXXXXX (12 digits with country code)
-        const philippinePatterns = [
-          /^09[0-9]{9}$/, // 09XXXXXXXXX format
-          /^\\+639[0-9]{9}$/, // +639XXXXXXXXX format
-          /^639[0-9]{9}$/, // 639XXXXXXXXX format (without + symbol)
-        ];
-        return philippinePatterns.some((pattern) => pattern.test(digitsOnly));
-      }, ""),
+        // Must be exactly 10 digits (9XXXXXXXXX format, since +63 prefix is already provided)
+        return /^9[0-9]{9}$/.test(digitsOnly);
+      }, "Please enter a valid 10-digit mobile number starting with 9 (e.g., 9123456789)"),
     email: z.email("Please enter a valid email address"),
     password: z
       .string()

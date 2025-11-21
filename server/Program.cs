@@ -108,14 +108,18 @@ app.Use(async (context, next) =>
     // Referrer Policy
     context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
     
+    // 🔒 Cross-Origin-Opener-Policy: Allow Google OAuth popup to work
+    context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
+    
     // Content Security Policy
     context.Response.Headers["Content-Security-Policy"] = 
         "default-src 'self'; " +
-        "script-src 'self' 'unsafe-inline' 'unsafe-eval'; " +
+        "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com; " +
         "style-src 'self' 'unsafe-inline'; " +
         "img-src 'self' data: https:; " +
         "font-src 'self' data:; " +
-        "connect-src 'self' http://localhost:* ws://localhost:*;";
+        "connect-src 'self' http://localhost:* ws://localhost:* https://accounts.google.com https://www.googleapis.com; " +
+        "frame-src https://accounts.google.com;";
     
     // Remove server header
     context.Response.Headers.Remove("Server");
