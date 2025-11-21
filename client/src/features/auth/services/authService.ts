@@ -238,15 +238,16 @@ class AuthService {
         { params: { email } }
       );
       
+      // 🔒 Security: Only log in development mode, and mask the email
       if (import.meta.env.DEV) {
-        console.log("Email availability check response:", data);
+        const maskedEmail = email.substring(0, 3) + "***@" + email.split("@")[1];
+        console.log(`Email availability check for ${maskedEmail}:`, data.available ? "Available" : "Not available");
       }
       
       return data;
     } catch (error: any) {
       if (import.meta.env.DEV) {
-        console.error("Email availability check error:", error);
-        console.error("Error response:", error.response?.data);
+        console.error("Email availability check error:", error.message);
         console.error("Error status:", error.response?.status);
       }
       

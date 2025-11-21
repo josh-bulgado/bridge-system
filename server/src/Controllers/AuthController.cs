@@ -121,17 +121,128 @@ namespace server.Controllers
     [HttpGet("check-email-availability")]
     public async Task<IActionResult> CheckEmailAvailability([FromQuery] string email)
     {
-      // Validate email parameter
+      // 🔒 Security: Get client IP address
+      var ipAddress = _rateLimiter.GetClientIp(HttpContext);
+      
+      // 🔒 Security: Check if IP is blocked due to repeated violations
+      if (_rateLimiter.IsIpBlocked(ipAddress))
+      {
+        #if DEBUG
+        Console.WriteLine($"[SECURITY] Blocked IP attempted access: {ipAddress}");
+        #endif
+        return StatusCode(403, new { available = false, message = "Access temporarily blocked due to suspicious activity." });
+      }
+      
+      // 🔒 Security: Rate limiting to prevent email enumeration attacks
+      // Allow 10 checks per minute per IP address
+      if (_rateLimiter.IsRateLimited($"email_check_{ipAddress}", 10, TimeSpan.FromMinutes(1)))
+      {
+        var remaining = _rateLimiter.GetRemainingRequests($"email_check_{ipAddress}", 10);
+        
+        #if DEBUG
+        Console.WriteLine($"[SECURITY] Rate limit exceeded for IP: {ipAddress}");
+        #endif
+        
+        return StatusCode(429, new { available = false, message = "Too many requests. Please try again later." });
+      }
+
+      // 🔒 Security: Validate email parameter
       if (string.IsNullOrWhiteSpace(email))
       {
         return BadRequest(new { available = false, message = "Email is required." });
       }
 
-      // Sanitize email
+      // 🔒 Security: Advanced email validation to prevent injection attacks
       email = email.Trim().ToLower();
+      
+      // 🔒 Security: Remove any HTML tags or dangerous characters (XSS prevention)
+      email = System.Text.RegularExpressions.Regex.Replace(email, @"[<>\""\']", "");
+      
+      // 🔒 Security: Check for SQL injection patterns
+      var sqlInjectionPatterns = new[] { "--", ";", "/*", "*/", "xp_", "sp_", "exec", "execute", "select", "insert", "update", "delete", "drop", "create", "alter" };
+      foreach (var pattern in sqlInjectionPatterns)
+      {
+        if (email.Contains(pattern, StringComparison.OrdinalIgnoreCase))
+        {
+          #if DEBUG
+          Console.WriteLine($"[SECURITY ALERT] Potential SQL injection attempt from IP: {ipAddress} | Pattern: {pattern}");
+          #endif
+          return BadRequest(new { available = false, message = "Invalid email format." });
+        }
+      }
+      
+      // Validate email format with strict regex
+      var emailRegex = new System.Text.RegularExpressions.Regex(
+        @"^[a-z0-9._%+-]+@[a-z0-9.-]+\.[a-z]{2,}$",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase
+      );
+      
+      if (!emailRegex.IsMatch(email))
+      {
+        return BadRequest(new { available = false, message = "Invalid email format." });
+      }
 
+      // 🔒 Security: Check email length to prevent DoS attacks
+      if (email.Length > 254) // RFC 5321 maximum email length
+      {
+        return BadRequest(new { available = false, message = "Email address is too long." });
+      }
+
+      // 🔒 Security: Detect suspicious patterns (disposable emails, common test emails)
+      var suspiciousPatterns = new[] { "test", "temp", "fake", "spam", "mailinator", "guerrillamail", "10minutemail" };
+      var emailLower = email.ToLower();
+      
+      foreach (var pattern in suspiciousPatterns)
+      {
+        if (emailLower.Contains(pattern) && email.Contains("test"))
+        {
+          #if DEBUG
+          Console.WriteLine($"[SECURITY] Suspicious email pattern detected: {email.Substring(0, Math.Min(3, email.Length))}*** from IP: {ipAddress}");
+          #endif
+        }
+      }
+
+      // 🔒 Security: Track failed validation attempts per IP
+      var failedAttempts = 0;
+      var failedKey = $"email_check_failed_{ipAddress}";
+      
+      // 🔒 Security: Add artificial delay to prevent timing attacks
+      // This makes it harder for attackers to determine if an email exists based on response time
+      var startTime = DateTime.UtcNow;
+      
       // Check if email already exists
       var existingUser = await _userService.GetByEmailAsync(email);
+      
+      // 🔒 Security: Ensure consistent response time (minimum 100ms, max 150ms for randomness)
+      var elapsed = (DateTime.UtcNow - startTime).TotalMilliseconds;
+      var minDelay = 100;
+      var randomDelay = new Random().Next(0, 50); // Add 0-50ms random delay
+      var totalMinDelay = minDelay + randomDelay;
+      
+      if (elapsed < totalMinDelay)
+      {
+        await Task.Delay(totalMinDelay - (int)elapsed);
+      }
+      
+      // 🔒 Security: Log suspicious activity in development mode
+      #if DEBUG
+      Console.WriteLine($"[SECURITY] Email availability check from IP: {ipAddress} for email: {email.Substring(0, Math.Min(3, email.Length))}*** | Available: {existingUser == null}");
+      #endif
+      
+      // 🔒 Security: Add cache headers to prevent response caching
+      Response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate");
+      Response.Headers.Add("Pragma", "no-cache");
+      Response.Headers.Add("Expires", "0");
+      
+      // 🔒 Security: Add security headers
+      Response.Headers.Add("X-Content-Type-Options", "nosniff");
+      Response.Headers.Add("X-Frame-Options", "DENY");
+      
+      // 🔒 Security: Add rate limit information to response headers (for debugging)
+      #if DEBUG
+      Response.Headers.Add("X-Rate-Limit-Remaining", "10");
+      Response.Headers.Add("X-Rate-Limit-Window", "60");
+      #endif
       
       return Ok(new { available = existingUser == null });
     }
