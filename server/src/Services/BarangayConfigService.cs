@@ -10,7 +10,7 @@ namespace server.Services
 
         public BarangayConfigService(MongoDBContext context)
         {
-            _barangayConfigCollection = context.GetCollection<BarangayConfig>("BarangayConfigs");
+            _barangayConfigCollection = context.GetCollection<BarangayConfig>("barangay-config");
         }
 
         // Get the current barangay configuration (there should only be one)
@@ -25,7 +25,7 @@ namespace server.Services
         {
             config.CreatedAt = DateTime.UtcNow;
             config.UpdatedAt = DateTime.UtcNow;
-            
+
             await _barangayConfigCollection.InsertOneAsync(config);
             return config;
         }
@@ -34,10 +34,10 @@ namespace server.Services
         public async Task<BarangayConfig> UpdateConfigAsync(string id, BarangayConfig config)
         {
             config.UpdatedAt = DateTime.UtcNow;
-            
+
             var filter = Builders<BarangayConfig>.Filter.Eq(c => c.Id, id);
             await _barangayConfigCollection.ReplaceOneAsync(filter, config);
-            
+
             return config;
         }
 
@@ -45,7 +45,7 @@ namespace server.Services
         public async Task<BarangayConfig> CreateOrUpdateConfigAsync(BarangayConfig config, string? userId = null)
         {
             var existingConfig = await GetConfigAsync();
-            
+
             if (existingConfig != null)
             {
                 // Update existing config
@@ -53,7 +53,7 @@ namespace server.Services
                 config.CreatedAt = existingConfig.CreatedAt;
                 config.CreatedBy = existingConfig.CreatedBy;
                 config.UpdatedBy = userId;
-                
+
                 return await UpdateConfigAsync(existingConfig.Id!, config);
             }
             else
@@ -61,7 +61,7 @@ namespace server.Services
                 // Create new config
                 config.CreatedBy = userId;
                 config.UpdatedBy = userId;
-                
+
                 return await CreateConfigAsync(config);
             }
         }
