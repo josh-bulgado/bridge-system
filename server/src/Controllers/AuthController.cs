@@ -182,10 +182,32 @@ namespace server.Controllers
     {
       var user = await _userService.GetByEmailAsync(dto.Email);
       
+      // Check if user exists
       if (user == null)
       {
-        // Don't reveal if email exists for security reasons
-        return Ok(new { message = "If the email exists, a password reset code has been sent." });
+        return BadRequest(new { message = "This email is not registered. Please check your email or sign up for a new account." });
+      }
+
+      // Check if email is verified
+      if (!user.IsEmailVerified)
+      {
+        return BadRequest(new { message = "Please verify your email first before resetting your password. Check your inbox for the verification code." });
+      }
+
+      // Check if user account is active
+      if (!user.IsActive)
+      {
+        return BadRequest(new { message = "Your account has been deactivated. Please contact support for assistance." });
+      }
+
+      // Rate limiting: Check if user has recently requested a reset
+      if (user.OtpExpiresAt != null && user.OtpExpiresAt > DateTime.UtcNow)
+      {
+        var timeRemaining = (user.OtpExpiresAt.Value - DateTime.UtcNow).TotalMinutes;
+        if (timeRemaining > 8) // If less than 2 minutes have passed since last request
+        {
+          return BadRequest(new { message = $"Please wait before requesting another reset code. Try again in {Math.Ceiling(timeRemaining - 8)} minute(s)." });
+        }
       }
 
       // Generate OTP for password reset
@@ -194,6 +216,7 @@ namespace server.Controllers
 
       user.EmailVerificationOtp = otp;
       user.OtpExpiresAt = otpExpiry;
+      user.UpdatedAt = DateTime.UtcNow;
       await _userService.UpdateAsync(user.Id!, user);
 
       // Send password reset email
@@ -203,7 +226,7 @@ namespace server.Controllers
         return StatusCode(500, new { message = "Failed to send password reset email. Please try again later." });
       }
 
-      return Ok(new { message = "If the email exists, a password reset code has been sent." });
+      return Ok(new { message = "Password reset code sent successfully! Please check your email." });
     }
 
     [HttpPost("verify-reset-otp")]
@@ -213,19 +236,30 @@ namespace server.Controllers
       
       if (user == null)
       {
-        Console.WriteLine($"DEBUG: User not found for email: {dto.Email}");
-        return BadRequest(new { message = "Invalid or expired reset code." });
+        return BadRequest(new { message = "User not found. Please request a new reset code." });
+      }
+
+      // Check if email is verified
+      if (!user.IsEmailVerified)
+      {
+        return BadRequest(new { message = "Please verify your email first before resetting your password." });
+      }
+
+      // Check if user account is active
+      if (!user.IsActive)
+      {
+        return BadRequest(new { message = "Your account has been deactivated. Please contact support." });
       }
 
       // Trim whitespace from input OTP
       var receivedOtp = dto.Otp?.Trim();
       var storedOtp = user.EmailVerificationOtp?.Trim();
 
-      Console.WriteLine($"DEBUG: Received OTP: '{receivedOtp}' (Length: {receivedOtp?.Length})");
-      Console.WriteLine($"DEBUG: Stored OTP: '{storedOtp}' (Length: {storedOtp?.Length})");
-      Console.WriteLine($"DEBUG: OTP Expiry: {user.OtpExpiresAt}, Current UTC: {DateTime.UtcNow}");
-      Console.WriteLine($"DEBUG: OTPs Match: {storedOtp == receivedOtp}");
-      Console.WriteLine($"DEBUG: Not Expired: {user.OtpExpiresAt > DateTime.UtcNow}");
+      // Validate OTP format (6 digits)
+      if (string.IsNullOrEmpty(receivedOtp) || receivedOtp.Length != 6 || !receivedOtp.All(char.IsDigit))
+      {
+        return BadRequest(new { message = "Invalid code format. Please enter a 6-digit code." });
+      }
 
       // Check if OTP expired
       if (user.OtpExpiresAt == null || user.OtpExpiresAt <= DateTime.UtcNow)
@@ -249,21 +283,52 @@ namespace server.Controllers
       
       if (user == null)
       {
-        return BadRequest(new { message = "Invalid or expired reset code." });
+        return BadRequest(new { message = "User not found. Please request a new reset code." });
+      }
+
+      // Check if email is verified
+      if (!user.IsEmailVerified)
+      {
+        return BadRequest(new { message = "Please verify your email first before resetting your password." });
+      }
+
+      // Check if user account is active
+      if (!user.IsActive)
+      {
+        return BadRequest(new { message = "Your account has been deactivated. Please contact support." });
+      }
+
+      // Validate OTP format
+      var otpTrimmed = dto.Otp?.Trim();
+      if (string.IsNullOrEmpty(otpTrimmed) || otpTrimmed.Length != 6 || !otpTrimmed.All(char.IsDigit))
+      {
+        return BadRequest(new { message = "Invalid code format. Please enter a 6-digit code." });
+      }
+
+      // Check if OTP has expired
+      if (user.OtpExpiresAt == null || user.OtpExpiresAt <= DateTime.UtcNow)
+      {
+        return BadRequest(new { message = "Reset code has expired. Please request a new one." });
+      }
+
+      // Validate password strength
+      if (string.IsNullOrEmpty(dto.NewPassword) || dto.NewPassword.Length < 8)
+      {
+        return BadRequest(new { message = "Password must be at least 8 characters long." });
       }
 
       // Hash the new password
       var newPasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.NewPassword);
 
       // Reset password with OTP verification
-      var isReset = await _userService.ResetPasswordAsync(dto.Email, dto.Otp, newPasswordHash);
+      var (isReset, message) = await _userService.ResetPasswordAsync(dto.Email, otpTrimmed, dto.NewPassword, newPasswordHash);
       
       if (!isReset)
       {
-        return BadRequest(new { message = "Invalid or expired reset code." });
+        return BadRequest(new { message = message });
       }
 
-      return Ok(new { message = "Password reset successfully! You can now login with your new password." });
+      return Ok(new { message = message });
     }
 
   }

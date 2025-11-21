@@ -25,17 +25,6 @@ export const ForgotPasswordPage = () => {
         <div className="rounded-lg border bg-card p-6 shadow-2xl md:p-8">
           <ForgotPasswordForm />
         </div>
-
-        {/* Footer Text */}
-        <p className="mt-4 text-center text-xs text-muted-foreground">
-          Remember your password?{" "}
-          <Link
-            to="/sign-in"
-            className="font-medium text-primary hover:underline underline-offset-4 transition-all"
-          >
-            Sign in
-          </Link>
-        </p>
       </div>
     </div>
   );

@@ -6,10 +6,12 @@ namespace server.Services
   public class UserService
   {
     private readonly IMongoCollection<User> _users;
+    private readonly IMongoCollection<PasswordHistory> _passwordHistory;
 
     public UserService(MongoDBContext context)
     {
       _users = context.GetCollection<User>("users");
+      _passwordHistory = context.GetCollection<PasswordHistory>("passwordHistory");
     }
 
     public async Task<List<User>> GetAsync() =>
@@ -75,22 +77,66 @@ namespace server.Services
       return result.DeletedCount > 0;
     }
 
-    public async Task<bool> ResetPasswordAsync(string email, string otp, string newPasswordHash)
+    public async Task<bool> IsPasswordInHistoryAsync(string userId, string newPassword)
+    {
+        // Get last 5 passwords
+        var history = await _passwordHistory
+            .Find(ph => ph.UserId == userId)
+            .SortByDescending(ph => ph.CreatedAt)
+            .Limit(5)
+            .ToListAsync();
+
+        foreach (var record in history)
+        {
+            if (BCrypt.Net.BCrypt.Verify(newPassword, record.PasswordHash))
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public async Task AddToPasswordHistoryAsync(string userId, string passwordHash)
+    {
+        var history = new PasswordHistory
+        {
+            UserId = userId,
+            PasswordHash = passwordHash
+        };
+        await _passwordHistory.InsertOneAsync(history);
+    }
+
+    public async Task<(bool Success, string Message)> ResetPasswordAsync(string email, string otp, string newPassword, string newPasswordHash)
     {
       var user = await GetByEmailAsync(email);
-      if (user == null) return false;
+      if (user == null) return (false, "User not found.");
 
       // Verify OTP and expiry
-      if (user.EmailVerificationOtp == otp && user.OtpExpiresAt > DateTime.UtcNow)
+      if (user.EmailVerificationOtp != otp || user.OtpExpiresAt <= DateTime.UtcNow)
       {
-        user.PasswordHash = newPasswordHash;
-        user.EmailVerificationOtp = null;
-        user.OtpExpiresAt = null;
-        await UpdateAsync(user.Id!, user);
-        return true;
+          return (false, "Invalid or expired reset code.");
       }
 
-      return false;
+      // Check if new password is same as current password
+      if (BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
+      {
+          return (false, "Cannot use your old password.");
+      }
+
+      // Check password history
+      if (await IsPasswordInHistoryAsync(user.Id!, newPassword))
+      {
+          return (false, "Cannot use a previously used password.");
+      }
+
+      // Add current password to history before updating
+      await AddToPasswordHistoryAsync(user.Id!, user.PasswordHash);
+
+      user.PasswordHash = newPasswordHash;
+      user.EmailVerificationOtp = null;
+      user.OtpExpiresAt = null;
+      await UpdateAsync(user.Id!, user);
+      return (true, "Password reset successfully.");
     }
   }
 

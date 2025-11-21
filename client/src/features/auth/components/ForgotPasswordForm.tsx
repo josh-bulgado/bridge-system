@@ -9,7 +9,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Link, useNavigate } from "react-router-dom";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { CheckCircle, Mail } from "lucide-react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -26,7 +26,22 @@ import { authService } from "../services/authService";
 export const ForgotPasswordForm = () => {
   const [isSubmitted, setIsSubmitted] = useState(false);
   const [submittedEmail, setSubmittedEmail] = useState<string>("");
+  const [countdown, setCountdown] = useState(10);
   const navigate = useNavigate();
+
+  // Auto-redirect countdown effect
+  useEffect(() => {
+    if (isSubmitted && countdown > 0) {
+      const timer = setTimeout(() => {
+        setCountdown(countdown - 1);
+      }, 1000);
+      return () => clearTimeout(timer);
+    } else if (isSubmitted && countdown === 0) {
+      // Store email and navigate to reset password page
+      sessionStorage.setItem('resetEmail', submittedEmail);
+      navigate('/reset-password');
+    }
+  }, [isSubmitted, countdown, submittedEmail, navigate]);
 
   const form = useForm<ForgotPasswordFormData>({
     resolver: zodResolver(forgotPasswordSchema),
@@ -77,7 +92,24 @@ export const ForgotPasswordForm = () => {
         <Alert>
           <Mail className="h-4 w-4" />
           <AlertDescription>
-            Didn't receive the email? Check your spam folder or{" "}
+            Didn't receive the email? Check your spam folder.
+          </AlertDescription>
+        </Alert>
+
+
+        <Button
+          onClick={() => {
+            // Store email in sessionStorage and navigate to reset password
+            sessionStorage.setItem('resetEmail', submittedEmail);
+            navigate('/reset-password');
+          }}
+        >
+          Enter Reset Code Now
+        </Button>
+
+        <FieldGroup>
+          <FieldDescription className="text-center">
+            Wrong Email?{" "}
             <button
               type="button"
               onClick={() => {
@@ -86,30 +118,8 @@ export const ForgotPasswordForm = () => {
               }}
               className="font-medium text-primary underline underline-offset-2 hover:text-primary/80"
             >
-              try again
+              Try again
             </button>
-          </AlertDescription>
-        </Alert>
-
-        <Button
-          onClick={() => {
-            // Store email in sessionStorage instead of URL for security
-            sessionStorage.setItem('resetEmail', submittedEmail);
-            navigate('/reset-password');
-          }}
-        >
-          Enter Reset Code
-        </Button>
-
-        <FieldGroup>
-          <FieldDescription className="text-center">
-            Remember your password?{" "}
-            <Link
-              to="/sign-in"
-              className="hover:text-primary underline underline-offset-4"
-            >
-              Back to sign in
-            </Link>
           </FieldDescription>
         </FieldGroup>
       </div>
@@ -119,7 +129,7 @@ export const ForgotPasswordForm = () => {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="grid gap-6">
-        <div className="mb-4 flex flex-col gap-2">
+        <div className="mb-4 flex flex-col gap-2 text-center">
           <h2 className="scroll-m-20 pb-2 text-3xl font-semibold tracking-tight first:mt-0">
             Forgot Password?
           </h2>
@@ -137,7 +147,7 @@ export const ForgotPasswordForm = () => {
               <FormControl>
                 <Input
                   type="email"
-                  placeholder="m@example.com"
+                  placeholder="m@gmail.com"
                   {...field}
                 />
               </FormControl>

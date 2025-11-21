@@ -311,10 +311,6 @@ export const VerifyOTPForm = ({
           <h2 className="text-2xl font-semibold leading-none tracking-tight">
             Verify Your Email
           </h2>
-          <p className="text-sm text-muted-foreground">
-            Enter the 6-digit code we sent to{" "}
-            <span className="font-medium text-foreground">{email}</span>
-          </p>
         </div>
 
         {/* Success Animation */}

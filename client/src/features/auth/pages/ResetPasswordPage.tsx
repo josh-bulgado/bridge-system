@@ -24,19 +24,6 @@ export const ResetPasswordPage = () => {
         {/* Floating Card with Shadow */}
         <div className="rounded-lg border bg-card p-6 shadow-2xl md:p-8">
           <ResetPasswordForm />
-          
-          {/* Footer inside card */}
-          <div className="mt-6 pt-6 border-t text-center">
-            <p className="text-sm text-muted-foreground">
-              Remember your password?{" "}
-              <Link
-                to="/sign-in"
-                className="font-medium text-primary hover:underline underline-offset-4 transition-all"
-              >
-                Sign in
-              </Link>
-            </p>
-          </div>
         </div>
       </div>
     </div>
