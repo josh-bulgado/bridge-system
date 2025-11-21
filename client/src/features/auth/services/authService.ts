@@ -67,7 +67,7 @@ class AuthService {
   }
 
   // Get current user from storage
-  getCurrentUser(): LoginResponse {
+  getCurrentUser(): LoginResponse | null {
     try {
       const userData =
         localStorage.getItem("user") || sessionStorage.getItem("user");
@@ -157,6 +157,107 @@ class AuthService {
       const errorMessage =
         error.response?.data?.message || "Failed to reset password";
       throw new Error(errorMessage);
+    }
+  }
+
+  // Google Sign-In Check
+  async googleSignInCheck(idToken: string): Promise<{
+    status: "SUCCESS" | "NEEDS_COMPLETION" | "ERROR";
+    message: string;
+    data?: any;
+  }> {
+    try {
+      const { data: response } = await api.post(
+        `${this.baseUrl}/google-signin/check`,
+        { IdToken: idToken },
+      );
+
+      if (import.meta.env.DEV) {
+        console.log("AuthService googleSignInCheck response =", response);
+      }
+
+      // If SUCCESS, store the token and user data
+      if (response.status === "SUCCESS" && response.data) {
+        localStorage.setItem("user", JSON.stringify(response.data.user));
+        localStorage.setItem("auth_token", response.data.token);
+      }
+
+      return response;
+    } catch (error: Error | any) {
+      const errorMessage = error.response?.data?.message || "Google Sign-In failed";
+      throw new Error(errorMessage);
+    }
+  }
+
+  // Complete Google Profile
+  async completeGoogleProfile(
+    idToken: string,
+    profileData: {
+      firstName: string;
+      middleName?: string;
+      lastName: string;
+      extension?: string;
+      dateOfBirth: string;
+      contactNumber: string;
+    }
+  ): Promise<LoginResponse> {
+    try {
+      const { data: response } = await api.post<LoginResponse>(
+        `${this.baseUrl}/google-signin/complete`,
+        {
+          IdToken: idToken,
+          FirstName: profileData.firstName,
+          MiddleName: profileData.middleName,
+          LastName: profileData.lastName,
+          Extension: profileData.extension,
+          DateOfBirth: profileData.dateOfBirth,
+          ContactNumber: profileData.contactNumber,
+        },
+      );
+
+      if (import.meta.env.DEV) {
+        console.log("AuthService completeGoogleProfile response =", response);
+      }
+
+      // Store in localStorage
+      localStorage.setItem("user", JSON.stringify(response.user));
+      localStorage.setItem("auth_token", response.token);
+
+      return response;
+    } catch (error: Error | any) {
+      const errorMessage = error.response?.data?.message || "Failed to complete profile";
+      throw new Error(errorMessage);
+    }
+  }
+
+  // Check Email Availability
+  async checkEmailAvailability(email: string): Promise<{ available: boolean }> {
+    try {
+      const { data } = await api.get<{ available: boolean }>(
+        `${this.baseUrl}/check-email-availability`,
+        { params: { email } }
+      );
+      
+      if (import.meta.env.DEV) {
+        console.log("Email availability check response:", data);
+      }
+      
+      return data;
+    } catch (error: any) {
+      if (import.meta.env.DEV) {
+        console.error("Email availability check error:", error);
+        console.error("Error response:", error.response?.data);
+        console.error("Error status:", error.response?.status);
+      }
+      
+      // Only return false if we get a definitive response from the server
+      // Otherwise, throw the error so the UI can handle it appropriately
+      if (error.response?.status === 400 || error.response?.status === 409) {
+        return { available: false };
+      }
+      
+      // For network errors, server errors, etc., throw so the UI shows an error state
+      throw error;
     }
   }
 }

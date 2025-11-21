@@ -4,6 +4,7 @@ export { AuthFeaturesList } from "./AuthFeaturesList";
 export { SignInForm } from "./SignInForm";
 export { ForgotPasswordForm } from "./ForgotPasswordForm";
 export { ResetPasswordForm } from "./ResetPasswordForm";
+export { CompleteGoogleProfileForm } from "./CompleteGoogleProfileForm";
 
 // Registration components
 export { default as StepPersonalInfo } from "./StepPersonalInfo";

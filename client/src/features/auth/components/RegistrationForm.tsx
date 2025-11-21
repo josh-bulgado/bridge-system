@@ -10,16 +10,16 @@ import {
 } from "../schemas/registerSchema";
 import { useRegistration } from "../hooks/useRegistration";
 import { Progress } from "@/components/ui/progress";
-import { ArrowLeft, ArrowRight, Check } from "lucide-react";
+import { ArrowLeft, ArrowRight, Check, AlertCircle } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import StepPersonalInfo from "./StepPersonalInfo";
 import StepContactInfo_New from "./StepContactInfo_New";
 import StepSecuritySetup from "./StepSecuritySetup";
-import { FieldGroup, FieldDescription } from "@/components/ui/field";
 
 export const RegistrationForm = () => {
   const [step, setStep] = useState(1);
-  const [direction, setDirection] = useState<"forward" | "backward">("forward");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const navigate = useNavigate();
   const { register, isLoading, error, success, data, clearError } =
@@ -77,7 +77,6 @@ export const RegistrationForm = () => {
 
   const nextStep = () => {
     if (step < 3) {
-      setDirection("forward");
       setStep(step + 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -85,7 +84,6 @@ export const RegistrationForm = () => {
 
   const prevStep = () => {
     if (step > 1) {
-      setDirection("backward");
       setStep(step - 1);
       window.scrollTo({ top: 0, behavior: "smooth" });
     }
@@ -117,107 +115,124 @@ export const RegistrationForm = () => {
   }, [step, isLoading, isSubmitting]);
 
   // Common Button Component
-  const StepButton = ({ type, onClick, disabled, children }) => (
-    <Button
-      type={type}
-      onClick={onClick}
-      disabled={disabled}
-      className="ml-auto flex items-center gap-2 transition-all hover:scale-105"
-    >
-      {children}
-    </Button>
-  );
+
 
   return (
-    <div className="flex w-full max-w-xl flex-col gap-3 rounded-xl lg:rounded-none lg:border-none lg:shadow-none">
-      <FormProvider {...methods}>
-        <form onSubmit={methods.handleSubmit(onSubmit)} className="p-4 md:p-6">
-          <div className="mb-4 flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="scroll-m-20 text-3xl font-semibold tracking-tight">
-                Create account
-              </h2>
+    <div className="w-full max-w-xl">
+      <Card className="border-none shadow-none lg:border lg:shadow-sm">
+        <CardHeader className="space-y-6 pb-6">
+          <div className="flex items-center justify-between">
+            <CardTitle className="text-2xl font-bold">Create account</CardTitle>
+            <div className="text-muted-foreground text-sm font-medium">
+              Step {step} of 3
             </div>
+          </div>
 
+          <div className="space-y-2">
             <Progress
               value={(step / 3) * 100}
               className="h-2 transition-all duration-500 ease-in-out"
             />
-
-            <div className="text-muted-foreground flex justify-between text-xs">
+            <div className="flex justify-between px-1">
               <span
-                className={`${step >= 1 ? "text-primary font-medium" : ""}`}
+                className={`text-xs font-medium transition-colors duration-300 ${step >= 1 ? "text-primary" : "text-muted-foreground"}`}
               >
-                Personal Info
+                Personal
               </span>
               <span
-                className={`${step >= 2 ? "text-primary font-medium" : ""}`}
+                className={`text-xs font-medium transition-colors duration-300 ${step >= 2 ? "text-primary" : "text-muted-foreground"}`}
               >
-                Contact Info
+                Contact
               </span>
               <span
-                className={`${step >= 3 ? "text-primary font-medium" : ""}`}
+                className={`text-xs font-medium transition-colors duration-300 ${step >= 3 ? "text-primary" : "text-muted-foreground"}`}
               >
-                Security Setup
+                Security
               </span>
             </div>
           </div>
+        </CardHeader>
 
-          <div className="relative min-h-[400px]">
-            {step === 1 && <StepPersonalInfo />}
-            {step === 2 && <StepContactInfo_New />}
-            {step === 3 && <StepSecuritySetup />}
-          </div>
+        <CardContent className="p-6 pt-0">
+          <FormProvider {...methods}>
+            <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+              <div className="min-h-[400px] animate-in fade-in slide-in-from-right-4 duration-300">
+                {step === 1 && <StepPersonalInfo />}
+                {step === 2 && <StepContactInfo_New />}
+                {step === 3 && <StepSecuritySetup />}
+              </div>
 
-          {error && (
-            <div className="my-4 flex items-center gap-2 rounded-md border border-red-200 bg-red-50 p-4">
-              <span className="text-red-600">⚠️</span>
-              <p className="text-sm text-red-600">{error}</p>
-            </div>
-          )}
+              {error && (
+                <Alert variant="destructive">
+                  <AlertCircle className="h-4 w-4" />
+                  <AlertDescription>{error}</AlertDescription>
+                </Alert>
+              )}
 
-          <div className="my-6 flex items-center justify-between gap-4">
-            {step > 1 && (
-              <StepButton type="button" onClick={prevStep} disabled={isLoading}>
-                <ArrowLeft /> Back
-              </StepButton>
-            )}
+              <div className="flex items-center justify-between pt-4">
+                <Button
+                  type="button"
+                  variant="ghost"
+                  onClick={prevStep}
+                  disabled={step === 1 || isLoading}
+                  className={`gap-2 ${step === 1 ? "invisible" : ""}`}
+                >
+                  <ArrowLeft className="h-4 w-4" /> Back
+                </Button>
 
-            {step < 3 ? (
-              <StepButton
-                type="button"
-                onClick={nextStep}
-                disabled={!isStepValid(step - 1) || isLoading}
-              >
-                Next <ArrowRight size={16} />
-              </StepButton>
-            ) : (
-              <StepButton
-                type="submit"
-                onClick={nextStep}
-                disabled={!isStepValid(2) || isLoading}
-              >
-                {isLoading ? (
-                  <>
-                    <Spinner className="animate-spin" />
-                    Creating Account...
-                  </>
+                {step < 3 ? (
+                  <Button
+                    type="button"
+                    onClick={nextStep}
+                    disabled={!isStepValid(step - 1) || isLoading}
+                    className="gap-2"
+                  >
+                    Next <ArrowRight className="h-4 w-4" />
+                  </Button>
                 ) : (
-                  <>
-                    <Check /> Create Account
-                  </>
+                  <Button
+                    type="submit"
+                    disabled={!isStepValid(2) || isLoading}
+                    className="gap-2"
+                  >
+                    {isLoading ? (
+                      <>
+                        <Spinner className="mr-2 h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4" /> Create Account
+                      </>
+                    )}
+                  </Button>
                 )}
-              </StepButton>
-            )}
-          </div>
+              </div>
 
-          <FieldGroup>
-            <FieldDescription className="text-center">
-              Already have an account? <Link to="/sign-in">Sign in</Link>
-            </FieldDescription>
-          </FieldGroup>
-        </form>
-      </FormProvider>
+              <div className="text-center text-sm">
+                <span className="text-muted-foreground">
+                  Already have an account?{" "}
+                </span>
+                <Link
+                  to="/sign-in"
+                  className="text-primary font-medium hover:underline underline-offset-4"
+                >
+                  Sign in
+                </Link>
+              </div>
+
+              {/* Honeypot field */}
+              <input
+                type="text"
+                {...methods.register("website")}
+                style={{ display: "none" }}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </form>
+          </FormProvider>
+        </CardContent>
+      </Card>
     </div>
   );
 };

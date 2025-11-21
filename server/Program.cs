@@ -31,6 +31,8 @@ builder.Services.AddSingleton<JwtService>();
 // Email service
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<EmailService>();
+builder.Services.AddMemoryCache();
+builder.Services.AddSingleton<RateLimiterService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
@@ -115,47 +117,6 @@ app.Use(async (context, next) =>
     
     // Remove server header
     context.Response.Headers.Remove("Server");
-    
-    await next();
-});
-
-// Rate Limiting Headers Middleware (basic implementation)
-var requestCounts = new System.Collections.Concurrent.ConcurrentDictionary<string, (DateTime, int)>();
-app.Use(async (context, next) =>
-{
-    var ipAddress = context.Connection.RemoteIpAddress?.ToString() ?? "unknown";
-    var now = DateTime.UtcNow;
-    
-    // Clean up old entries (older than 1 minute)
-    var keysToRemove = requestCounts.Where(kvp => (now - kvp.Value.Item1).TotalMinutes > 1).Select(kvp => kvp.Key).ToList();
-    foreach (var key in keysToRemove)
-    {
-        requestCounts.TryRemove(key, out _);
-    }
-    
-    // Check rate limit for sensitive endpoints
-    if (context.Request.Path.StartsWithSegments("/api/auth") || 
-        context.Request.Path.StartsWithSegments("/api/Auth"))
-    {
-        var (timestamp, count) = requestCounts.GetOrAdd(ipAddress, (now, 0));
-        
-        // Reset if more than 1 minute has passed
-        if ((now - timestamp).TotalMinutes > 1)
-        {
-            requestCounts[ipAddress] = (now, 1);
-        }
-        else
-        {
-            // Max 20 requests per minute for auth endpoints
-            if (count >= 20)
-            {
-                context.Response.StatusCode = 429; // Too Many Requests
-                await context.Response.WriteAsync("Rate limit exceeded. Please try again later.");
-                return;
-            }
-            requestCounts[ipAddress] = (timestamp, count + 1);
-        }
-    }
     
     await next();
 });

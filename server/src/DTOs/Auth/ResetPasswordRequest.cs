@@ -13,7 +13,8 @@ namespace server.DTOs.Auth
     public required string Otp { get; set; }
 
     [Required(ErrorMessage = "New password is required.")]
-    [MinLength(8, ErrorMessage = "Password must be at least 8 characters long.")]
+    [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$", 
+        ErrorMessage = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.")]
     public required string NewPassword { get; set; }
   }
 }

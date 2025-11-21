@@ -12,6 +12,7 @@ export const registrationApi = {
       email: data.email,
       contactNumber: data.contactNumber,
       password: data.password,
+      website: data.website, // Honeypot field
     };
     return api.post("/auth/register", serverData).then((res) => res.data);
   },

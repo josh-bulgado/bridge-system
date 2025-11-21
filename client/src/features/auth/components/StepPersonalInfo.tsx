@@ -15,7 +15,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { formatLocalDate } from "@/lib/date";
 
@@ -23,13 +23,15 @@ const StepPersonalInfo = () => {
   const { control } = useFormContext();
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
-          Personal Information
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h3 className="text-lg font-medium">Personal Information</h3>
+        <p className="text-muted-foreground text-sm">
+          Please enter your personal details accurately.
+        </p>
+      </div>
+
+      <div className="space-y-4">
         {/* Name Fields */}
         <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <FormField
@@ -170,8 +172,8 @@ const StepPersonalInfo = () => {
             </FormItem>
           )}
         />
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

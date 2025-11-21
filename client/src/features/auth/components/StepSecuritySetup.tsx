@@ -8,13 +8,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { PasswordStrength } from "@/components/ui/password-strength";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+
 import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Separator } from "@/components/ui/separator";
@@ -31,13 +25,15 @@ const StepSecuritySetup = () => {
     password && confirmPassword && password === confirmPassword;
 
   return (
-    <Card>
-      <CardHeader className="pb-2">
-        <CardTitle className="text-base font-semibold">
-          Security Setup
-        </CardTitle>
-      </CardHeader>
-      <CardContent className="space-y-4">
+    <div className="space-y-6">
+      <div className="space-y-2">
+        <h3 className="text-lg font-medium">Security Setup</h3>
+        <p className="text-muted-foreground text-sm">
+          Secure your account with a strong password.
+        </p>
+      </div>
+
+      <div className="space-y-4">
         {/* Password Fields */}
         <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <div>
@@ -149,8 +145,8 @@ const StepSecuritySetup = () => {
             )}
           />
         </div>
-      </CardContent>
-    </Card>
+      </div>
+    </div>
   );
 };
 

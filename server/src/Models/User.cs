@@ -16,8 +16,7 @@ namespace server.Models
     public required string Email { get; set; }
 
     [BsonElement("passwordHash")]
-    [Required]
-    public required string PasswordHash { get; set; }
+    public string PasswordHash { get; set; } = string.Empty; // Empty for Google auth users
 
     [BsonElement("role")]
     public string Role { get; set; } = "resident"; // resident | staff | admin
@@ -46,5 +45,11 @@ namespace server.Models
     [BsonElement("residentId")]
     [BsonRepresentation(BsonType.ObjectId)]
     public string? ResidentId { get; set; }
+
+    [BsonElement("authProvider")]
+    public string AuthProvider { get; set; } = "local"; // local | google
+
+    [BsonElement("googleId")]
+    public string? GoogleId { get; set; }
   }
 }

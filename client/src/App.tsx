@@ -7,6 +7,7 @@ import { EmailConfirmationPage } from "./features/auth/pages/EmailConfirmationPa
 import VerifyOTPPage from "./features/auth/pages/VerifyOTPPage";
 import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
+import CompleteGoogleProfilePage from "./features/auth/pages/CompleteGoogleProfilePage";
 import ResidentLayout from "./features/resident/layout/ResidentLayout";
 import AdminLayout from "./features/admin/layout/AdminLayout";
 import StaffLayout from "./features/staff/layout/StaffLayout";
@@ -56,6 +57,7 @@ function App() {
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
+            <Route path="/auth/complete-google-profile" element={<CompleteGoogleProfilePage />} />
 
             {/* Resident Routes */}
             <Route path="/resident" element={<ResidentLayout />}>

@@ -4,6 +4,8 @@ using server.Services;
 using server.DTOs;
 using server.DTOs.Auth;
 using BCrypt.Net;
+using System.Net.Http;
+using System.Text.Json;
 
 namespace server.Controllers
 {
@@ -15,18 +17,55 @@ namespace server.Controllers
     private readonly ResidentService _residentService;
     private readonly JwtService _jwtService;
     private readonly EmailService _emailService;
+    private readonly IHttpClientFactory _httpClientFactory;
+    private readonly IConfiguration _configuration;
+    private readonly RateLimiterService _rateLimiter;
 
-    public AuthController(UserService userService, ResidentService residentService, JwtService jwtService, EmailService emailService)
+    public AuthController(
+      UserService userService, 
+      ResidentService residentService, 
+      JwtService jwtService, 
+      EmailService emailService,
+      IHttpClientFactory httpClientFactory,
+      IConfiguration configuration,
+      RateLimiterService rateLimiter)
     {
       _userService = userService;
       _residentService = residentService;
       _jwtService = jwtService;
       _emailService = emailService;
+      _httpClientFactory = httpClientFactory;
+      _configuration = configuration;
+      _rateLimiter = rateLimiter;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> Register([FromBody] RegisterRequest dto)
     {
+      // 0️⃣ Security Checks
+      // Rate Limiting: 5 requests per 10 minutes per IP
+      var ipAddress = _rateLimiter.GetClientIp(HttpContext);
+      if (_rateLimiter.IsRateLimited(ipAddress, 5, TimeSpan.FromMinutes(10)))
+      {
+          return StatusCode(429, new { message = "Too many registration attempts. Please try again later." });
+      }
+
+      // Honeypot Check
+      if (!string.IsNullOrEmpty(dto.Website))
+      {
+          // Silently fail or return generic error to confuse bots
+          return BadRequest(new { message = "Registration failed." });
+      }
+
+      // Input Sanitization
+      dto.FirstName = dto.FirstName.Trim();
+      dto.MiddleName = dto.MiddleName?.Trim();
+      dto.LastName = dto.LastName.Trim();
+      dto.Extension = dto.Extension?.Trim();
+      dto.DateOfBirth = dto.DateOfBirth.Trim();
+      dto.ContactNumber = dto.ContactNumber.Trim();
+      dto.Email = dto.Email.Trim();
+
       // 1️⃣ Check if email already exists
       var existingUser = await _userService.GetByEmailAsync(dto.Email);
       if (existingUser != null)
@@ -77,6 +116,24 @@ namespace server.Controllers
 
       // 6️⃣ Return clean response
       return Ok(new { message = "Registration successful. Please check your email for the verification code." });
+    }
+
+    [HttpGet("check-email-availability")]
+    public async Task<IActionResult> CheckEmailAvailability([FromQuery] string email)
+    {
+      // Validate email parameter
+      if (string.IsNullOrWhiteSpace(email))
+      {
+        return BadRequest(new { available = false, message = "Email is required." });
+      }
+
+      // Sanitize email
+      email = email.Trim().ToLower();
+
+      // Check if email already exists
+      var existingUser = await _userService.GetByEmailAsync(email);
+      
+      return Ok(new { available = existingUser == null });
     }
 
     [HttpPost("login")]
@@ -329,6 +386,281 @@ namespace server.Controllers
       }
 
       return Ok(new { message = message });
+    }
+
+    [HttpPost("google-signin/check")]
+    public async Task<IActionResult> GoogleSignInCheck([FromBody] GoogleSignInRequest dto)
+    {
+      try
+      {
+        // Verify Google ID token
+        var googleUser = await VerifyGoogleTokenAsync(dto.IdToken);
+        if (googleUser == null)
+        {
+          return Unauthorized(new { status = "ERROR", message = "Invalid Google token." });
+        }
+
+        // Check if email is Gmail
+        if (!googleUser.Email.EndsWith("@gmail.com", StringComparison.OrdinalIgnoreCase))
+        {
+          return BadRequest(new { status = "ERROR", message = "Only Gmail accounts are allowed for Google Sign-In." });
+        }
+
+        // Check if user exists with this email
+        var user = await _userService.GetByEmailAsync(googleUser.Email);
+        
+        if (user == null)
+        {
+          // User doesn't exist - they need to complete profile
+          return Ok(new
+          {
+            status = "NEEDS_COMPLETION",
+            message = "Please complete your profile to continue.",
+            data = new
+            {
+              email = googleUser.Email,
+              givenName = googleUser.GivenName,
+              familyName = googleUser.FamilyName
+            }
+          });
+        }
+
+        // Check if user registered with local authentication (has password)
+        if (user.AuthProvider == "local" && !string.IsNullOrEmpty(user.PasswordHash))
+        {
+          return BadRequest(new { status = "ERROR", message = "This email is registered with a password. Please sign in using your email and password instead." });
+        }
+
+        // Check if account is inactive
+        if (!user.IsActive)
+        {
+          return BadRequest(new { status = "ERROR", message = "Your account has been deactivated. Please contact support." });
+        }
+
+        // First-time Google Sign-In: User exists but no GoogleId yet
+        if (string.IsNullOrEmpty(user.GoogleId))
+        {
+          // Link Google account and proceed to sign in
+          user.GoogleId = googleUser.GoogleId;
+          user.AuthProvider = "google";
+          user.IsEmailVerified = true;
+          user.EmailVerifiedAt = DateTime.UtcNow;
+          user.UpdatedAt = DateTime.UtcNow;
+          await _userService.UpdateAsync(user.Id!, user);
+        }
+        // Subsequent Google Sign-In: Verify Google ID matches
+        else if (user.GoogleId != googleUser.GoogleId)
+        {
+          return BadRequest(new { status = "ERROR", message = "Google account mismatch. Please use the correct Google account." });
+        }
+
+        // Generate JWT Token
+        var token = _jwtService.GenerateToken(user);
+
+        // Get resident information if user is a resident
+        object userResponse;
+        if (user.Role == "resident" && !string.IsNullOrEmpty(user.ResidentId))
+        {
+          var resident = await _residentService.GetByIdAsync(user.ResidentId);
+          userResponse = new
+          {
+            id = user.Id,
+            email = user.Email,
+            role = user.Role,
+            isEmailVerified = user.IsEmailVerified,
+            firstName = resident?.FirstName,
+            lastName = resident?.LastName,
+            middleName = resident?.MiddleName,
+            fullName = resident?.FullName
+          };
+        }
+        else
+        {
+          userResponse = new
+          {
+            id = user.Id,
+            email = user.Email,
+            role = user.Role,
+            isEmailVerified = user.IsEmailVerified
+          };
+        }
+
+        // Return success with token
+        return Ok(new
+        {
+          status = "SUCCESS",
+          message = "Sign in successful.",
+          data = new
+          {
+            token,
+            user = userResponse
+          }
+        });
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(500, new { status = "ERROR", message = $"An error occurred: {ex.Message}" });
+      }
+    }
+
+    [HttpPost("google-signin/complete")]
+    public async Task<IActionResult> CompleteGoogleProfile([FromBody] CompleteGoogleProfileRequest dto)
+    {
+      try
+      {
+        // Rate Limiting: 5 requests per 10 minutes per IP
+        var ipAddress = _rateLimiter.GetClientIp(HttpContext);
+        if (_rateLimiter.IsRateLimited(ipAddress, 5, TimeSpan.FromMinutes(10)))
+        {
+            return StatusCode(429, new { message = "Too many attempts. Please try again later." });
+        }
+        // Verify Google ID token
+        var googleUser = await VerifyGoogleTokenAsync(dto.IdToken);
+        if (googleUser == null)
+        {
+          return Unauthorized(new { message = "Invalid Google token." });
+        }
+
+        // Check if email is Gmail
+        if (!googleUser.Email.EndsWith("@gmail.com", StringComparison.OrdinalIgnoreCase))
+        {
+          return BadRequest(new { message = "Only Gmail accounts are allowed for Google Sign-In." });
+        }
+
+        // Check if user already exists
+        var existingUser = await _userService.GetByEmailAsync(googleUser.Email);
+        if (existingUser != null)
+        {
+          return BadRequest(new { message = "An account with this email already exists." });
+        }
+
+        // Validate phone number format (basic validation)
+        if (string.IsNullOrWhiteSpace(dto.ContactNumber) || dto.ContactNumber.Length < 10)
+        {
+          return BadRequest(new { message = "Please provide a valid phone number." });
+        }
+
+        // Create Resident profile
+        var resident = new Resident
+        {
+          FirstName = dto.FirstName.Trim(),
+          MiddleName = dto.MiddleName?.Trim(),
+          LastName = dto.LastName.Trim(),
+          Extension = dto.Extension?.Trim(),
+          DateOfBirth = dto.DateOfBirth.Trim(),
+          ContactNumber = dto.ContactNumber.Trim(),
+          IsResidentVerified = false,
+          ResidentVerificationStatus = "Pending",
+        };
+
+        await _residentService.CreateAsync(resident);
+
+        // Create User account linked to Google
+        var user = new User
+        {
+          Email = googleUser.Email,
+          GoogleId = googleUser.GoogleId,
+          AuthProvider = "google",
+          Role = "resident",
+          ResidentId = resident.Id,
+          IsActive = true,
+          IsEmailVerified = true, // Google verifies emails
+          EmailVerifiedAt = DateTime.UtcNow,
+          CreatedAt = DateTime.UtcNow,
+          UpdatedAt = DateTime.UtcNow,
+        };
+
+        await _userService.CreateAsync(user);
+
+        // Generate JWT Token
+        var token = _jwtService.GenerateToken(user);
+
+        // Return success response with token
+        return Ok(new
+        {
+          message = "Account created successfully!",
+          token,
+          user = new
+          {
+            id = user.Id,
+            email = user.Email,
+            role = user.Role,
+            isEmailVerified = user.IsEmailVerified,
+            firstName = resident.FirstName,
+            lastName = resident.LastName,
+            middleName = resident.MiddleName,
+            fullName = resident.FullName
+          }
+        });
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(500, new { message = $"An error occurred: {ex.Message}" });
+      }
+    }
+
+    private async Task<GoogleUserInfo?> VerifyGoogleTokenAsync(string accessToken)
+    {
+      try
+      {
+        var httpClient = _httpClientFactory.CreateClient();
+        
+        // Use the userinfo endpoint with the access token
+        httpClient.DefaultRequestHeaders.Authorization = 
+          new System.Net.Http.Headers.AuthenticationHeaderValue("Bearer", accessToken);
+        
+        var response = await httpClient.GetAsync("https://www.googleapis.com/oauth2/v3/userinfo");
+        
+        if (!response.IsSuccessStatusCode)
+        {
+          return null;
+        }
+
+        var content = await response.Content.ReadAsStringAsync();
+        var userInfo = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(content);
+
+        if (userInfo == null)
+        {
+          return null;
+        }
+
+        // Extract user information
+        var email = userInfo.TryGetValue("email", out var emailElement) ? emailElement.GetString() : null;
+        var googleId = userInfo.TryGetValue("sub", out var subElement) ? subElement.GetString() : null;
+        var name = userInfo.TryGetValue("name", out var nameElement) ? nameElement.GetString() : null;
+        var givenName = userInfo.TryGetValue("given_name", out var givenNameElement) ? givenNameElement.GetString() : null;
+        var familyName = userInfo.TryGetValue("family_name", out var familyNameElement) ? familyNameElement.GetString() : null;
+        var emailVerified = userInfo.TryGetValue("email_verified", out var verifiedElement) && verifiedElement.GetBoolean();
+
+        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(googleId))
+        {
+          return null;
+        }
+
+        return new GoogleUserInfo
+        {
+          Email = email,
+          GoogleId = googleId,
+          Name = name ?? "",
+          GivenName = givenName ?? "",
+          FamilyName = familyName ?? "",
+          EmailVerified = emailVerified
+        };
+      }
+      catch
+      {
+        return null;
+      }
+    }
+
+    private class GoogleUserInfo
+    {
+      public required string Email { get; set; }
+      public required string GoogleId { get; set; }
+      public required string Name { get; set; }
+      public required string GivenName { get; set; }
+      public required string FamilyName { get; set; }
+      public bool EmailVerified { get; set; }
     }
 
   }

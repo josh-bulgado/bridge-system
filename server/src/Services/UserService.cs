@@ -88,7 +88,9 @@ namespace server.Services
 
         foreach (var record in history)
         {
-            if (BCrypt.Net.BCrypt.Verify(newPassword, record.PasswordHash))
+            if (!string.IsNullOrWhiteSpace(record.PasswordHash) && 
+                record.PasswordHash.StartsWith("$") && 
+                BCrypt.Net.BCrypt.Verify(newPassword, record.PasswordHash))
             {
                 return true;
             }
@@ -118,7 +120,9 @@ namespace server.Services
       }
 
       // Check if new password is same as current password
-      if (BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
+      if (!string.IsNullOrWhiteSpace(user.PasswordHash) && 
+          user.PasswordHash.StartsWith("$") && 
+          BCrypt.Net.BCrypt.Verify(newPassword, user.PasswordHash))
       {
           return (false, "Cannot use your old password.");
       }
@@ -129,8 +133,11 @@ namespace server.Services
           return (false, "Cannot use a previously used password.");
       }
 
-      // Add current password to history before updating
-      await AddToPasswordHistoryAsync(user.Id!, user.PasswordHash);
+      // Add current password to history before updating (only if it exists and is valid)
+      if (!string.IsNullOrWhiteSpace(user.PasswordHash) && user.PasswordHash.StartsWith("$"))
+      {
+          await AddToPasswordHistoryAsync(user.Id!, user.PasswordHash);
+      }
 
       user.PasswordHash = newPasswordHash;
       user.EmailVerificationOtp = null;
