@@ -24,6 +24,16 @@ import {
 
 import { Button } from "@/components/ui/button";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   DropdownMenu,
   DropdownMenuCheckboxItem,
   DropdownMenuContent,
@@ -47,17 +57,18 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { AddDocumentSheet } from "./AddDocumentSheet";
+import { useDeleteDocument } from "../hooks";
+import { Trash2 } from "lucide-react";
+import type { Document } from "../types/document";
 
 interface DocumentDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  onAddDocument?: (document: any) => void;
 }
 
 export function DocumentDataTable<TData, TValue>({
   columns,
   data,
-  onAddDocument = () => {},
 }: DocumentDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -70,6 +81,10 @@ export function DocumentDataTable<TData, TValue>({
     pageIndex: 0,
     pageSize: 10,
   });
+  const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = React.useState(false);
+  const [isDeleting, setIsDeleting] = React.useState(false);
+  
+  const { mutate: deleteDocument } = useDeleteDocument();
 
   const table = useReactTable({
     data: data,
@@ -95,8 +110,56 @@ export function DocumentDataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  const selectedCount = table.getFilteredSelectedRowModel().rows.length;
+
+  const handleBulkDelete = () => {
+    setBulkDeleteDialogOpen(true);
+  };
+
+  const confirmBulkDelete = async () => {
+    setIsDeleting(true);
+    const selectedRows = table.getFilteredSelectedRowModel().rows;
+    const selectedDocuments = selectedRows.map((row) => row.original as Document);
+
+    // Delete each document sequentially
+    for (const doc of selectedDocuments) {
+      await new Promise<void>((resolve) => {
+        deleteDocument(doc.id, {
+          onSettled: () => {
+            resolve();
+          },
+        });
+      });
+    }
+
+    // Reset selection and close dialog after all deletions
+    setIsDeleting(false);
+    setBulkDeleteDialogOpen(false);
+    setRowSelection({});
+  };
+
   return (
     <div className="flex h-full w-full flex-col space-y-4">
+      {/* Bulk Actions Bar - Shows when rows are selected */}
+      {selectedCount > 0 && (
+        <div className="flex items-center justify-between rounded-lg border bg-muted/50 px-4 py-3">
+          <div className="flex items-center gap-2">
+            <span className="text-sm font-medium">
+              {selectedCount} {selectedCount === 1 ? "document" : "documents"} selected
+            </span>
+          </div>
+          <Button
+            variant="destructive"
+            size="sm"
+            onClick={handleBulkDelete}
+            disabled={isDeleting}
+          >
+            <Trash2 className="mr-2 h-4 w-4" />
+            {isDeleting ? "Deleting..." : "Delete Selected"}
+          </Button>
+        </div>
+      )}
+
       {/* Search and Filters */}
       <div className="flex items-center gap-4">
         <Input
@@ -160,7 +223,7 @@ export function DocumentDataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <AddDocumentSheet onAddDocument={onAddDocument} />
+          <AddDocumentSheet />
         </div>
       </div>
 
@@ -294,6 +357,29 @@ export function DocumentDataTable<TData, TValue>({
           </div>
         </div>
       </div>
+
+      {/* Bulk Delete Confirmation Dialog */}
+      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete {selectedCount} {selectedCount === 1 ? "document" : "documents"}?</AlertDialogTitle>
+            <AlertDialogDescription>
+              This will permanently delete {selectedCount === 1 ? "this document" : `these ${selectedCount} documents`}. 
+              This action cannot be undone and will remove all associated data.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={confirmBulkDelete}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              {isDeleting ? "Deleting..." : "Delete All"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

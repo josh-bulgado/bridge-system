@@ -2,7 +2,7 @@ import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { IconPlus, IconTrash } from "@tabler/icons-react";
-import { useCreateDocument } from "../hooks";
+import { useUpdateDocument } from "../hooks";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -12,7 +12,6 @@ import {
   SheetFooter,
   SheetHeader,
   SheetTitle,
-  SheetTrigger,
 } from "@/components/ui/sheet";
 import {
   Form,
@@ -35,31 +34,56 @@ import {
   addDocumentSchema,
   type AddDocumentFormValues,
 } from "../schema/addDocumentSchema";
+import type { Document } from "../types/document";
 
-// Zod schema for document validation
+interface EditDocumentSheetProps {
+  document: Document;
+  open: boolean;
+  onOpenChange: (open: boolean) => void;
+}
 
-export function AddDocumentSheet() {
-  const [open, setOpen] = React.useState(false);
-  const [requirements, setRequirements] = React.useState<string[]>([""]);
-  const { mutate: createDocument, isPending } = useCreateDocument();
+export function EditDocumentSheet({
+  document,
+  open,
+  onOpenChange,
+}: EditDocumentSheetProps) {
+  const [requirements, setRequirements] = React.useState<string[]>(
+    document.requirements,
+  );
+  const { mutate: updateDocument, isPending } = useUpdateDocument();
 
   // Use Form hook with correct type inference
   const form = useForm<AddDocumentFormValues>({
-    resolver: zodResolver(addDocumentSchema), // Ensure schema is used with the correct types
+    resolver: zodResolver(addDocumentSchema),
     defaultValues: {
-      name: "",
-      price: 0,
-      processingTime: "",
-      status: "Active", // Default value for status
-      requirements: [""], // Default to an empty requirement
+      name: document.name,
+      price: document.price,
+      processingTime: document.processingTime,
+      status: document.status,
+      requirements: document.requirements,
     },
   });
 
-  const { handleSubmit, setValue } = form;
+  const { handleSubmit, setValue, reset } = form;
+
+  // Reset form when document changes or sheet opens
+  React.useEffect(() => {
+    if (open) {
+      reset({
+        name: document.name,
+        price: document.price,
+        processingTime: document.processingTime,
+        status: document.status,
+        requirements: document.requirements,
+      });
+      setRequirements(document.requirements);
+    }
+  }, [document, open, reset]);
 
   const handleAddRequirement = () => {
-    setRequirements([...requirements, ""]);
-    setValue("requirements", [...requirements, ""]);
+    const newRequirements = [...requirements, ""];
+    setRequirements(newRequirements);
+    setValue("requirements", newRequirements);
   };
 
   const handleRemoveRequirement = (index: number) => {
@@ -97,39 +121,29 @@ export function AddDocumentSheet() {
       requirements: filteredRequirements,
     };
 
-    // Call the create mutation
-    createDocument(documentData, {
-      onSuccess: () => {
-        // Reset form after successful creation
-        form.reset();
-        setRequirements([""]);
-        setOpen(false);
+    // Call the update mutation
+    updateDocument(
+      { id: document.id, data: documentData },
+      {
+        onSuccess: () => {
+          onOpenChange(false);
+        },
       },
-    });
+    );
   };
 
-  const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
-    if (!newOpen) {
-      form.reset();
-      setRequirements([""]);
-    }
+  const handleClose = () => {
+    onOpenChange(false);
   };
 
   return (
-    <Sheet open={open} onOpenChange={handleOpenChange}>
-      <SheetTrigger asChild>
-        <Button size="sm">
-          <IconPlus className="h-4 w-4" />
-          <span className="ml-2 hidden lg:inline">Add Document</span>
-        </Button>
-      </SheetTrigger>
+    <Sheet open={open} onOpenChange={onOpenChange}>
       <SheetContent className="justify-between overflow-y-auto sm:max-w-[540px]">
         <SheetHeader>
-          <SheetTitle>Add New Document</SheetTitle>
+          <SheetTitle>Edit Document</SheetTitle>
           <SheetDescription>
-            Create a new document type for barangay services. Fill in all the
-            required information.
+            Update the document information. Make sure all required fields are
+            filled in correctly.
           </SheetDescription>
         </SheetHeader>
 
@@ -139,6 +153,7 @@ export function AddDocumentSheet() {
             className="flex grow flex-col px-4"
           >
             <div className="grow space-y-2">
+              {/* Document Name */}
               <FormField
                 control={form.control}
                 name="name"
@@ -211,6 +226,7 @@ export function AddDocumentSheet() {
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
+                      value={field.value}
                     >
                       <SelectTrigger>
                         <SelectValue placeholder="Select status" />
@@ -276,17 +292,14 @@ export function AddDocumentSheet() {
                 )}
               />
             </div>
-            {/* Document Name */}
 
             <SheetFooter className="mt-auto gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => handleOpenChange(false)}
-              >
+              <Button type="button" variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button type="submit">Add Document</Button>
+              <Button type="submit" disabled={isPending}>
+                {isPending ? "Updating..." : "Update Document"}
+              </Button>
             </SheetFooter>
           </form>
         </Form>
@@ -295,4 +308,4 @@ export function AddDocumentSheet() {
   );
 }
 
-export default AddDocumentSheet;
+export default EditDocumentSheet;

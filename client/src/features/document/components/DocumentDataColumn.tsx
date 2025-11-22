@@ -1,32 +1,15 @@
 import { Checkbox } from "@/components/ui/checkbox";
 import type { ColumnDef } from "@tanstack/react-table";
-import type { Document } from "../schema/documentSchema";
-import {
-  DropdownMenu,
-  DropdownMenuTrigger,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuSeparator,
-} from "@/components/ui/dropdown-menu";
+import type { Document } from "../types/document";
 import {
   TooltipProvider,
   TooltipTrigger,
   TooltipContent,
   Tooltip,
 } from "@/components/ui/tooltip";
-import {
-  IconCircleCheckFilled,
-  IconX,
-  IconToggleRight,
-  IconToggleLeft,
-  IconEye,
-  IconDotsVertical,
-  IconEdit,
-  IconCopy,
-} from "@tabler/icons-react";
-import { toast } from "sonner";
+import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
+import { DocumentActionsCell } from "./DocumentActionsCell";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-PH", {
@@ -171,101 +154,6 @@ export const columns: ColumnDef<Document>[] = [
   {
     id: "actions",
     header: "Actions",
-    cell: ({ row }) => {
-      const document = row.original;
-      const isActive = document.status === "Active";
-
-      return (
-        <div className="flex items-center gap-1">
-          <TooltipProvider>
-            {/* Toggle Active/Inactive */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className={`h-8 w-8 ${
-                    isActive
-                      ? "text-orange-600 hover:bg-orange-500 hover:text-white"
-                      : "text-green-600 hover:bg-green-500 hover:text-white"
-                  }`}
-                  onClick={() => {
-                    toast.promise(
-                      new Promise((resolve) => setTimeout(resolve, 1000)),
-                      {
-                        loading: `${isActive ? "Deactivating" : "Activating"} ${document.name}`,
-                        success: `${document.name} ${isActive ? "deactivated" : "activated"} successfully`,
-                        error: "Failed to update status",
-                      },
-                    );
-                  }}
-                >
-                  {isActive ? (
-                    <IconToggleRight className="size-4" />
-                  ) : (
-                    <IconToggleLeft className="size-4" />
-                  )}
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>
-                {isActive ? "Deactivate" : "Activate"}
-              </TooltipContent>
-            </Tooltip>
-
-            {/* View Details */}
-            <Tooltip>
-              <TooltipTrigger asChild>
-                <Button
-                  variant="outline"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => {
-                    toast(`Viewing details for ${document.name}`);
-                  }}
-                >
-                  <IconEye className="size-4" />
-                </Button>
-              </TooltipTrigger>
-              <TooltipContent>View Details</TooltipContent>
-            </Tooltip>
-
-            {/* More Actions */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="icon" className="h-8 w-8">
-                  <IconDotsVertical className="size-4" />
-                  <span className="sr-only">Open menu</span>
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-32">
-                <DropdownMenuItem
-                  onClick={() => toast(`Editing ${document.name}`)}
-                >
-                  <IconEdit className="mr-2 h-4 w-4" />
-                  Edit
-                </DropdownMenuItem>
-                <DropdownMenuItem
-                  onClick={() => toast(`Duplicating ${document.name}`)}
-                >
-                  <IconCopy className="mr-2 h-4 w-4" />
-                  Duplicate
-                </DropdownMenuItem>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem
-                  variant="destructive"
-                  onClick={() =>
-                    toast.error(
-                      `Delete ${document.name} - This would permanently remove the document`,
-                    )
-                  }
-                >
-                  Delete
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </TooltipProvider>
-        </div>
-      );
-    },
+    cell: ({ row }) => <DocumentActionsCell document={row.original} />,
   },
 ];

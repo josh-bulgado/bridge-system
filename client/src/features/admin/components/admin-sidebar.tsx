@@ -14,16 +14,17 @@ import {
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
 import {
-  UserCheck,
+  LayoutDashboard,
   Users,
-  Settings2,
+  UserCog,
+  FileText,
   Settings,
   HelpCircle,
   Search,
-  Database,
-  Home,
+  FolderOpen,
+  Building2,
 } from "lucide-react";
-import { IconInnerShadowTop } from "@tabler/icons-react";
+import BridgeIcon from "@/components/bridge-icon";
 
 const adminData = {
   user: {
@@ -35,7 +36,7 @@ const adminData = {
     {
       title: "Dashboard",
       url: "/admin",
-      icon: Home,
+      icon: LayoutDashboard,
     },
     {
       title: "Resident Management",
@@ -45,22 +46,17 @@ const adminData = {
     {
       title: "Staff Management",
       url: "/admin/staff",
-      icon: UserCheck,
+      icon: UserCog,
     },
     {
       title: "Document Configuration",
       url: "/admin/config/document",
-      icon: Settings2,
+      icon: FileText,
     },
-    // {
-    //   title: "Analytics",
-    //   url: "/admin/analytics",
-    //   icon: IconChartBar,
-    // },
     {
       title: "Barangay Configuration",
       url: "/admin/config/barangay",
-      icon: Settings2,
+      icon: Building2,
     },
   ],
   navSecondary: [
@@ -84,7 +80,7 @@ const adminData = {
     {
       name: "Data Library",
       url: "/admin/data-library",
-      icon: Database,
+      icon: FolderOpen,
     },
   ],
 };
@@ -101,12 +97,12 @@ export function AdminSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="/admin">
-                <IconInnerShadowTop size={5} />
-                <span className="text-primary text-base font-semibold">
+              <div>
+                <BridgeIcon path="/admin" version="icon" />
+                <span className="text-primary text-xl font-semibold">
                   bridge
                 </span>
-              </a>
+              </div>
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
