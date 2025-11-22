@@ -24,6 +24,7 @@ import { ErrorBoundary } from "./components/ui/error-boundary";
 import VerificationPage from "./features/resident/pages/VerificationPage";
 import ResidentManagementPage from "./features/resident/pages/ResidentManagementPage";
 import StaffManagementPage from "./features/staff/pages/StaffManagementPage";
+import StaffResidentManagementPage from "./features/staff/pages/StaffResidentManagementPage";
 import BarangayConfigPage from "./features/admin/pages/BarangayConfigPage";
 
 const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
@@ -69,7 +70,7 @@ function App() {
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              <Route path="residents" element={<ResidentManagementPage />} />
+              <Route path="resident-management" element={<ResidentManagementPage />} />  
               <Route path="staff" element={<StaffManagementPage />} />
               <Route path="config/barangay" element={<BarangayConfigPage />} />
               {/* Add more admin routes here */}
@@ -78,6 +79,7 @@ function App() {
             {/* Staff Routes */}
             <Route path="/staff" element={<StaffLayout />}>
               <Route index element={<StaffDashboard />} />
+              <Route path="resident-management" element={<StaffResidentManagementPage />} />
               <Route
                 path="payment-verification"
                 element={<PaymentVerification />}

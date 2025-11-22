@@ -28,6 +28,11 @@ namespace server.Services
       return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
     }
 
+    public async Task<User?> GetByResidentIdAsync(string residentId)
+    {
+      return await _users.Find(u => u.ResidentId == residentId).FirstOrDefaultAsync();
+    }
+
     public async Task UpdateAsync(string id, User user)
     {
       user.UpdatedAt = DateTime.UtcNow;

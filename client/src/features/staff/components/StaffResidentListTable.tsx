@@ -26,11 +26,11 @@ import {
 } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { useResidents } from "../hooks/useResidents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { useResidents } from "@/features/staff/hooks/useResidents";
-import { residentService } from "@/features/staff/services/residentService";
-import ResidentDetailsModal from "@/features/staff/components/ResidentDetailsModal";
+import { residentService } from "../services/residentService";
+import ResidentDetailsModal from "./ResidentDetailsModal";
 
 interface Resident {
   id: string;
@@ -45,7 +45,7 @@ interface Resident {
   hasDocuments: boolean;
 }
 
-interface ResidentListTableProps {
+interface StaffResidentListTableProps {
   searchTerm?: string;
   onSearchChange?: (term: string) => void;
 }
@@ -120,10 +120,10 @@ function formatDate(dateString: string | null): string {
   });
 }
 
-export default function ResidentListTable({ 
+export default function StaffResidentListTable({ 
   searchTerm = "", 
   onSearchChange 
-}: ResidentListTableProps = {}) {
+}: StaffResidentListTableProps = {}) {
   const { residents, loading, error } = useResidents();
   const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -310,19 +310,20 @@ export default function ResidentListTable({
                 <TooltipContent>Contact Resident</TooltipContent>
               </Tooltip>
 
-              {/* Edit */}
+              {/* Edit - Disabled for Staff, only Admin can edit */}
               <Tooltip>
                 <TooltipTrigger asChild>
                   <Button
                     variant="outline"
                     size="icon"
                     className="h-8 w-8"
+                    disabled
                     onClick={() => handleEdit(resident)}
                   >
                     <Edit className="size-4" />
                   </Button>
                 </TooltipTrigger>
-                <TooltipContent>Edit</TooltipContent>
+                <TooltipContent>Edit (Admin only)</TooltipContent>
               </Tooltip>
             </div>
           </TooltipProvider>
@@ -346,7 +347,7 @@ export default function ResidentListTable({
               <TableHead className="h-12 px-4 font-medium">
                 Local Address
               </TableHead>
-              <TableHead className="h-12 w-[160px] px-4 font-medium">
+              <TableHead className="h-12 w-[180px] px-4 font-medium">
                 Actions
               </TableHead>
             </TableRow>
@@ -440,7 +441,7 @@ export default function ResidentListTable({
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
         onRefresh={() => window.location.reload()}
-        userRole="admin"
+        userRole="staff"
       />
 
       {/* Contact Resident Dialog */}

@@ -40,7 +40,7 @@ const adminData = {
     },
     {
       title: "Resident Management",
-      url: "/admin/residents",
+      url: "/admin/resident-management",
       icon: Users,
     },
     {
