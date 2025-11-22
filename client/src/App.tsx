@@ -58,7 +58,10 @@ function App() {
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/auth/complete-google-profile" element={<CompleteGoogleProfilePage />} />
+            <Route
+              path="/auth/complete-google-profile"
+              element={<CompleteGoogleProfilePage />}
+            />
 
             {/* Resident Routes */}
             <Route path="/resident" element={<ResidentLayout />}>
@@ -70,8 +73,11 @@ function App() {
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              <Route path="residents" element={<ResidentManagementPage />} />
-              <Route path="staff" element={<StaffManagementPage />} />
+              <Route path="resident-management" element={<ResidentManagementPage />} />
+              <Route
+                path="staff-management"
+                element={<StaffManagementPage />}
+              />
               <Route path="config/barangay" element={<BarangayConfigPage />} />
               <Route
                 path="config/document"

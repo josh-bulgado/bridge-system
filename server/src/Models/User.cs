@@ -18,6 +18,15 @@ namespace server.Models
     [BsonElement("passwordHash")]
     public string PasswordHash { get; set; } = string.Empty; // Empty for Google auth users
 
+    [BsonElement("firstName")]
+    public string? FirstName { get; set; }
+
+    [BsonElement("lastName")]
+    public string? LastName { get; set; }
+
+    [BsonElement("mustResetPassword")]
+    public bool MustResetPassword { get; set; } = false;
+
     [BsonElement("role")]
     public string Role { get; set; } = "resident"; // resident | staff | admin
 

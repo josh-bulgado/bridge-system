@@ -40,12 +40,12 @@ const adminData = {
     },
     {
       title: "Resident Management",
-      url: "/admin/residents",
+      url: "/admin/resident-management",
       icon: Users,
     },
     {
       title: "Staff Management",
-      url: "/admin/staff",
+      url: "/admin/staff-management",
       icon: UserCog,
     },
     {
