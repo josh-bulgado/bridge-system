@@ -67,6 +67,7 @@ function App() {
             <Route path="/resident" element={<ResidentLayout />}>
               <Route index element={<ResidentDashboard />} />
               <Route path="verify" element={<VerificationPage />} />
+              <Route path="verification" element={<VerificationPage />} />
               {/* Add more resident routes here */}
             </Route>
 

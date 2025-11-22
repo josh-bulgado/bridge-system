@@ -42,11 +42,6 @@ const navMainItems = [
 
 const navSecondaryItems = [
   {
-    title: "Settings",
-    url: "/resident/settings",
-    icon: Settings,
-  },
-  {
     title: "Get Help",
     url: "/resident/help",
     icon: HelpCircle,

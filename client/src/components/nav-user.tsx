@@ -1,3 +1,4 @@
+import { useState } from "react";
 import {
   IconCreditCard,
   IconDotsVertical,
@@ -21,8 +22,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LogOut } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import { useSignOut } from "@/features/auth/hooks/useSignOut";
+import { SettingsDialog } from "@/features/resident/components/settings/SettingsDialog";
 
 export function NavUser({
   user,
@@ -35,6 +37,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { mutate: signOut, isPending } = useSignOut();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Generate initials from user name
   const getInitials = (name: string) => {
@@ -48,7 +51,9 @@ export function NavUser({
   const initials = getInitials(user.name);
 
   return (
-    <SidebarMenu>
+    <>
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -91,6 +96,10 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
+              <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
+                <Settings />
+                Settings
+              </DropdownMenuItem>
               <DropdownMenuItem>
                 <IconUserCircle />
                 Account
@@ -117,5 +126,6 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
+    </>
   );
 }
