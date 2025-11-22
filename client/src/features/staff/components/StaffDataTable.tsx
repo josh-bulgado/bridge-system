@@ -141,25 +141,7 @@ export function StaffDataTable<TData, TValue>({
   return (
     <div className="flex h-full w-full flex-col space-y-4">
       {/* Bulk Actions Bar - Shows when rows are selected */}
-      {selectedCount > 0 && (
-        <div className="bg-muted/50 flex items-center justify-between rounded-lg border px-4 py-3">
-          <div className="flex items-center gap-2">
-            <span className="text-sm font-medium">
-              {selectedCount} {selectedCount === 1 ? "staff" : "staff members"}{" "}
-              selected
-            </span>
-          </div>
-          <Button
-            variant="destructive"
-            size="sm"
-            onClick={handleBulkDelete}
-            disabled={isDeleting}
-          >
-            <Trash2 className="mr-2 h-4 w-4" />
-            {isDeleting ? "Deleting..." : "Delete Selected"}
-          </Button>
-        </div>
-      )}
+
 
       {/* Search and Filters */}
       <div className="flex items-center gap-4">
@@ -245,6 +227,15 @@ export function StaffDataTable<TData, TValue>({
           </DropdownMenu>
 
           <AddStaffSheet />
+          <Button
+            variant="outline"
+            size="icon"
+            onClick={handleBulkDelete}
+            disabled={isDeleting || selectedCount === 0}
+            className={selectedCount > 0 ? "hover:bg-red-50 hover:text-red-500" : ""}
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
         </div>
       </div>
 
