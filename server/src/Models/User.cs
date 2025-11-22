@@ -21,8 +21,20 @@ namespace server.Models
     [BsonElement("firstName")]
     public string? FirstName { get; set; }
 
+    [BsonElement("middleName")]
+    public string? MiddleName { get; set; }
+
     [BsonElement("lastName")]
     public string? LastName { get; set; }
+
+    [BsonElement("extension")]
+    public string? Extension { get; set; }
+
+    [BsonElement("dateOfBirth")]
+    public DateTime? DateOfBirth { get; set; }
+
+    [BsonElement("contactNumber")]
+    public string? ContactNumber { get; set; }
 
     [BsonElement("mustResetPassword")]
     public bool MustResetPassword { get; set; } = false;
@@ -60,5 +72,13 @@ namespace server.Models
 
     [BsonElement("googleId")]
     public string? GoogleId { get; set; }
+
+    // Navigation property for Resident
+    [BsonIgnore]
+    public Resident? Resident { get; set; }
+
+    // Computed property to check if user is a Google user
+    [BsonIgnore]
+    public bool IsGoogleUser => AuthProvider == "google";
   }
 }

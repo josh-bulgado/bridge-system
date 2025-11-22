@@ -73,7 +73,7 @@ namespace MongoBackend.Controllers
           }
 
           user.Resident.Address.Street = request.Street;
-          user.Resident.Address.HouseNumber = request.HouseNumber;
+          user.Resident.Address.HouseNumberUnit = request.HouseNumber;
           user.Resident.Address.Barangay = request.Barangay;
           user.Resident.Address.City = request.City;
           user.Resident.Address.Province = request.Province;
