@@ -20,7 +20,7 @@ import {
   ChevronsUpDown,
   Check,
 } from "lucide-react";
-import { useBarangayConfig } from "../hooks/useBarangayConfig";
+import { useSaveBarangayConfig } from "../hooks/useSaveBarangayConfig";
 import { cn } from "@/lib/utils";
 
 import {
@@ -50,7 +50,7 @@ const BarangayConfigPage: React.FC = () => {
     isLoadingMunicipalities,
     isLoadingBarangays,
     handleAddressSelect,
-  } = useBarangayConfig();
+  } = useSaveBarangayConfig();
 
   const {
     register,
