@@ -24,15 +24,13 @@ export const useFileUpload = () => {
     setUploading: (loading: boolean) => void,
     fieldOnChange: (id: string) => void,
   ) => {
+    // Security: Don't log sensitive file information
     if (import.meta.env.DEV) {
-      console.log("📤 Starting file upload:", {
-        name: file.name,
-        size: file.size,
-        type: file.type,
-      });
+      console.log("📤 Starting secure file upload");
     }
 
-    // Validate file size (5MB)
+    // Note: File size validation is now done in verificationService.uploadFile
+    // with a 20MB limit. This 5MB check is kept for backward compatibility.
     if (file.size > 5 * 1024 * 1024) {
       toast.error("File size must be less than 5MB");
       return;
@@ -43,25 +41,24 @@ export const useFileUpload = () => {
       const uploadedFile = await verificationService.uploadFile(file);
 
       if (import.meta.env.DEV) {
-        console.log("✅ Upload successful:", uploadedFile);
-        console.log("Updating form field with file ID:", uploadedFile.id);
+        console.log("✅ Upload successful");
+        // Don't log file details for security
       }
 
       setUploaded(uploadedFile);
       
-      // Update the form field with the file ID
+      // Update the form field with the file ID (Cloudinary public ID)
       fieldOnChange(uploadedFile.id);
       
       toast.success("File uploaded successfully");
     } catch (error: any) {
       if (import.meta.env.DEV) {
-        console.error("❌ Upload failed:", error);
-        console.error("❌ Error response:", error.response?.data);
-        console.error("❌ Error status:", error.response?.status);
+        console.error("❌ Upload failed");
+        // Don't log full error details for security
       }
 
       const errorMessage =
-        error.response?.data?.message || "Failed to upload file";
+        error.response?.data?.message || error.message || "Failed to upload file";
       toast.error(errorMessage);
     } finally {
       setUploading(false);

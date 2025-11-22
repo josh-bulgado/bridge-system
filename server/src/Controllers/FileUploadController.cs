@@ -1,91 +1,239 @@
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using server.Services;
+using System.Security.Claims;
 
 namespace server.Controllers
 {
     [ApiController]
     [Route("api/[controller]")]
-    // [Authorize]
+    [Authorize]
     public class FileUploadController : ControllerBase
     {
-        private readonly FileStorageService _fileStorageService;
+        private readonly CloudinaryService _cloudinaryService;
+        private readonly ILogger<FileUploadController> _logger;
 
-        public FileUploadController(FileStorageService fileStorageService)
+        public FileUploadController(CloudinaryService cloudinaryService, ILogger<FileUploadController> logger)
         {
-            _fileStorageService = fileStorageService;
+            _cloudinaryService = cloudinaryService;
+            _logger = logger;
         }
 
-        // POST: api/FileUpload
-        [HttpPost]
-        public async Task<IActionResult> UploadFile(IFormFile file)
+        /// <summary>
+        /// Upload a profile picture
+        /// </summary>
+        [HttpPost("profile-picture")]
+        public async Task<IActionResult> UploadProfilePicture([FromForm] IFormFile file)
         {
-            if (file == null || file.Length == 0)
-                return BadRequest(new { message = "No file uploaded" });
-
-            // Validate file size (5MB max)
-            if (file.Length > 5 * 1024 * 1024)
-                return BadRequest(new { message = "File size exceeds 5MB limit" });
-
-            // Validate file type
-            var allowedExtensions = new[] { ".jpg", ".jpeg", ".png", ".pdf" };
-            var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
-            
-            if (!allowedExtensions.Contains(extension))
-                return BadRequest(new { message = "Invalid file type. Only JPG, PNG, and PDF files are allowed" });
-
             try
             {
-                var fileId = await _fileStorageService.UploadFileAsync(file);
-                
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated" });
+                }
+
+                var result = await _cloudinaryService.UploadProfilePictureAsync(file, userId);
+
+                if (!result.success)
+                {
+                    return BadRequest(new { message = result.error });
+                }
+
                 return Ok(new
                 {
-                    fileId = fileId,
-                    fileName = file.FileName,
-                    fileSize = file.Length,
-                    contentType = file.ContentType,
-                    url = $"/FileUpload/{fileId}"
+                    message = "Profile picture uploaded successfully",
+                    url = result.url,
+                    publicId = result.publicId
                 });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Failed to upload file", error = ex.Message });
+                _logger.LogError(ex, "Error uploading profile picture");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
 
-        // GET: api/FileUpload/{id}
-        [HttpGet("{id}")]
-        [AllowAnonymous]
-        public async Task<IActionResult> GetFile(string id)
+        /// <summary>
+        /// Upload an image
+        /// </summary>
+        [HttpPost("image")]
+        public async Task<IActionResult> UploadImage(
+            [FromForm] IFormFile file,
+            [FromForm] string? folder = "images",
+            [FromForm] int? maxWidth = null,
+            [FromForm] int? maxHeight = null)
         {
             try
             {
-                var (stream, contentType, fileName) = await _fileStorageService.DownloadFileAsync(id);
-                
-                if (stream == null)
-                    return NotFound(new { message = "File not found" });
+                var result = await _cloudinaryService.UploadImageAsync(file, folder ?? "images", maxWidth, maxHeight);
 
-                return File(stream, contentType, fileName);
+                if (!result.success)
+                {
+                    return BadRequest(new { message = result.error });
+                }
+
+                return Ok(new
+                {
+                    message = "Image uploaded successfully",
+                    url = result.url,
+                    publicId = result.publicId
+                });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Failed to retrieve file", error = ex.Message });
+                _logger.LogError(ex, "Error uploading image");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
 
-        // DELETE: api/FileUpload/{id}
-        [HttpDelete("{id}")]
-        [Authorize(Roles = "admin,staff")]
-        public async Task<IActionResult> DeleteFile(string id)
+        /// <summary>
+        /// Upload a document (PDF, DOCX, images)
+        /// </summary>
+        [HttpPost("document")]
+        public async Task<IActionResult> UploadDocument(
+            [FromForm] IFormFile file,
+            [FromForm] string? folder = "documents")
         {
             try
             {
-                await _fileStorageService.DeleteFileAsync(id);
+                var result = await _cloudinaryService.UploadDocumentAsync(file, folder ?? "documents");
+
+                if (!result.success)
+                {
+                    return BadRequest(new { message = result.error });
+                }
+
+                return Ok(new
+                {
+                    message = "Document uploaded successfully",
+                    url = result.url,
+                    publicId = result.publicId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading document");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        /// <summary>
+        /// Upload verification document
+        /// </summary>
+        [HttpPost("verification-document")]
+        public async Task<IActionResult> UploadVerificationDocument([FromForm] IFormFile file)
+        {
+            try
+            {
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated" });
+                }
+
+                var result = await _cloudinaryService.UploadDocumentAsync(file, $"verification/{userId}");
+
+                if (!result.success)
+                {
+                    return BadRequest(new { message = result.error });
+                }
+
+                return Ok(new
+                {
+                    message = "Verification document uploaded successfully",
+                    url = result.url,
+                    publicId = result.publicId
+                });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error uploading verification document");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        /// <summary>
+        /// Delete a file from Cloudinary
+        /// </summary>
+        [HttpDelete]
+        public async Task<IActionResult> DeleteFile([FromQuery] string publicId, [FromQuery] bool isDocument = false)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(publicId))
+                {
+                    return BadRequest(new { message = "Public ID is required" });
+                }
+
+                // Decode the publicId (it may be URL encoded)
+                publicId = Uri.UnescapeDataString(publicId);
+
+                var result = await _cloudinaryService.DeleteFileAsync(publicId, isDocument);
+
+                if (!result.success)
+                {
+                    return BadRequest(new { message = result.error });
+                }
+
                 return Ok(new { message = "File deleted successfully" });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { message = "Failed to delete file", error = ex.Message });
+                _logger.LogError(ex, "Error deleting file");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        /// <summary>
+        /// Get optimized image URL
+        /// </summary>
+        [HttpGet("optimize-url")]
+        [AllowAnonymous]
+        public IActionResult GetOptimizedUrl(
+            [FromQuery] string publicId,
+            [FromQuery] int? width = null,
+            [FromQuery] int? height = null,
+            [FromQuery] string crop = "limit")
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(publicId))
+                {
+                    return BadRequest(new { message = "Public ID is required" });
+                }
+
+                var url = _cloudinaryService.GetOptimizedImageUrl(publicId, width, height, crop);
+                return Ok(new { url });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating optimized URL");
+                return StatusCode(500, new { message = "Internal server error" });
+            }
+        }
+
+        /// <summary>
+        /// Get thumbnail URL
+        /// </summary>
+        [HttpGet("thumbnail-url")]
+        [AllowAnonymous]
+        public IActionResult GetThumbnailUrl([FromQuery] string publicId, [FromQuery] int size = 150)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(publicId))
+                {
+                    return BadRequest(new { message = "Public ID is required" });
+                }
+
+                var url = _cloudinaryService.GetThumbnailUrl(publicId, size);
+                return Ok(new { url });
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error generating thumbnail URL");
+                return StatusCode(500, new { message = "Internal server error" });
             }
         }
     }

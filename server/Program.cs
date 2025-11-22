@@ -30,6 +30,10 @@ builder.Services.AddSingleton<StaffService>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<JwtService>();
 
+// Cloudinary config
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+builder.Services.AddSingleton<CloudinaryService>();
+
 // Email service
 builder.Services.AddHttpClient();
 builder.Services.AddSingleton<EmailService>();
