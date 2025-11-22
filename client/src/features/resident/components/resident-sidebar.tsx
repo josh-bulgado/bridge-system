@@ -71,11 +71,18 @@ export function ResidentSidebar({
   const userData = {
     name: userName,
     email: userEmail,
-    avatar: user?.user?.avatar, // Use user's avatar if available, otherwise initials will be shown
+    avatar: user?.avatar, // Use user's avatar if available, otherwise initials will be shown
   };
 
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar 
+      collapsible="icon" 
+      {...props}
+      style={{
+        willChange: 'width',
+        ...props.style
+      }}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -88,7 +95,7 @@ export function ResidentSidebar({
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="will-change-auto">
         <NavMain items={navMainItems} />
         <NavSecondary items={navSecondaryItems} className="mt-auto" />
       </SidebarContent>

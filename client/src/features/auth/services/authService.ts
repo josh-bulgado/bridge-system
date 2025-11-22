@@ -67,7 +67,7 @@ class AuthService {
   }
 
   // Get current user from storage
-  getCurrentUser(): LoginResponse | null {
+  getCurrentUser(): LoginResponse["user"] | null {
     try {
       const userData =
         localStorage.getItem("user") || sessionStorage.getItem("user");

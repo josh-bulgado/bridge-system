@@ -1,22 +1,98 @@
+import { useState } from "react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useDeleteAccount } from "@/features/resident/hooks";
 import { Label } from "@/components/ui/label";
-import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { InfoIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import { InfoIcon, Trash2, AlertTriangle } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
+import { toast } from "sonner";
 
 export function AccountSection() {
   const { data: user } = useAuth();
+  const deleteAccountMutation = useDeleteAccount();
+  
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [deleteFormData, setDeleteFormData] = useState({
+    password: "",
+  });
+  const [formErrors, setFormErrors] = useState({
+    password: "",
+  });
 
   const isGoogleUser = user?.isGoogleUser || false;
 
+  const validateForm = () => {
+    const errors = {
+      password: "",
+    };
+    let isValid = true;
+
+    // Validate password for non-Google users
+    if (!isGoogleUser && !deleteFormData.password) {
+      errors.password = "Password is required to delete your account";
+      isValid = false;
+    }
+
+    setFormErrors(errors);
+    return isValid;
+  };
+
+  const handleDeleteAccount = async () => {
+    if (!validateForm()) {
+      return;
+    }
+
+    try {
+      await deleteAccountMutation.mutateAsync({
+        password: isGoogleUser ? undefined : deleteFormData.password,
+        emailConfirmation: user?.email || "",
+        confirmationText: "DELETE",
+      });
+
+      toast.success("Account deleted successfully", {
+        description: "Your account has been permanently deleted.",
+      });
+    } catch (error: any) {
+      toast.error("Failed to delete account", {
+        description: error.message || "Please try again.",
+      });
+    }
+  };
+
+  const resetForm = () => {
+    setDeleteFormData({
+      password: "",
+    });
+    setFormErrors({
+      password: "",
+    });
+  };
+
+  const handleDialogChange = (open: boolean) => {
+    setShowDeleteDialog(open);
+    if (!open) {
+      resetForm();
+    }
+  };
+
   return (
     <div className="space-y-6">
-      <div>
+      <div className="space-y-3">
         <h3 className="text-lg font-semibold">Account</h3>
-        <p className="text-sm text-muted-foreground mt-1">
-          View your account information and authentication method
-        </p>
+        <Separator />
       </div>
       
       {isGoogleUser && (
@@ -28,28 +104,10 @@ export function AccountSection() {
         </Alert>
       )}
 
-      <div className="space-y-3">
+      <div className="space-y-4">
         <div className="space-y-2">
-          <Label htmlFor="email">Email Address</Label>
-          <Input
-            id="email"
-            type="email"
-            value={user?.email || ""}
-            disabled
-            className="bg-muted"
-          />
-          <p className="text-xs text-muted-foreground">
-            Your email address is used for authentication and cannot be changed.
-          </p>
-        </div>
-
-        <div className="space-y-2">
-          <Label>Account Type</Label>
-          <div className="flex items-center gap-2">
-            <Badge variant={isGoogleUser ? "default" : "secondary"}>
-              {isGoogleUser ? "Google Account" : "Local Account"}
-            </Badge>
-          </div>
+          <Label>Email Address</Label>
+          <p className="text-sm text-foreground">{user?.email || "Not available"}</p>
         </div>
 
         <div className="space-y-2">
@@ -60,20 +118,85 @@ export function AccountSection() {
             </Badge>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-2">
-          <Label htmlFor="userId">User ID</Label>
-          <Input
-            id="userId"
-            value={user?.id || ""}
-            disabled
-            className="bg-muted font-mono text-xs"
-          />
-          <p className="text-xs text-muted-foreground">
-            Your unique user identifier in the system.
-          </p>
+      <Separator />
+
+      <div className="space-y-4">
+        <div className="flex items-center justify-between">
+          <div>
+            <Label className="text-sm">Delete Account</Label>
+            <p className="text-xs text-muted-foreground mt-1">
+              Permanently delete your account and all data
+            </p>
+          </div>
+          <Button
+            variant="destructive"
+            onClick={() => setShowDeleteDialog(true)}
+            size="sm"
+          >
+            Delete
+          </Button>
         </div>
       </div>
+
+      <AlertDialog open={showDeleteDialog} onOpenChange={handleDialogChange}>
+        <AlertDialogContent className="max-w-md">
+          <AlertDialogHeader>
+            <div className="flex items-center gap-2">
+              <AlertTriangle className="h-5 w-5 text-destructive" />
+              <AlertDialogTitle>Delete Account</AlertDialogTitle>
+            </div>
+            <AlertDialogDescription className="space-y-2">
+              <p className="font-semibold text-destructive">
+                This action cannot be undone!
+              </p>
+              <p>
+                This will permanently delete your account and remove all your data
+                from our servers, including personal information, verification documents,
+                request history, and all associated data.
+              </p>
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+
+          {!isGoogleUser && (
+            <div className="space-y-4 py-4">
+              <div className="space-y-2">
+                <Label htmlFor="delete-password">
+                  Confirm your password
+                </Label>
+                <Input
+                  id="delete-password"
+                  type="password"
+                  placeholder="Enter your password"
+                  value={deleteFormData.password}
+                  onChange={(e) =>
+                    setDeleteFormData({ ...deleteFormData, password: e.target.value })
+                  }
+                  className={formErrors.password ? "border-destructive" : ""}
+                  autoFocus
+                />
+                {formErrors.password && (
+                  <p className="text-sm text-destructive">{formErrors.password}</p>
+                )}
+              </div>
+            </div>
+          )}
+
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={deleteAccountMutation.isPending}>
+              Cancel
+            </AlertDialogCancel>
+            <Button
+              variant="destructive"
+              onClick={handleDeleteAccount}
+              disabled={deleteAccountMutation.isPending}
+            >
+              {deleteAccountMutation.isPending ? "Deleting..." : "Delete Account"}
+            </Button>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

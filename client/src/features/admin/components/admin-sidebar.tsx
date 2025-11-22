@@ -85,11 +85,18 @@ const adminData = {
   ],
 };
 
-export function AdminSidebar({
+export const AdminSidebar = React.memo(function AdminSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar 
+      collapsible="icon" 
+      {...props}
+      style={{
+        willChange: 'width',
+        ...props.style
+      }}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -97,17 +104,12 @@ export function AdminSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <div>
-                <BridgeIcon path="/admin" version="icon" />
-                <span className="text-primary text-xl font-semibold">
-                  bridge
-                </span>
-              </div>
+              <BridgeIcon path="/admin" size="small" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="will-change-auto">
         <NavMain items={adminData.navMain} />
         <NavDocuments items={adminData.documents} />
         <NavSecondary items={adminData.navSecondary} className="mt-auto" />
@@ -117,4 +119,4 @@ export function AdminSidebar({
       </SidebarFooter>
     </Sidebar>
   );
-}
+});

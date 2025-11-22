@@ -10,7 +10,7 @@ export function useSignOut(): UseMutationResult<void, Error, void, unknown> {
   return useMutation<void, Error, void>({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
-      navigate("/");
+      navigate("/sign-in");
       toast.success("Logged out successfully");
     },
     onError: (error) => {

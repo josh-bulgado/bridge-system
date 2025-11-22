@@ -1,8 +1,9 @@
 import { cva, type VariantProps } from "class-variance-authority";
 import { Link } from "react-router-dom";
+import { useSidebar } from "@/components/ui/sidebar";
 
 const bridgeIconVariants = cva(
-  "font-extrabold tracking-tight transition-all duration-200 ease-in-out",
+  "font-extrabold tracking-tight transition-all duration-300 ease-in-out inline-block",
   {
     variants: {
       variant: {
@@ -45,12 +46,27 @@ const BridgeIcon = ({
   responsive,
   version = "full",
 }: BridgeIconProps) => {
-  const displayText = version === "full" ? "bridge" : "b";
+  // Try to get sidebar state, but handle cases where we're not in a SidebarProvider
+  let isCollapsed = false;
+  try {
+    const { state } = useSidebar();
+    isCollapsed = state === "collapsed";
+  } catch {
+    // Not inside a SidebarProvider, use default behavior
+    isCollapsed = false;
+  }
+  
+  // Show only "b" when sidebar is collapsed (icon mode), otherwise show full text or based on version prop
+  const displayText = isCollapsed ? "b" : (version === "full" ? "bridge" : "b");
 
   return (
     <Link
       to={path}
       className={bridgeIconVariants({ variant, size, responsive, version })}
+      style={{
+        minWidth: isCollapsed ? "auto" : "fit-content",
+        whiteSpace: "nowrap",
+      }}
     >
       {displayText}
     </Link>

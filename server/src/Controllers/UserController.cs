@@ -151,5 +151,84 @@ namespace MongoBackend.Controllers
         return StatusCode(500, new { message = "An error occurred while changing password", error = ex.Message });
       }
     }
+
+    [Authorize]
+    [HttpDelete("delete-account")]
+    public async Task<IActionResult> DeleteAccount([FromBody] DeleteAccountRequest request)
+    {
+      try
+      {
+        // Get user ID from JWT token
+        var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+        var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+        if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(userEmail))
+        {
+          return Unauthorized(new { message = "User not authenticated" });
+        }
+
+        // Get user from database
+        var user = await _userService.GetByIdAsync(userId);
+        if (user == null)
+        {
+          return NotFound(new { message = "User not found" });
+        }
+
+        // Security: Verify password for local users or confirmation for Google users
+        if (!user.IsGoogleUser)
+        {
+          // Local user - verify password
+          if (string.IsNullOrWhiteSpace(request.Password))
+          {
+            return BadRequest(new { message = "Password is required to delete your account" });
+          }
+
+          if (string.IsNullOrWhiteSpace(user.PasswordHash) || 
+              !BCrypt.Net.BCrypt.Verify(request.Password, user.PasswordHash))
+          {
+            return BadRequest(new { message = "Incorrect password" });
+          }
+        }
+
+        // Security: Verify email confirmation
+        if (request.EmailConfirmation?.ToLower() != userEmail.ToLower())
+        {
+          return BadRequest(new { message = "Email confirmation does not match your account email" });
+        }
+
+        // Security: Check for confirmation text
+        if (request.ConfirmationText?.ToUpper() != "DELETE")
+        {
+          return BadRequest(new { message = "Please type DELETE to confirm account deletion" });
+        }
+
+        // Delete associated resident data if exists
+        if (!string.IsNullOrEmpty(user.ResidentId))
+        {
+          try
+          {
+            await _residentService.DeleteAsync(user.ResidentId);
+          }
+          catch (Exception ex)
+          {
+            // Log but continue with user deletion
+            Console.WriteLine($"Error deleting resident data: {ex.Message}");
+          }
+        }
+
+        // Delete user account
+        var deleted = await _userService.DeleteUserByEmail(userEmail);
+        if (!deleted)
+        {
+          return StatusCode(500, new { message = "Failed to delete account" });
+        }
+
+        return Ok(new { message = "Account deleted successfully" });
+      }
+      catch (Exception ex)
+      {
+        return StatusCode(500, new { message = "An error occurred while deleting account", error = ex.Message });
+      }
+    }
   }
 }
