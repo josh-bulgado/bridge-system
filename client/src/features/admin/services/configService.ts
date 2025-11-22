@@ -56,7 +56,8 @@ class BarangayConfigService {
         officeHours: response.officeHours,
       };
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || "Failed to fetch barangay config";
+      const errorMessage =
+        error?.response?.data?.message || "Failed to fetch barangay config";
       throw new Error(errorMessage);
     }
   }
@@ -91,7 +92,8 @@ class BarangayConfigService {
 
       return response;
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || "Failed to save barangay config";
+      const errorMessage =
+        error?.response?.data?.message || "Failed to save barangay config";
       throw new Error(errorMessage);
     }
   }
@@ -105,7 +107,8 @@ class BarangayConfigService {
 
       return data.exists;
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || "Failed to check if config exists";
+      const errorMessage =
+        error?.response?.data?.message || "Failed to check if config exists";
       throw new Error(errorMessage);
     }
   }
