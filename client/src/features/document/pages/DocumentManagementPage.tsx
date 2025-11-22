@@ -1,67 +1,71 @@
+import { useState, useEffect } from "react";
 import { DocumentDataTable } from "../components/DocumentDataTable";
+import { columns } from "../components/DocumentDataColumn";
+import { Loader2 } from "lucide-react";
 
-// Sample document data
-const documentData = [
-  {
-    id: 1,
-    name: "Barangay Clearance",
-    description: "Certificate of good moral character and residence",
-    price: 50.00,
-    requirements: ["Valid ID", "Proof of Residency", "Barangay ID Photo"],
-    status: "Active",
-    processingTime: "1-2 business days",
-    totalRequests: 156,
-    lastModified: "2024-03-20",
-  },
-  {
-    id: 2,
-    name: "Certificate of Indigency",
-    description: "Document certifying low-income status for various purposes",
-    price: 30.00,
-    requirements: ["Valid ID", "Proof of Residency", "Income Statement", "Barangay ID Photo"],
-    status: "Active",
-    processingTime: "2-3 business days",
-    totalRequests: 89,
-    lastModified: "2024-02-28",
-  },
-  {
-    id: 3,
-    name: "Business Permit",
-    description: "Permit for operating small businesses within barangay",
-    price: 200.00,
-    requirements: ["Valid ID", "Business Plan", "Proof of Location", "Tax Clearance", "Barangay ID Photo"],
-    status: "Active",
-    processingTime: "5-7 business days",
-    totalRequests: 34,
-    lastModified: "2024-03-15",
-  },
-  {
-    id: 4,
-    name: "Residency Certificate",
-    description: "Official proof of residence within the barangay",
-    price: 25.00,
-    requirements: ["Valid ID", "Proof of Residency", "Barangay ID Photo"],
-    status: "Inactive",
-    processingTime: "1-2 business days",
-    totalRequests: 67,
-    lastModified: "2024-03-10",
-  },
-  {
-    id: 5,
-    name: "Complaint Certificate",
-    description: "Document for filing complaints or legal matters",
-    price: 75.00,
-    requirements: ["Valid ID", "Incident Report", "Witness Statements", "Supporting Documents", "Barangay ID Photo"],
-    status: "Active",
-    processingTime: "3-5 business days",
-    totalRequests: 23,
-    lastModified: "2024-03-18",
-  },
-];
+// Sample function to fetch document data asynchronously
+async function getDocumentData() {
+  // Fetch data from your API here or mock it
+  return [
+    {
+      id: "728ed52f",
+      name: "Barangay Clearance",
+      price: 50.0,
+      requirements: ["Valid ID", "Proof of Residency", "Barangay ID Photo"],
+      status: "Active",
+      processingTime: "1-2 business days",
+      totalRequests: 156,
+      lastModified: "2024-03-20",
+    },
+    {
+      id: "84fd32df",
+      name: "Certificate of Indigency",
+      price: 30.0,
+      requirements: [
+        "Valid ID",
+        "Proof of Residency",
+        "Income Statement",
+        "Barangay ID Photo",
+      ],
+      status: "Inactive",
+      processingTime: "2-3 business days",
+      totalRequests: 89,
+      lastModified: "2024-02-28",
+    },
+    // More documents here...
+  ];
+}
 
 const DocumentManagementPage = () => {
+  const [documents, setDocuments] = useState<any[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    // Fetch document data when the component mounts
+    const fetchData = async () => {
+      const data = await getDocumentData();
+      setDocuments(data);
+      setIsLoading(false);
+    };
+
+    fetchData();
+  }, []);
+
+  const handleAddDocument = (document: any) => {
+    // Generate a unique ID for the new document
+    const newDocument = {
+      ...document,
+      id: Math.random().toString(36).substring(2, 15),
+      totalRequests: 0,
+      lastModified: new Date().toISOString().split('T')[0],
+    };
+    
+    // Add the new document to the list
+    setDocuments([...documents, newDocument]);
+  };
+
   return (
-    <div className="space-y-6 px-4 lg:px-6 flex flex-col ">
+    <div className="flex flex-col space-y-6 px-4 lg:px-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold tracking-tight">
@@ -73,7 +77,19 @@ const DocumentManagementPage = () => {
         </div>
       </div>
 
-      <DocumentDataTable data={documentData} />
+      {/* Show loading state while fetching data */}
+      {isLoading ? (
+        <div className="flex justify-center items-center">
+          <Loader2 className="animate-spin h-8 w-8" />
+          <span>Loading documents...</span>
+        </div>
+      ) : (
+        <DocumentDataTable 
+          data={documents} 
+          columns={columns} 
+          onAddDocument={handleAddDocument}
+        />
+      )}
     </div>
   );
 };
