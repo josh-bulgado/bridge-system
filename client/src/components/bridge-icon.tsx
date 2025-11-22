@@ -19,11 +19,16 @@ const bridgeIconVariants = cva(
         showOnLg: "block lg:block",
         hideOnLg: "block lg:hidden", // hidden on lg and above
       },
+      version: {
+        full: "",
+        icon: "",
+      },
     },
     defaultVariants: {
       variant: "primary",
       size: "default",
       responsive: "showOnLg",
+      version: "full",
     },
   },
 );
@@ -38,13 +43,16 @@ const BridgeIcon = ({
   variant,
   size,
   responsive,
+  version = "full",
 }: BridgeIconProps) => {
+  const displayText = version === "full" ? "bridge" : "b";
+
   return (
     <Link
       to={path}
-      className={bridgeIconVariants({ variant, size, responsive })}
+      className={bridgeIconVariants({ variant, size, responsive, version })}
     >
-      bridge
+      {displayText}
     </Link>
   );
 };
