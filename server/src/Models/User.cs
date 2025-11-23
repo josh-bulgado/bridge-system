@@ -18,6 +18,27 @@ namespace server.Models
     [BsonElement("passwordHash")]
     public string PasswordHash { get; set; } = string.Empty; // Empty for Google auth users
 
+    [BsonElement("firstName")]
+    public string? FirstName { get; set; }
+
+    [BsonElement("middleName")]
+    public string? MiddleName { get; set; }
+
+    [BsonElement("lastName")]
+    public string? LastName { get; set; }
+
+    [BsonElement("extension")]
+    public string? Extension { get; set; }
+
+    [BsonElement("dateOfBirth")]
+    public DateTime? DateOfBirth { get; set; }
+
+    [BsonElement("contactNumber")]
+    public string? ContactNumber { get; set; }
+
+    [BsonElement("mustResetPassword")]
+    public bool MustResetPassword { get; set; } = false;
+
     [BsonElement("role")]
     public string Role { get; set; } = "resident"; // resident | staff | admin
 
@@ -51,5 +72,13 @@ namespace server.Models
 
     [BsonElement("googleId")]
     public string? GoogleId { get; set; }
+
+    // Navigation property for Resident
+    [BsonIgnore]
+    public Resident? Resident { get; set; }
+
+    // Computed property to check if user is a Google user
+    [BsonIgnore]
+    public bool IsGoogleUser => AuthProvider == "google";
   }
 }

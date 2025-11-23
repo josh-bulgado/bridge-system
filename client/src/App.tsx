@@ -26,6 +26,7 @@ import ResidentManagementPage from "./features/resident/pages/ResidentManagement
 import StaffManagementPage from "./features/staff/pages/StaffManagementPage";
 import StaffResidentManagementPage from "./features/staff/pages/StaffResidentManagementPage";
 import BarangayConfigPage from "./features/admin/pages/BarangayConfigPage";
+import DocumentManagementPage from "./features/document/pages/DocumentManagementPage";
 
 const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
 
@@ -58,12 +59,16 @@ function App() {
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/auth/complete-google-profile" element={<CompleteGoogleProfilePage />} />
+            <Route
+              path="/auth/complete-google-profile"
+              element={<CompleteGoogleProfilePage />}
+            />
 
             {/* Resident Routes */}
             <Route path="/resident" element={<ResidentLayout />}>
               <Route index element={<ResidentDashboard />} />
               <Route path="verify" element={<VerificationPage />} />
+              <Route path="verification" element={<VerificationPage />} />
               {/* Add more resident routes here */}
             </Route>
 
@@ -73,6 +78,10 @@ function App() {
               <Route path="resident-management" element={<ResidentManagementPage />} />  
               <Route path="staff" element={<StaffManagementPage />} />
               <Route path="config/barangay" element={<BarangayConfigPage />} />
+              <Route
+                path="config/document"
+                element={<DocumentManagementPage />}
+              />
               {/* Add more admin routes here */}
             </Route>
 

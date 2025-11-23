@@ -95,6 +95,12 @@ namespace server.Controllers
       {
         Email = dto.Email,
         PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+        FirstName = dto.FirstName,
+        MiddleName = dto.MiddleName,
+        LastName = dto.LastName,
+        Extension = dto.Extension,
+        DateOfBirth = DateTime.Parse(dto.DateOfBirth),
+        ContactNumber = dto.ContactNumber,
         Role = "resident",
         ResidentId = resident.Id,
         IsActive = true,
@@ -270,10 +276,10 @@ namespace server.Controllers
           email = user.Email,
           role = user.Role,
           isEmailVerified = user.IsEmailVerified,
-          firstName = resident?.FirstName,
-          lastName = resident?.LastName,
-          middleName = resident?.MiddleName,
-          fullName = resident?.FullName
+          firstName = resident?.FirstName ?? user.FirstName,
+          lastName = resident?.LastName ?? user.LastName,
+          middleName = resident?.MiddleName ?? user.MiddleName,
+          fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
         };
       }
       else
@@ -283,7 +289,10 @@ namespace server.Controllers
           id = user.Id,
           email = user.Email,
           role = user.Role,
-          isEmailVerified = user.IsEmailVerified
+          isEmailVerified = user.IsEmailVerified,
+          firstName = user.FirstName,
+          lastName = user.LastName,
+          middleName = user.MiddleName
         };
       }
 
@@ -575,10 +584,10 @@ namespace server.Controllers
             email = user.Email,
             role = user.Role,
             isEmailVerified = user.IsEmailVerified,
-            firstName = resident?.FirstName,
-            lastName = resident?.LastName,
-            middleName = resident?.MiddleName,
-            fullName = resident?.FullName
+            firstName = resident?.FirstName ?? user.FirstName,
+            lastName = resident?.LastName ?? user.LastName,
+            middleName = resident?.MiddleName ?? user.MiddleName,
+            fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
           };
         }
         else
@@ -588,7 +597,10 @@ namespace server.Controllers
             id = user.Id,
             email = user.Email,
             role = user.Role,
-            isEmailVerified = user.IsEmailVerified
+            isEmailVerified = user.IsEmailVerified,
+            firstName = user.FirstName,
+            lastName = user.LastName,
+            middleName = user.MiddleName
           };
         }
 
@@ -668,6 +680,12 @@ namespace server.Controllers
           Email = googleUser.Email,
           GoogleId = googleUser.GoogleId,
           AuthProvider = "google",
+          FirstName = dto.FirstName.Trim(),
+          MiddleName = dto.MiddleName?.Trim(),
+          LastName = dto.LastName.Trim(),
+          Extension = dto.Extension?.Trim(),
+          DateOfBirth = DateTime.Parse(dto.DateOfBirth.Trim()),
+          ContactNumber = dto.ContactNumber.Trim(),
           Role = "resident",
           ResidentId = resident.Id,
           IsActive = true,

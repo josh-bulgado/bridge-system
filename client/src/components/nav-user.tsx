@@ -1,8 +1,7 @@
+import { useState } from "react";
 import {
-  IconCreditCard,
   IconDotsVertical,
-  IconNotification,
-  IconUserCircle,
+  IconHelp,
 } from "@tabler/icons-react";
 
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
@@ -21,8 +20,9 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar";
-import { LogOut } from "lucide-react";
+import { LogOut, Settings } from "lucide-react";
 import { useSignOut } from "@/features/auth/hooks/useSignOut";
+import { SettingsDialog } from "@/features/resident/components/settings/SettingsDialog";
 
 export function NavUser({
   user,
@@ -35,6 +35,7 @@ export function NavUser({
 }) {
   const { isMobile } = useSidebar();
   const { mutate: signOut, isPending } = useSignOut();
+  const [settingsOpen, setSettingsOpen] = useState(false);
 
   // Generate initials from user name
   const getInitials = (name: string) => {
@@ -48,7 +49,9 @@ export function NavUser({
   const initials = getInitials(user.name);
 
   return (
-    <SidebarMenu>
+    <>
+      <SettingsDialog open={settingsOpen} onOpenChange={setSettingsOpen} />
+      <SidebarMenu>
       <SidebarMenuItem>
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -70,7 +73,7 @@ export function NavUser({
             </SidebarMenuButton>
           </DropdownMenuTrigger>
           <DropdownMenuContent
-            className="w-(--radix-dropdown-menu-trigger-width) min-w-56 rounded-lg"
+            className="w-[var(--radix-dropdown-menu-trigger-width)] min-w-56 rounded-lg"
             side={isMobile ? "bottom" : "right"}
             align="end"
             sideOffset={4}
@@ -91,17 +94,13 @@ export function NavUser({
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <IconUserCircle />
-                Account
+              <DropdownMenuItem onSelect={() => setSettingsOpen(true)}>
+                <Settings />
+                Settings
               </DropdownMenuItem>
               <DropdownMenuItem>
-                <IconCreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <IconNotification />
-                Notifications
+                <IconHelp />
+                Help
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
@@ -117,5 +116,6 @@ export function NavUser({
         </DropdownMenu>
       </SidebarMenuItem>
     </SidebarMenu>
+    </>
   );
 }

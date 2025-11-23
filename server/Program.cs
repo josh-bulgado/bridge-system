@@ -23,10 +23,16 @@ builder.Services.AddSingleton<ResidentService>();
 builder.Services.AddSingleton<UserService>();
 builder.Services.AddSingleton<FileStorageService>();
 builder.Services.AddSingleton<BarangayConfigService>();
+builder.Services.AddSingleton<DocumentService>();
+builder.Services.AddSingleton<StaffService>();
 
 // 🟢 Bind JWT settings from configuration (.env or appsettings.json)
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<JwtService>();
+
+// Cloudinary config
+builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+builder.Services.AddSingleton<CloudinaryService>();
 
 // Email service
 builder.Services.AddHttpClient();

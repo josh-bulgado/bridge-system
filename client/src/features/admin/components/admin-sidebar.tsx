@@ -1,15 +1,4 @@
 import * as React from "react";
-import {
-  IconChartBar,
-  IconDashboard,
-  IconDatabase,
-  IconFileWord,
-  IconHelp,
-  IconInnerShadowTop,
-  IconReport,
-  IconSearch,
-  IconSettings,
-} from "@tabler/icons-react";
 
 import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
@@ -24,7 +13,18 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { UserCheck, Users, Settings2 } from "lucide-react";
+import {
+  LayoutDashboard,
+  Users,
+  UserCog,
+  FileText,
+  Settings,
+  HelpCircle,
+  Search,
+  FolderOpen,
+  Building2,
+} from "lucide-react";
+import BridgeIcon from "@/components/bridge-icon";
 
 const adminData = {
   user: {
@@ -36,7 +36,7 @@ const adminData = {
     {
       title: "Dashboard",
       url: "/admin",
-      icon: IconDashboard,
+      icon: LayoutDashboard,
     },
     {
       title: "Resident Management",
@@ -45,61 +45,58 @@ const adminData = {
     },
     {
       title: "Staff Management",
-      url: "/admin/staff",
-      icon: UserCheck,
+      url: "/admin/staff-management",
+      icon: UserCog,
     },
     {
-      title: "Analytics",
-      url: "/admin/analytics",
-      icon: IconChartBar,
+      title: "Document Configuration",
+      url: "/admin/config/document",
+      icon: FileText,
     },
     {
       title: "Barangay Configuration",
       url: "/admin/config/barangay",
-      icon: Settings2,
+      icon: Building2,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
       url: "/admin/settings",
-      icon: IconSettings,
+      icon: Settings,
     },
     {
       title: "Get Help",
       url: "/admin/help",
-      icon: IconHelp,
+      icon: HelpCircle,
     },
     {
       title: "Search",
       url: "/admin/search",
-      icon: IconSearch,
+      icon: Search,
     },
   ],
   documents: [
     {
       name: "Data Library",
       url: "/admin/data-library",
-      icon: IconDatabase,
-    },
-    {
-      name: "Reports",
-      url: "/admin/reports",
-      icon: IconReport,
-    },
-    {
-      name: "Word Assistant",
-      url: "/admin/word-assistant",
-      icon: IconFileWord,
+      icon: FolderOpen,
     },
   ],
 };
 
-export function AdminSidebar({
+export const AdminSidebar = React.memo(function AdminSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar collapsible="icon" {...props}>
+    <Sidebar 
+      collapsible="icon" 
+      {...props}
+      style={{
+        willChange: 'width',
+        ...props.style
+      }}
+    >
       <SidebarHeader>
         <SidebarMenu>
           <SidebarMenuItem>
@@ -107,17 +104,12 @@ export function AdminSidebar({
               asChild
               className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
-              <a href="/admin">
-                <IconInnerShadowTop size={5} />
-                <span className="text-primary text-base font-semibold">
-                  bridge
-                </span>
-              </a>
+              <BridgeIcon path="/admin" size="small" />
             </SidebarMenuButton>
           </SidebarMenuItem>
         </SidebarMenu>
       </SidebarHeader>
-      <SidebarContent>
+      <SidebarContent className="will-change-auto">
         <NavMain items={adminData.navMain} />
         <NavDocuments items={adminData.documents} />
         <NavSecondary items={adminData.navSecondary} className="mt-auto" />
@@ -127,4 +119,4 @@ export function AdminSidebar({
       </SidebarFooter>
     </Sidebar>
   );
-}
+});
