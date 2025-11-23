@@ -7,7 +7,6 @@ import {
   OfficeInfoCard,
   HowToVerifyCard,
   // type DashboardStat,
-  type RequestData,
 } from "../components";
 import { VerificationDialog } from "../components/VerificationDialog";
 import { useAuth } from "@/features/auth/hooks/useAuth";
@@ -52,29 +51,6 @@ const ResidentDashboard = () => {
   // Mock data for dashboard stats
 
   // Mock recent requests data
-  const recentRequests: RequestData[] = [
-    {
-      id: "REQ-2024-001",
-      type: "Barangay Clearance",
-      status: "Ready for Pickup",
-      date: "2024-01-15",
-      statusColor: "text-green-600 bg-green-50",
-    },
-    {
-      id: "REQ-2024-002",
-      type: "Certificate of Residency",
-      status: "Action Required",
-      date: "2024-01-14",
-      statusColor: "text-orange-600 bg-orange-50",
-    },
-    {
-      id: "REQ-2024-003",
-      type: "Business Permit",
-      status: "Processing",
-      date: "2024-01-13",
-      statusColor: "text-blue-600 bg-blue-50",
-    },
-  ];
 
   // Event handlers
   const handleVerifyClick = () => {

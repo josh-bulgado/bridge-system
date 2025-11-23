@@ -1,4 +1,5 @@
-import AuthButtons from "@/features/auth/components/AuthButtons";
+import { AuthButtons } from "@/features/auth/components/AuthButtons";
+
 
 export const Hero = () => {
   return (

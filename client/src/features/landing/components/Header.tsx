@@ -1,5 +1,6 @@
 import BridgeIcon from "@/components/bridge-icon";
-import AuthButtons from "@/features/auth/components/AuthButtons";
+import { AuthButtons } from "@/features/auth/components/AuthButtons";
+
 
 export const Header = () => {
   return (
