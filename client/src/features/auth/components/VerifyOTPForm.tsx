@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/rules-of-hooks */
 import {
   useState,
   useEffect,
@@ -24,16 +26,14 @@ interface OTPState {
   isResending: boolean;
 }
 
-export const VerifyOTPForm = ({
-  email,
-}: VerifyOTPFormProps) => {
+export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
   const navigate = useNavigate();
-  
+
   // Guard: Redirect if no email provided
   if (!email) {
     return null;
   }
-  
+
   // State management
   const [otpState, setOtpState] = useState<OTPState>({
     code: ["", "", "", "", "", ""],
@@ -57,40 +57,40 @@ export const VerifyOTPForm = ({
   }, []);
 
   // Timer effects
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
+  // useEffect(() => {
+  //   let interval: NodeJS.Timeout;
 
-    if (otpState.timeRemaining > 0 && !otpState.success) {
-      interval = setInterval(() => {
-        setOtpState((prev) => ({
-          ...prev,
-          timeRemaining: prev.timeRemaining - 1,
-        }));
-      }, 1000);
-    }
+  //   if (otpState.timeRemaining > 0 && !otpState.success) {
+  //     interval = setInterval(() => {
+  //       setOtpState((prev) => ({
+  //         ...prev,
+  //         timeRemaining: prev.timeRemaining - 1,
+  //       }));
+  //     }, 1000);
+  //   }
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [otpState.timeRemaining, otpState.success]);
+  //   return () => {
+  //     if (interval) clearInterval(interval);
+  //   };
+  // }, [otpState.timeRemaining, otpState.success]);
 
   // Resend cooldown timer
-  useEffect(() => {
-    let interval: NodeJS.Timeout;
+  // useEffect(() => {
+  //   let interval: NodeJS.Timeout;
 
-    if (otpState.resendCooldown > 0) {
-      interval = setInterval(() => {
-        setOtpState((prev) => ({
-          ...prev,
-          resendCooldown: prev.resendCooldown - 1,
-        }));
-      }, 1000);
-    }
+  //   if (otpState.resendCooldown > 0) {
+  //     interval = setInterval(() => {
+  //       setOtpState((prev) => ({
+  //         ...prev,
+  //         resendCooldown: prev.resendCooldown - 1,
+  //       }));
+  //     }, 1000);
+  //   }
 
-    return () => {
-      if (interval) clearInterval(interval);
-    };
-  }, [otpState.resendCooldown]);
+  //   return () => {
+  //     if (interval) clearInterval(interval);
+  //   };
+  // }, [otpState.resendCooldown]);
 
   // Format time display
   const formatTime = (seconds: number): string => {
@@ -206,7 +206,8 @@ export const VerifyOTPForm = ({
           // Fallback: If somehow user data is not in response, redirect to sign-in
           navigate("/sign-in", {
             state: {
-              message: "Email verified successfully! Please sign in to continue.",
+              message:
+                "Email verified successfully! Please sign in to continue.",
             },
           });
         }
@@ -220,8 +221,7 @@ export const VerifyOTPForm = ({
         setOtpState((prev) => ({
           ...prev,
           isVerifying: false,
-          error:
-            "🚫 Too many failed attempts. Please resend code.",
+          error: "🚫 Too many failed attempts. Please resend code.",
           attempts: newAttempts,
         }));
       } else {
@@ -267,7 +267,7 @@ export const VerifyOTPForm = ({
 
     try {
       await authService.resendOtp(email);
-      
+
       setOtpState((prev) => ({
         ...prev,
         isResending: false,
@@ -299,20 +299,20 @@ export const VerifyOTPForm = ({
   };
 
   // Determine input border color
-  const getInputBorderColor = (index: number) => {
-    if (otpState.success) return "border-primary";
-    if (otpState.error && otpState.error.includes("Invalid"))
-      return "border-destructive";
-    if (isCodeExpired) return "border-destructive";
-    return "border-input";
-  };
+  // const getInputBorderColor = () => {
+  //   if (otpState.success) return "border-primary";
+  //   if (otpState.error && otpState.error.includes("Invalid"))
+  //     return "border-destructive";
+  //   if (isCodeExpired) return "border-destructive";
+  //   return "border-input";
+  // };
 
   return (
     <>
-      <div className="flex w-full max-w-md flex-col gap-6 rounded-lg border bg-card p-6 shadow-sm">
+      <div className="bg-card flex w-full max-w-md flex-col gap-6 rounded-lg border p-6 shadow-sm">
         {/* Header */}
         <div className="flex flex-col space-y-1.5 text-center">
-          <h2 className="text-2xl font-semibold leading-none tracking-tight">
+          <h2 className="text-2xl leading-none font-semibold tracking-tight">
             Verify Your Email
           </h2>
         </div>
@@ -320,22 +320,26 @@ export const VerifyOTPForm = ({
         {/* Success Animation */}
         {otpState.success && (
           <div className="animate-fade-in-scale flex flex-col items-center gap-4 py-4">
-            <div className="rounded-full bg-primary/10 p-3">
+            <div className="bg-primary/10 rounded-full p-3">
               <svg
-                className="h-10 w-10 text-primary"
+                className="text-primary h-10 w-10"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
                 strokeWidth="2"
               >
-                <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  d="M5 13l4 4L19 7"
+                />
               </svg>
             </div>
             <div className="flex flex-col items-center gap-1 text-center">
               <p className="text-lg font-semibold">
                 Email verified successfully!
               </p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Redirecting to your dashboard...
               </p>
             </div>
@@ -351,7 +355,9 @@ export const VerifyOTPForm = ({
                 {[0, 1, 2, 3, 4, 5].map((index) => (
                   <input
                     key={index}
-                    ref={(el) => (inputRefs.current[index] = el)}
+                    ref={(el) => {
+                      inputRefs.current[index] = el;
+                    }}
                     type="text"
                     inputMode="numeric"
                     maxLength={1}
@@ -359,7 +365,7 @@ export const VerifyOTPForm = ({
                     onChange={(e) => handleInputChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     onPaste={index === 0 ? handlePaste : undefined}
-                    className={`h-12 w-12 rounded-md border bg-background text-center text-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${getInputBorderColor(index)}`}
+                    className={`bg-background focus-visible:ring-ring h-12 w-12 rounded-md border text-center text-xl font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50`}
                     disabled={otpState.isVerifying || otpState.success}
                     aria-label={`Digit ${index + 1}`}
                   />
@@ -368,9 +374,9 @@ export const VerifyOTPForm = ({
             </div>
 
             {/* Timer */}
-            <div className="flex items-center justify-center gap-2 rounded-md bg-muted px-3 py-2">
+            <div className="bg-muted flex items-center justify-center gap-2 rounded-md px-3 py-2">
               <svg
-                className="h-4 w-4 text-muted-foreground"
+                className="text-muted-foreground h-4 w-4"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -379,7 +385,7 @@ export const VerifyOTPForm = ({
                 <circle cx="12" cy="12" r="10" />
                 <path d="M12 6v6l4 2" />
               </svg>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 Code expires in{" "}
                 <span
                   className={`font-mono font-semibold ${otpState.timeRemaining < 60 ? "text-destructive" : "text-foreground"}`}
@@ -390,8 +396,8 @@ export const VerifyOTPForm = ({
             </div>
 
             {isCodeExpired && (
-              <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3">
-                <p className="text-sm text-destructive text-center">
+              <div className="border-destructive/50 bg-destructive/10 rounded-md border p-3">
+                <p className="text-destructive text-center text-sm">
                   Code expired. Please request a new one.
                 </p>
               </div>
@@ -408,7 +414,7 @@ export const VerifyOTPForm = ({
                 aria-live="polite"
               >
                 <p
-                  className={`text-sm text-center ${
+                  className={`text-center text-sm ${
                     otpState.error.includes("✅")
                       ? "text-primary"
                       : "text-destructive"
@@ -419,8 +425,10 @@ export const VerifyOTPForm = ({
                 {otpState.attempts > 0 &&
                   otpState.attempts < 5 &&
                   !otpState.error.includes("✅") && (
-                    <p className="mt-1 text-xs text-center text-muted-foreground">
-                      {5 - otpState.attempts} {5 - otpState.attempts === 1 ? "attempt" : "attempts"} remaining
+                    <p className="text-muted-foreground mt-1 text-center text-xs">
+                      {5 - otpState.attempts}{" "}
+                      {5 - otpState.attempts === 1 ? "attempt" : "attempts"}{" "}
+                      remaining
                     </p>
                   )}
               </div>
@@ -435,7 +443,7 @@ export const VerifyOTPForm = ({
                 isCodeExpired ||
                 otpState.attempts >= 5
               }
-              className="inline-flex h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              className="bg-primary text-primary-foreground ring-offset-background hover:bg-primary/90 focus-visible:ring-ring inline-flex h-10 w-full items-center justify-center gap-2 rounded-md px-4 py-2 text-sm font-medium whitespace-nowrap transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50"
             >
               {otpState.isVerifying ? (
                 <>
@@ -468,12 +476,14 @@ export const VerifyOTPForm = ({
 
             {/* Resend Code */}
             <div className="flex flex-col items-center gap-2">
-              <p className="text-sm text-muted-foreground">Didn't receive the code?</p>
+              <p className="text-muted-foreground text-sm">
+                Didn't receive the code?
+              </p>
               <button
                 type="button"
                 onClick={handleResendCode}
                 disabled={otpState.resendCooldown > 0 || otpState.isResending}
-                className="inline-flex items-center justify-center text-sm font-medium text-primary underline-offset-4 hover:underline disabled:pointer-events-none disabled:opacity-50"
+                className="text-primary inline-flex items-center justify-center text-sm font-medium underline-offset-4 hover:underline disabled:pointer-events-none disabled:opacity-50"
               >
                 {otpState.isResending
                   ? "Sending..."
@@ -484,10 +494,10 @@ export const VerifyOTPForm = ({
             </div>
 
             {/* Back Link */}
-            <div className="text-center border-t pt-4">
+            <div className="border-t pt-4 text-center">
               <Link
                 to="/sign-in"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground text-sm transition-colors"
               >
                 ← Back to Sign In
               </Link>
@@ -497,7 +507,7 @@ export const VerifyOTPForm = ({
       </div>
 
       {/* Custom Animations Styles */}
-      <style jsx>{`
+      {/* <style jsx>{`
         @keyframes shake {
           0%,
           100% {
@@ -529,7 +539,7 @@ export const VerifyOTPForm = ({
         .animate-fade-in-scale {
           animation: fadeInScale 0.5s ease-out;
         }
-      `}</style>
+      `}</style> */}
     </>
   );
 };

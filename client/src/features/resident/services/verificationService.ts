@@ -56,7 +56,7 @@ export const verificationService = {
       },
     });
 
-    const { url, publicId, message } = response.data;
+    const { url, publicId } = response.data;
 
     // Security: Don't log sensitive URLs in production
     if (import.meta.env.DEV) {

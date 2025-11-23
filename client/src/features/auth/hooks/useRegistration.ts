@@ -12,7 +12,7 @@ export const useRegistration = () => {
     // Prevent duplicate mutations
     retry: false,
     
-    onSuccess: (data) => {
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
 

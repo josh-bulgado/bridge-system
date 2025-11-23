@@ -7,7 +7,7 @@ export const addStaffSchema = z.object({
   role: z.enum(["staff", "admin"]).refine((val) => val !== undefined, {
     message: "Please select a role",
   }),
-  isActive: z.boolean().default(true),
+  isActive: z.boolean().default(true).optional(),
 });
 
 export type AddStaffFormValues = z.infer<typeof addStaffSchema>;

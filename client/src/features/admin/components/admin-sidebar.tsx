@@ -1,6 +1,5 @@
 import * as React from "react";
 
-import { NavDocuments } from "@/components/nav-documents";
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
@@ -94,12 +93,12 @@ export const AdminSidebar = React.memo(function AdminSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   return (
-    <Sidebar 
-      collapsible="icon" 
+    <Sidebar
+      collapsible="icon"
       {...props}
       style={{
-        willChange: 'width',
-        ...props.style
+        willChange: "width",
+        ...props.style,
       }}
     >
       <SidebarHeader>
@@ -116,7 +115,6 @@ export const AdminSidebar = React.memo(function AdminSidebar({
       </SidebarHeader>
       <SidebarContent className="will-change-auto">
         <NavMain items={adminData.navMain} />
-        <NavDocuments items={adminData.documents} />
         <NavSecondary items={adminData.navSecondary} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>

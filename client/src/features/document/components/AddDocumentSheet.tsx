@@ -41,7 +41,7 @@ import {
 export function AddDocumentSheet() {
   const [open, setOpen] = React.useState(false);
   const [requirements, setRequirements] = React.useState<string[]>([""]);
-  const { mutate: createDocument, isPending } = useCreateDocument();
+  const { mutate: createDocument } = useCreateDocument();
 
   // Use Form hook with correct type inference
   const form = useForm<AddDocumentFormValues>({

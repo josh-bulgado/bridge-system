@@ -1,14 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import {
   VerificationReminder,
   WelcomeSection,
-  StatsGrid,
-  QuickActions,
-  RecentRequests,
   AvailableDocumentsInfo,
   OfficeInfoCard,
   HowToVerifyCard,
-  type DashboardStat,
+  // type DashboardStat,
   type RequestData,
 } from "../components";
 import { VerificationDialog } from "../components/VerificationDialog";
@@ -83,25 +81,25 @@ const ResidentDashboard = () => {
     setIsVerificationDialogOpen(true);
   };
 
-  const handleStatClick = (stat: DashboardStat, index: number) => {
-    // TODO: Navigate to specific stat details
-  };
+  // const handleStatClick = (stat: DashboardStat, index: number) => {
+  //   // TODO: Navigate to specific stat details
+  // };
 
-  const handleNewRequest = () => {
-    // TODO: Navigate to new request form
-  };
+  // const handleNewRequest = () => {
+  //   // TODO: Navigate to new request form
+  // };
 
-  const handleViewAllRequests = () => {
-    // TODO: Navigate to all requests page
-  };
+  // const handleViewAllRequests = () => {
+  //   // TODO: Navigate to all requests page
+  // };
 
-  const handlePickupSchedule = () => {
-    // TODO: Navigate to pickup schedule
-  };
+  // const handlePickupSchedule = () => {
+  //   // TODO: Navigate to pickup schedule
+  // };
 
-  const handleRequestClick = (request: RequestData) => {
-    // TODO: Navigate to request details
-  };
+  // const handleRequestClick = (request: RequestData) => {
+  //   // TODO: Navigate to request details
+  // };
 
   // Get the user's first name for the greeting
   const firstName = user?.firstName || user?.email?.split("@")[0] || "Resident";
@@ -193,22 +191,22 @@ const ResidentDashboard = () => {
           <>
             {/* Verified Users: Show Full Dashboard */}
             {/* Stats Cards */}
-            <StatsGrid isVerified={isVerified} onStatClick={handleStatClick} />
+            {/* <StatsGrid isVerified={isVerified} onStatClick={handleStatClick} /> */}
 
             {/* Quick Actions */}
-            <QuickActions
+            {/* <QuickActions
               isVerified={isVerified}
               onNewRequest={handleNewRequest}
               onViewAllRequests={handleViewAllRequests}
               onPickupSchedule={handlePickupSchedule}
-            />
+            /> */}
 
             {/* Recent Requests */}
-            <RecentRequests
+            {/* <RecentRequests
               isVerified={isVerified}
               requests={recentRequests}
               onRequestClick={handleRequestClick}
-            />
+            /> */}
           </>
         ) : (
           <>

@@ -24,6 +24,7 @@ import {
   SidebarMenuItem,
   useSidebar,
 } from "@/components/ui/sidebar"
+import type { LucideIcon } from "lucide-react"
 
 export function NavDocuments({
   items,
@@ -31,7 +32,7 @@ export function NavDocuments({
   items: {
     name: string
     url: string
-    icon: Icon
+    icon: LucideIcon
   }[]
 }) {
   const { isMobile } = useSidebar()

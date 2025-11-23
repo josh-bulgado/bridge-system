@@ -22,7 +22,6 @@ import { useEmailAvailability } from "../hooks/useEmailAvailability";
 const StepContactInfo_New = () => {
   const {
     control,
-    formState: { errors },
   } = useFormContext();
   const [emailFocused, setEmailFocused] = useState(false);
   const [phoneFocused, setPhoneFocused] = useState(false);

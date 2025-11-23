@@ -1,6 +1,6 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useUploadProfilePicture, useDeleteFile } from "@/hooks/useUploadFile";
-import { Button } from "@/components/ui/button";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Camera, Loader2, X } from "lucide-react";
 import { toast } from "sonner";

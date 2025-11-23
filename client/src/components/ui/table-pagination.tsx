@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   IconChevronLeft,
   IconChevronRight,
@@ -40,7 +39,7 @@ export function TablePagination<TData>({
     <div className="flex items-center justify-between">
       <div className="flex items-center gap-6">
         <div className="flex items-center gap-2">
-          <Label className="text-sm font-normal text-muted-foreground">
+          <Label className="text-muted-foreground text-sm font-normal">
             Rows per page
           </Label>
           <Select
@@ -61,7 +60,7 @@ export function TablePagination<TData>({
             </SelectContent>
           </Select>
         </div>
-        <div className="text-sm text-muted-foreground">
+        <div className="text-muted-foreground text-sm">
           Showing <span className="font-medium">{startRow}</span> to{" "}
           <span className="font-medium">{endRow}</span> of{" "}
           <span className="font-medium">{totalRows}</span> {itemLabel}

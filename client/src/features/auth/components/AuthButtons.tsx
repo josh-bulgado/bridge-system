@@ -9,7 +9,7 @@ interface AuthButtonsProps {
   reverse?: boolean;
 }
 
-const AuthButtons = ({
+export const AuthButtons = ({
   secondaryText = "Sign in",
   secondaryPath = "/sign-in",
   mainText = "Get Started",
@@ -41,4 +41,3 @@ const AuthButtons = ({
   );
 };
 
-export default AuthButtons;

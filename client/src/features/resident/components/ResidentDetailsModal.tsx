@@ -12,8 +12,10 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { UserCheck, UserX, ExternalLink, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { ScrollArea } from "@/components/ui/scroll-area";
-import { useApproveResidentVerification, useRejectResidentVerification } from "../hooks";
+import {
+  useApproveResidentVerification,
+  useRejectResidentVerification,
+} from "../hooks";
 import { RejectVerificationDialog } from "./RejectVerificationDialog";
 
 interface Resident {
@@ -100,7 +102,6 @@ export default function ResidentDetailsModal({
   isOpen,
   onClose,
   onRefresh,
-  userRole,
 }: ResidentDetailsModalProps) {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
   const approveResidentMutation = useApproveResidentVerification();
@@ -114,6 +115,7 @@ export default function ResidentDetailsModal({
       onClose();
       if (onRefresh) onRefresh();
     } catch (error) {
+      console.error("Error approving resident:", error);
       // Error handling is done in the hook
     }
   };
@@ -124,15 +126,15 @@ export default function ResidentDetailsModal({
 
   const handleRejectConfirm = async (reason?: string) => {
     try {
-      await rejectResidentMutation.mutateAsync({ 
+      await rejectResidentMutation.mutateAsync({
         residentId: resident.id,
-        reason 
+        reason,
       });
       setIsRejectDialogOpen(false);
       onClose();
       if (onRefresh) onRefresh();
     } catch (error) {
-      // Error handling is done in the hook
+      console.error("Error approving resident:", error);
     }
   };
 
@@ -373,7 +375,7 @@ export default function ResidentDetailsModal({
                 <UserX className="mr-2 size-4" />
                 Reject
               </Button>
-              <Button 
+              <Button
                 className="bg-green-600 hover:bg-green-700"
                 onClick={handleApprove}
                 disabled={isApproving || isRejecting}

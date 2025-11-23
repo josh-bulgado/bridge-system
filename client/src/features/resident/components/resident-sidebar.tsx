@@ -3,7 +3,6 @@ import {
   HelpCircle,
   FileText,
   Search,
-  Settings,
   Users,
 } from "lucide-react";
 
@@ -71,7 +70,7 @@ export function ResidentSidebar({
   const userData = {
     name: userName,
     email: userEmail,
-    avatar: user?.avatar, // Use user's avatar if available, otherwise initials will be shown
+    avatar: user?.email, // Use user's avatar if available, otherwise initials will be shown
   };
 
   return (

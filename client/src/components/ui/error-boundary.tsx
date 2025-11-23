@@ -1,5 +1,5 @@
-import React from 'react';
-import { Button } from '@/components/ui/button';
+import React from "react";
+import { Button } from "@/components/ui/button";
 
 interface ErrorBoundaryState {
   hasError: boolean;
@@ -11,7 +11,10 @@ interface ErrorBoundaryProps {
   fallback?: React.ComponentType<{ error?: Error; resetError: () => void }>;
 }
 
-export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundaryState> {
+export class ErrorBoundary extends React.Component<
+  ErrorBoundaryProps,
+  ErrorBoundaryState
+> {
   constructor(props: ErrorBoundaryProps) {
     super(props);
     this.state = { hasError: false };
@@ -22,7 +25,7 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
   }
 
   componentDidCatch(error: Error, errorInfo: React.ErrorInfo) {
-    console.error('Error caught by boundary:', error, errorInfo);
+    console.error("Error caught by boundary:", error, errorInfo);
   }
 
   resetError = () => {
@@ -33,15 +36,23 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
     if (this.state.hasError) {
       if (this.props.fallback) {
         const FallbackComponent = this.props.fallback;
-        return <FallbackComponent error={this.state.error} resetError={this.resetError} />;
+        return (
+          <FallbackComponent
+            error={this.state.error}
+            resetError={this.resetError}
+          />
+        );
       }
 
       return (
-        <div className="flex items-center justify-center min-h-screen">
-          <div className="text-center space-y-4 p-8">
-            <h2 className="text-2xl font-bold text-red-600">Something went wrong</h2>
-            <p className="text-gray-600 max-w-md">
-              We're sorry, but something unexpected happened. Please try refreshing the page.
+        <div className="flex min-h-screen items-center justify-center">
+          <div className="space-y-4 p-8 text-center">
+            <h2 className="text-2xl font-bold text-red-600">
+              Something went wrong
+            </h2>
+            <p className="max-w-md text-gray-600">
+              We're sorry, but something unexpected happened. Please try
+              refreshing the page.
             </p>
             <div className="space-x-4">
               <Button onClick={this.resetError} variant="outline">
@@ -51,16 +62,6 @@ export class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoun
                 Refresh Page
               </Button>
             </div>
-            {process.env.NODE_ENV === 'development' && this.state.error && (
-              <details className="mt-4 text-left">
-                <summary className="cursor-pointer text-sm text-gray-500">
-                  Error Details (Development)
-                </summary>
-                <pre className="mt-2 p-4 bg-gray-100 rounded text-xs overflow-auto">
-                  {this.state.error.stack}
-                </pre>
-              </details>
-            )}
           </div>
         </div>
       );

@@ -2,7 +2,7 @@ import React, { useState } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { X, ZoomIn, ZoomOut, RotateCw, Download } from "lucide-react";
-import { cn } from "@/lib/utils";
+
 import type { PaymentRecord } from "../types/payment";
 
 interface ReceiptPreviewModalProps {
@@ -87,7 +87,7 @@ export const ReceiptPreviewModal: React.FC<ReceiptPreviewModalProps> = ({
               <ZoomOut className="h-4 w-4" />
             </Button>
             
-            <span className="text-sm font-medium min-w-[4rem] text-center">
+            <span className="text-sm font-medium min-w-16 text-center">
               {zoom}%
             </span>
             

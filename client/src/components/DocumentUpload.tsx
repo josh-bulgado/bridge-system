@@ -1,7 +1,6 @@
-import { useState } from "react";
+
 import { useUploadDocument, useUploadVerificationDocument } from "@/hooks/useUploadFile";
 import { FileUploader } from "./FileUploader";
-import { toast } from "sonner";
 
 interface DocumentUploadProps {
   folder?: string;
@@ -38,6 +37,7 @@ export function DocumentUpload({
       }
 
       return result;
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       throw new Error(error.response?.data?.message || "Upload failed");
     }

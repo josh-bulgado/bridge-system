@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { Check, AlertCircle, Shield } from "lucide-react";
+import { Check, AlertCircle } from "lucide-react";
 import {
   FormControl,
   FormField,

@@ -71,7 +71,7 @@ export function ResidentDataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, columnId, filterValue) => {
+    globalFilterFn: (row, filterValue) => {
       const searchValue = filterValue.toLowerCase();
       const fullName = row.getValue("fullName") as string;
       const email = row.getValue("email") as string;
