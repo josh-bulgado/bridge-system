@@ -13,8 +13,11 @@ namespace server.Services
         {
             _logger = logger;
 
-            _logger.LogInformation($"Cloudinary API Key: {settings.Value.ApiKey}");
-            _logger.LogInformation($"Cloudinary API Secret: {settings.Value.ApiSecret}");
+            // 🔒 Security: Never log sensitive credentials
+            #if DEBUG
+            _logger.LogInformation($"Cloudinary Cloud Name: {settings.Value.CloudName}");
+            _logger.LogInformation("Cloudinary credentials loaded successfully");
+            #endif
 
             var account = new Account(
                 settings.Value.CloudName,

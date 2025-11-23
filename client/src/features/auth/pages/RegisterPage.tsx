@@ -1,8 +1,17 @@
 import { RegistrationForm, RegistrationFeaturesList } from "../components";
 import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
 import BridgeIcon from "@/components/bridge-icon";
+import { useEffect } from "react";
 
 const RegisterPage = () => {
+  // Clear any existing session when accessing registration page
+  useEffect(() => {
+    localStorage.removeItem("user");
+    localStorage.removeItem("auth_token");
+    sessionStorage.removeItem("user");
+    sessionStorage.removeItem("auth_token");
+  }, []);
+
   return (
     <div className="flex h-svh w-svw flex-col gap-4 p-4 md:flex-row">
       <div className="bg-primary hidden h-full rounded-2xl bg-[url('https://www.transparenttextures.com/patterns/green-dust-and-scratches.png')] bg-repeat p-8 text-white md:p-10 lg:block lg:w-1/2">

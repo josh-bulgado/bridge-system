@@ -25,9 +25,14 @@ interface OTPState {
 }
 
 export const VerifyOTPForm = ({
-  email = "agentbea12@gmail.com",
+  email,
 }: VerifyOTPFormProps) => {
   const navigate = useNavigate();
+  
+  // Guard: Redirect if no email provided
+  if (!email) {
+    return null;
+  }
   
   // State management
   const [otpState, setOtpState] = useState<OTPState>({

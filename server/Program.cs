@@ -30,8 +30,16 @@ builder.Services.AddSingleton<StaffService>();
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
 builder.Services.AddSingleton<JwtService>();
 
-// Cloudinary config
-builder.Services.Configure<CloudinarySettings>(builder.Configuration.GetSection("Cloudinary"));
+// Cloudinary config - Override with environment variables
+builder.Services.Configure<CloudinarySettings>(options =>
+{
+    options.CloudName = Environment.GetEnvironmentVariable("CLOUDINARY_CLOUD_NAME") 
+                       ?? throw new Exception("CLOUDINARY_CLOUD_NAME not found in environment variables");
+    options.ApiKey = Environment.GetEnvironmentVariable("CLOUDINARY_API_KEY") 
+                    ?? throw new Exception("CLOUDINARY_API_KEY not found in environment variables");
+    options.ApiSecret = Environment.GetEnvironmentVariable("CLOUDINARY_API_SECRET") 
+                       ?? throw new Exception("CLOUDINARY_API_SECRET not found in environment variables");
+});
 builder.Services.AddSingleton<CloudinaryService>();
 
 // Email service
