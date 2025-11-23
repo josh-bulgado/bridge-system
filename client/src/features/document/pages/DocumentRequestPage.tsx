@@ -1,88 +1,8 @@
 import { columns } from "../components/DocumentRequestDataColumn";
 import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
-
-import type { DocumentRequest } from "../types/documentRequest";
+import { useFetchDocumentRequests } from "../hooks";
 import { DocumentRequestDataTable } from "../components/DocumentRequestDataTable";
-
-// TODO: Replace with actual hook when backend is ready
-const useFetchDocumentRequests = () => {
-  // Mock data for UI development
-  const mockData: DocumentRequest[] = [
-    {
-      id: "1",
-      trackingNumber: "BR-2024-001",
-      documentType: "Barangay Clearance",
-      residentName: "Juan Dela Cruz",
-      residentEmail: "juan@example.com",
-      purpose: "Employment requirement",
-      amount: 50,
-      status: "pending",
-      submittedAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date().toISOString(),
-    },
-    {
-      id: "2",
-      trackingNumber: "BR-2024-002",
-      documentType: "Certificate of Residency",
-      residentName: "Maria Santos",
-      residentEmail: "maria@example.com",
-      purpose: "Business permit application",
-      amount: 75,
-      status: "approved",
-      submittedAt: new Date(Date.now() - 86400000).toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date(Date.now() - 86400000).toISOString(),
-    },
-    {
-      id: "3",
-      trackingNumber: "BR-2024-003",
-      documentType: "Certificate of Indigency",
-      residentName: "Pedro Reyes",
-      residentEmail: "pedro@example.com",
-      purpose: "Medical assistance",
-      amount: 30,
-      status: "payment_pending",
-      submittedAt: new Date(Date.now() - 172800000).toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date(Date.now() - 172800000).toISOString(),
-    },
-    {
-      id: "4",
-      trackingNumber: "BR-2024-004",
-      documentType: "Barangay Clearance",
-      residentName: "Ana Lopez",
-      residentEmail: "ana@example.com",
-      purpose: "Police clearance requirement",
-      amount: 50,
-      status: "ready_for_generation",
-      submittedAt: new Date(Date.now() - 259200000).toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date(Date.now() - 259200000).toISOString(),
-    },
-    {
-      id: "5",
-      trackingNumber: "BR-2024-005",
-      documentType: "Certificate of Residency",
-      residentName: "Jose Garcia",
-      residentEmail: "jose@example.com",
-      purpose: "School enrollment",
-      amount: 75,
-      status: "completed",
-      submittedAt: new Date(Date.now() - 345600000).toISOString(),
-      updatedAt: new Date().toISOString(),
-      createdAt: new Date(Date.now() - 345600000).toISOString(),
-    },
-  ];
-
-  return {
-    data: mockData,
-    isLoading: false,
-    error: null,
-    refetch: () => console.log("Refetching..."),
-  };
-};
 
 const DocumentRequestPage = () => {
   const {
@@ -122,6 +42,53 @@ const DocumentRequestPage = () => {
         </div>
       ) : (
         <DocumentRequestDataTable data={requests} columns={columns} />
+        // <DataTable
+        //   columns={columns}
+        //   data={requests}
+        //   itemLabel="document requests"
+        //   emptyMessage="No document requests found."
+        //   enableRowSelection={false}
+        //   toolbar={(table) => ({
+        //     searchSlot: (
+        //       <div className="relative w-full max-w-sm">
+        //         <Search className="absolute left-2 top-2.5 h-4 w-4 text-muted-foreground" />
+        //         <Input
+        //           placeholder="Search by tracking number..."
+        //           value={(table.getColumn("trackingNumber")?.getFilterValue() as string) ?? ""}
+        //           onChange={(e) =>
+        //             table.getColumn("trackingNumber")?.setFilterValue(e.target.value)
+        //           }
+        //           className="pl-8"
+        //         />
+        //       </div>
+        //     ),
+        //     filterSlots: [
+        //       <Select
+        //         key="status"
+        //         value={(table.getColumn("status")?.getFilterValue() as string) ?? "all"}
+        //         onValueChange={(value) =>
+        //           table.getColumn("status")?.setFilterValue(value === "all" ? "" : value)
+        //         }
+        //       >
+        //         <SelectTrigger className="w-[200px]">
+        //           <SelectValue placeholder="Filter by status" />
+        //         </SelectTrigger>
+        //         <SelectContent>
+        //           <SelectItem value="all">All Statuses</SelectItem>
+        //           <SelectItem value="pending">Pending Review</SelectItem>
+        //           <SelectItem value="approved">Approved</SelectItem>
+        //           <SelectItem value="rejected">Rejected</SelectItem>
+        //           <SelectItem value="payment_pending">Payment Pending</SelectItem>
+        //           <SelectItem value="payment_verified">Payment Verified</SelectItem>
+        //           <SelectItem value="ready_for_generation">
+        //             Ready for Generation
+        //           </SelectItem>
+        //           <SelectItem value="completed">Completed</SelectItem>
+        //         </SelectContent>
+        //       </Select>,
+        //     ],
+        //   })}
+        // />
       )}
     </div>
   );

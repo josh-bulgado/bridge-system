@@ -133,27 +133,34 @@ export function DocumentRequestDataTable<TData, TValue>({
           }
           className="max-w-sm"
         />
-
         <Select
+          key="status"
           value={
-            (table.getColumn("documentType")?.getFilterValue() as string) ?? ""
+            (table.getColumn("status")?.getFilterValue() as string) ?? "all"
           }
           onValueChange={(value) =>
             table
-              .getColumn("documentType")
+              .getColumn("status")
               ?.setFilterValue(value === "all" ? "" : value)
           }
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Roles" />
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="staff">Staff</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="pending">Pending Review</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="payment_pending">Payment Pending</SelectItem>
+            <SelectItem value="payment_verified">Payment Verified</SelectItem>
+            <SelectItem value="ready_for_generation">
+              Ready for Generation
+            </SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
           </SelectContent>
         </Select>
-
+        ,
         <div className="ml-auto flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -188,7 +195,7 @@ export function DocumentRequestDataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <AddDocumentSheet />
+
         </div>
       </div>
 

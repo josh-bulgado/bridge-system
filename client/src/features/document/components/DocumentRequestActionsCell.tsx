@@ -41,8 +41,14 @@ import {
   MoreHorizontal,
   FileText,
   Loader2,
+  BadgeCheck,
 } from "lucide-react";
 import type { DocumentRequest } from "../types/documentRequest";
+import {
+  useApproveDocumentRequest,
+  useRejectDocumentRequest,
+  useVerifyPayment,
+} from "../hooks";
 
 interface DocumentRequestActionsCellProps {
   request: DocumentRequest;
@@ -54,10 +60,18 @@ export function DocumentRequestActionsCell({
   const [viewDetailsOpen, setViewDetailsOpen] = React.useState(false);
   const [approveDialogOpen, setApproveDialogOpen] = React.useState(false);
   const [rejectDialogOpen, setRejectDialogOpen] = React.useState(false);
+  const [verifyPaymentDialogOpen, setVerifyPaymentDialogOpen] = React.useState(false);
   const [rejectionReason, setRejectionReason] = React.useState("");
+  const [notes, setNotes] = React.useState("");
 
-  // TODO: Replace with actual hooks when backend is ready
-  const isProcessing = false;
+  const approveMutation = useApproveDocumentRequest();
+  const rejectMutation = useRejectDocumentRequest();
+  const verifyPaymentMutation = useVerifyPayment();
+
+  const isProcessing =
+    approveMutation.isPending ||
+    rejectMutation.isPending ||
+    verifyPaymentMutation.isPending;
 
   const handleViewDetails = () => {
     setViewDetailsOpen(true);
@@ -71,20 +85,48 @@ export function DocumentRequestActionsCell({
     setRejectDialogOpen(true);
   };
 
+  const handleVerifyPayment = () => {
+    setVerifyPaymentDialogOpen(true);
+  };
+
   const confirmApprove = () => {
-    // TODO: Implement approve mutation
-    console.log("Approving request:", request.id);
-    setApproveDialogOpen(false);
+    approveMutation.mutate(
+      { id: request.id, data: { notes } },
+      {
+        onSuccess: () => {
+          setApproveDialogOpen(false);
+          setNotes("");
+        },
+      }
+    );
   };
 
   const confirmReject = () => {
     if (!rejectionReason.trim()) {
       return;
     }
-    // TODO: Implement reject mutation
-    console.log("Rejecting request:", request.id, rejectionReason);
-    setRejectDialogOpen(false);
-    setRejectionReason("");
+    rejectMutation.mutate(
+      { id: request.id, data: { rejectionReason, notes } },
+      {
+        onSuccess: () => {
+          setRejectDialogOpen(false);
+          setRejectionReason("");
+          setNotes("");
+        },
+      }
+    );
+  };
+
+  const confirmVerifyPayment = () => {
+    verifyPaymentMutation.mutate(
+      { id: request.id, data: { notes } },
+      {
+        onSuccess: () => {
+          setVerifyPaymentDialogOpen(false);
+          setNotes("");
+        },
+      }
+    );
   };
 
   const handleGenerateDocument = () => {
@@ -94,6 +136,10 @@ export function DocumentRequestActionsCell({
 
   const canApprove = request.status === "pending";
   const canReject = request.status === "pending" || request.status === "approved";
+  const canVerifyPayment = 
+    request.status === "approved" || 
+    request.status === "payment_pending" ||
+    (request.status === "payment_verified" && request.paymentMethod === "online");
   const canGenerate = request.status === "ready_for_generation";
 
   return (
@@ -148,6 +194,24 @@ export function DocumentRequestActionsCell({
                 </Button>
               </TooltipTrigger>
               <TooltipContent>Reject Request</TooltipContent>
+            </Tooltip>
+          )}
+
+          {/* Verify Payment */}
+          {canVerifyPayment && (
+            <Tooltip>
+              <TooltipTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="icon"
+                  className="h-8 w-8 text-blue-600 hover:bg-blue-500 hover:text-white"
+                  onClick={handleVerifyPayment}
+                  disabled={isProcessing}
+                >
+                  <BadgeCheck className="size-4" />
+                </Button>
+              </TooltipTrigger>
+              <TooltipContent>Verify Payment</TooltipContent>
             </Tooltip>
           )}
 
@@ -310,6 +374,16 @@ export function DocumentRequestActionsCell({
                 rows={4}
               />
             </div>
+            <div className="space-y-2">
+              <Label htmlFor="reject-notes">Additional Notes (Optional)</Label>
+              <Textarea
+                id="reject-notes"
+                placeholder="Any additional notes..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={2}
+              />
+            </div>
           </div>
           <DialogFooter>
             <Button
@@ -317,6 +391,7 @@ export function DocumentRequestActionsCell({
               onClick={() => {
                 setRejectDialogOpen(false);
                 setRejectionReason("");
+                setNotes("");
               }}
               disabled={isProcessing}
             >
@@ -334,6 +409,89 @@ export function DocumentRequestActionsCell({
                 </>
               ) : (
                 "Reject Request"
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Verify Payment Dialog */}
+      <Dialog open={verifyPaymentDialogOpen} onOpenChange={setVerifyPaymentDialogOpen}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Verify Payment</DialogTitle>
+            <DialogDescription>
+              Confirm that payment has been received for request{" "}
+              <strong>{request.trackingNumber}</strong>.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Resident</Label>
+                <p className="text-sm">{request.residentName}</p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Amount</Label>
+                <p className="text-sm">
+                  {new Intl.NumberFormat("en-PH", {
+                    style: "currency",
+                    currency: "PHP",
+                  }).format(request.amount)}
+                </p>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">Payment Method</Label>
+                <p className="text-sm capitalize">{request.paymentMethod}</p>
+              </div>
+              {request.paymentProof && (
+                <div className="col-span-2 space-y-2">
+                  <Label className="text-sm font-medium">Payment Proof</Label>
+                  <a
+                    href={request.paymentProof}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:underline"
+                  >
+                    View Payment Proof
+                  </a>
+                </div>
+              )}
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="verify-notes">Notes (Optional)</Label>
+              <Textarea
+                id="verify-notes"
+                placeholder="Any notes about the payment verification..."
+                value={notes}
+                onChange={(e) => setNotes(e.target.value)}
+                rows={3}
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button
+              variant="outline"
+              onClick={() => {
+                setVerifyPaymentDialogOpen(false);
+                setNotes("");
+              }}
+              disabled={isProcessing}
+            >
+              Cancel
+            </Button>
+            <Button
+              onClick={confirmVerifyPayment}
+              disabled={isProcessing}
+              className="bg-blue-600 hover:bg-blue-700"
+            >
+              {isProcessing ? (
+                <>
+                  <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                  Verifying...
+                </>
+              ) : (
+                "Verify Payment"
               )}
             </Button>
           </DialogFooter>

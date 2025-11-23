@@ -152,6 +152,14 @@ export const columns: ColumnDef<DocumentRequest>[] = [
         </div>
       </div>
     ),
+    filterFn: (row, id, value) => {
+      const residentName = row.getValue(id) as string;
+      const residentEmail = row.original.residentEmail;
+      return (
+        residentName.toLowerCase().includes(value.toLowerCase()) ||
+        residentEmail.toLowerCase().includes(value.toLowerCase())
+      );
+    },
   },
   {
     accessorKey: "documentType",

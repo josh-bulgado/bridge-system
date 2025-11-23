@@ -25,6 +25,7 @@ builder.Services.AddSingleton<FileStorageService>();
 builder.Services.AddSingleton<BarangayConfigService>();
 builder.Services.AddSingleton<DocumentService>();
 builder.Services.AddSingleton<StaffService>();
+builder.Services.AddSingleton<DocumentRequestService>();
 
 // 🟢 Bind JWT settings from configuration (.env or appsettings.json)
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));

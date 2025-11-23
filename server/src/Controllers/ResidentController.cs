@@ -1,6 +1,5 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
-using server.Models;
 using server.Services;
 using server.DTOs.Residents;
 using System.Security.Claims;
@@ -27,7 +26,7 @@ namespace server.Controllers
         // [Authorize(Roles = "resident")]
         public async Task<ActionResult<VerificationResponse>> SubmitVerification([FromBody] SubmitVerificationRequest request)
         {
-            
+
             try
             {
                 // Get user ID from JWT token
@@ -104,7 +103,7 @@ namespace server.Controllers
 
                 // Determine the actual status
                 string actualStatus = resident.ResidentVerificationStatus;
-                
+
                 // If no documents have been submitted, status should be "Not Submitted"
                 if (resident.VerificationDocuments == null)
                 {
@@ -130,17 +129,18 @@ namespace server.Controllers
         /// Get all residents (for staff/admin)
         /// </summary>
         [HttpGet]
-        // [Authorize(Roles = "staff,admin")]
+        [Authorize(Roles = "staff,admin")]
         public async Task<ActionResult<List<ResidentListResponse>>> GetAllResidents()
         {
             try
             {
                 var residents = await _residentService.GetAsync();
-                
-                var response = residents.Select(r => {
+
+                var response = residents.Select(r =>
+                {
                     // Get user email for this resident
                     var user = _userService.GetByResidentIdAsync(r.Id ?? "").Result;
-                    
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -192,12 +192,17 @@ namespace server.Controllers
                     return NotFound(new { message = "Resident not found" });
                 }
 
-                return Ok(new { message = "Resident approved successfully", resident = new { 
-                    id = resident.Id,
-                    fullName = resident.FullName,
-                    verificationStatus = resident.ResidentVerificationStatus,
-                    verifiedAt = resident.VerifiedAt
-                }});
+                return Ok(new
+                {
+                    message = "Resident approved successfully",
+                    resident = new
+                    {
+                        id = resident.Id,
+                        fullName = resident.FullName,
+                        verificationStatus = resident.ResidentVerificationStatus,
+                        verifiedAt = resident.VerifiedAt
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -227,11 +232,16 @@ namespace server.Controllers
                     return NotFound(new { message = "Resident not found" });
                 }
 
-                return Ok(new { message = "Resident rejected", resident = new { 
-                    id = resident.Id,
-                    fullName = resident.FullName,
-                    verificationStatus = resident.ResidentVerificationStatus
-                }});
+                return Ok(new
+                {
+                    message = "Resident rejected",
+                    resident = new
+                    {
+                        id = resident.Id,
+                        fullName = resident.FullName,
+                        verificationStatus = resident.ResidentVerificationStatus
+                    }
+                });
             }
             catch (Exception ex)
             {
@@ -299,10 +309,11 @@ namespace server.Controllers
                 }
 
                 var residents = await _residentService.SearchByNameAsync(query);
-                
-                var response = residents.Select(r => {
+
+                var response = residents.Select(r =>
+                {
                     var user = _userService.GetByResidentIdAsync(r.Id ?? "").Result;
-                    
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -347,10 +358,11 @@ namespace server.Controllers
                 }
 
                 var residents = await _residentService.GetByStatusAsync(status);
-                
-                var response = residents.Select(r => {
+
+                var response = residents.Select(r =>
+                {
                     var user = _userService.GetByResidentIdAsync(r.Id ?? "").Result;
-                    
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -408,7 +420,7 @@ namespace server.Controllers
 
                 // TODO: Implement email sending logic here
                 // For now, just return success
-                
+
                 return Ok(new { message = "Message sent successfully to " + resident.FullName });
             }
             catch (Exception ex)
@@ -435,13 +447,13 @@ namespace server.Controllers
                 // Update resident fields if provided
                 if (!string.IsNullOrEmpty(request.FirstName))
                     resident.FirstName = request.FirstName;
-                
+
                 if (!string.IsNullOrEmpty(request.LastName))
                     resident.LastName = request.LastName;
-                
+
                 if (!string.IsNullOrEmpty(request.MiddleName))
                     resident.MiddleName = request.MiddleName;
-                
+
                 if (!string.IsNullOrEmpty(request.ContactNumber))
                     resident.ContactNumber = request.ContactNumber;
 
