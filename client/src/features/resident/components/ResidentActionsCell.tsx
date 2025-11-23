@@ -109,11 +109,7 @@ export function ResidentActionsCell({ resident }: ResidentActionsCellProps) {
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <Button
-                      variant="outline"
-                      size="icon"
-                      className="h-8 w-8"
-                    >
+                    <Button variant="outline" size="icon" className="h-8 w-8" >
                       <MoreHorizontal className="size-4" />
                     </Button>
                   </DropdownMenuTrigger>

@@ -95,7 +95,7 @@ export const columns: ColumnDef<ResidentListItem>[] = [
     accessorKey: "fullName",
     header: "Full Name",
     cell: ({ row }) => (
-      <div className="font-medium">{row.original.fullName}</div>
+      <div className="font-medium max-w-40 truncate">{row.original.fullName}</div>
     ),
   },
   {
@@ -192,7 +192,7 @@ export const columns: ColumnDef<ResidentListItem>[] = [
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="text-muted-foreground max-w-[250px] cursor-help truncate text-sm">
+              <div className="text-muted-foreground max-w-60 cursor-help truncate text-sm">
                 {address}
               </div>
             </TooltipTrigger>
