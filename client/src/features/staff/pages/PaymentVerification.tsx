@@ -1,4 +1,3 @@
-import React, { useState, useMemo } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,13 +8,13 @@ import { PaymentCard } from "../components/PaymentCard";
 import { ReceiptPreviewModal } from "../components/ReceiptPreviewModal";
 import { RejectionModal } from "../components/RejectionModal";
 import { usePaymentVerification } from "../hooks/usePaymentVerification";
-import { 
-  ArrowLeft, 
-  Clock, 
-  CheckCircle, 
+import {
+  ArrowLeft,
+  Clock,
+  CheckCircle,
   CreditCard,
   Check,
-  FileText
+  FileText,
 } from "lucide-react";
 import type { PaymentRecord } from "../types/payment";
 
@@ -29,26 +28,30 @@ const PaymentVerification = () => {
     approvePayment,
     rejectPayment,
     bulkApprovePayments,
-    isApproving,
     isRejecting,
     isBulkApproving,
   } = usePaymentVerification();
 
   const [activeTab, setActiveTab] = useState("pending");
-  const [selectedPayments, setSelectedPayments] = useState<Set<string>>(new Set());
-  const [previewPayment, setPreviewPayment] = useState<PaymentRecord | null>(null);
-  const [rejectPaymentState, setRejectPaymentState] = useState<PaymentRecord | null>(null);
+  const [selectedPayments, setSelectedPayments] = useState<Set<string>>(
+    new Set(),
+  );
+  const [previewPayment, setPreviewPayment] = useState<PaymentRecord | null>(
+    null,
+  );
+  const [rejectPaymentState, setRejectPaymentState] =
+    useState<PaymentRecord | null>(null);
 
   // Filter payments based on active tab
   const filteredPayments = useMemo(() => {
     if (!payments) return [];
-    
+
     switch (activeTab) {
-      case 'pending':
-        return payments.filter(p => p.status === 'pending_verification');
-      case 'verified':
-        return payments.filter(p => p.status === 'verified');
-      case 'all':
+      case "pending":
+        return payments.filter((p) => p.status === "pending_verification");
+      case "verified":
+        return payments.filter((p) => p.status === "verified");
+      case "all":
         return payments;
       default:
         return payments;
@@ -58,10 +61,11 @@ const PaymentVerification = () => {
   // Get counts for tabs
   const tabCounts = useMemo(() => {
     if (!payments) return { pending: 0, verified: 0, all: 0 };
-    
+
     return {
-      pending: payments.filter(p => p.status === 'pending_verification').length,
-      verified: payments.filter(p => p.status === 'verified').length,
+      pending: payments.filter((p) => p.status === "pending_verification")
+        .length,
+      verified: payments.filter((p) => p.status === "verified").length,
       all: payments.length,
     };
   }, [payments]);
@@ -71,13 +75,17 @@ const PaymentVerification = () => {
   };
 
   const handleReject = (paymentId: string) => {
-    const payment = payments?.find(p => p.id === paymentId);
+    const payment = payments?.find((p) => p.id === paymentId);
     if (payment) {
       setRejectPaymentState(payment);
     }
   };
 
-  const handleRejectConfirm = (paymentId: string, reason: string, note?: string) => {
+  const handleRejectConfirm = (
+    paymentId: string,
+    reason: string,
+    note?: string,
+  ) => {
     rejectPayment({ paymentId, reason, note });
     setRejectPaymentState(null);
   };
@@ -97,11 +105,13 @@ const PaymentVerification = () => {
   };
 
   const handleSelectAll = () => {
-    const pendingPayments = filteredPayments.filter(p => p.status === 'pending_verification');
+    const pendingPayments = filteredPayments.filter(
+      (p) => p.status === "pending_verification",
+    );
     if (selectedPayments.size === pendingPayments.length) {
       setSelectedPayments(new Set());
     } else {
-      setSelectedPayments(new Set(pendingPayments.map(p => p.id)));
+      setSelectedPayments(new Set(pendingPayments.map((p) => p.id)));
     }
   };
 
@@ -112,8 +122,10 @@ const PaymentVerification = () => {
     }
   };
 
-  const pendingPayments = filteredPayments.filter(p => p.status === 'pending_verification');
-  const canBulkApprove = selectedPayments.size > 0 && activeTab === 'pending';
+  const pendingPayments = filteredPayments.filter(
+    (p) => p.status === "pending_verification",
+  );
+  const canBulkApprove = selectedPayments.size > 0 && activeTab === "pending";
 
   return (
     <div className="space-y-6 px-4 lg:px-6">
@@ -124,14 +136,18 @@ const PaymentVerification = () => {
             <Button
               variant="ghost"
               size="sm"
-              onClick={() => navigate('/staff')}
+              onClick={() => navigate("/staff")}
               className="h-8 w-8 p-0"
             >
               <ArrowLeft className="h-4 w-4" />
             </Button>
-            <h1 className="text-3xl font-bold text-gray-900">Payment Verification Dashboard</h1>
+            <h1 className="text-3xl font-bold text-gray-900">
+              Payment Verification Dashboard
+            </h1>
           </div>
-          <p className="text-gray-600">Review GCash receipts and verify payments</p>
+          <p className="text-gray-600">
+            Review GCash receipts and verify payments
+          </p>
         </div>
 
         {canBulkApprove && (
@@ -140,11 +156,10 @@ const PaymentVerification = () => {
             disabled={isBulkApproving}
             className="bg-green-600 hover:bg-green-700"
           >
-            <Check className="h-4 w-4 mr-2" />
-            {isBulkApproving 
-              ? `Approving ${selectedPayments.size}...` 
-              : `Approve Selected (${selectedPayments.size})`
-            }
+            <Check className="mr-2 h-4 w-4" />
+            {isBulkApproving
+              ? `Approving ${selectedPayments.size}...`
+              : `Approve Selected (${selectedPayments.size})`}
           </Button>
         )}
       </div>
@@ -163,7 +178,7 @@ const PaymentVerification = () => {
               change={-5.2}
               color="orange"
               icon={<Clock className="h-8 w-8" />}
-              onClick={() => setActiveTab('pending')}
+              onClick={() => setActiveTab("pending")}
             />
             <StatCard
               title="Verified Today"
@@ -171,7 +186,7 @@ const PaymentVerification = () => {
               change={12.5}
               color="green"
               icon={<CheckCircle className="h-8 w-8" />}
-              onClick={() => setActiveTab('verified')}
+              onClick={() => setActiveTab("verified")}
             />
             <StatCard
               title="Total Amount"
@@ -191,7 +206,7 @@ const PaymentVerification = () => {
             <TabsTrigger value="pending" className="relative">
               Pending Verification
               {tabCounts.pending > 0 && (
-                <Badge className="ml-2 h-5 w-5 rounded-full p-0 text-xs bg-orange-500">
+                <Badge className="ml-2 h-5 w-5 rounded-full bg-orange-500 p-0 text-xs">
                   {tabCounts.pending}
                 </Badge>
               )}
@@ -199,7 +214,10 @@ const PaymentVerification = () => {
             <TabsTrigger value="verified" className="relative">
               Verified
               {tabCounts.verified > 0 && (
-                <Badge variant="outline" className="ml-2 h-5 w-5 rounded-full p-0 text-xs">
+                <Badge
+                  variant="outline"
+                  className="ml-2 h-5 w-5 rounded-full p-0 text-xs"
+                >
                   {tabCounts.verified}
                 </Badge>
               )}
@@ -208,14 +226,17 @@ const PaymentVerification = () => {
           </TabsList>
 
           {/* Bulk Selection Controls */}
-          {activeTab === 'pending' && pendingPayments.length > 0 && (
+          {activeTab === "pending" && pendingPayments.length > 0 && (
             <div className="flex items-center gap-3">
               <label className="flex items-center gap-2 text-sm font-medium text-gray-700">
                 <input
                   type="checkbox"
-                  checked={selectedPayments.size === pendingPayments.length && pendingPayments.length > 0}
+                  checked={
+                    selectedPayments.size === pendingPayments.length &&
+                    pendingPayments.length > 0
+                  }
                   onChange={handleSelectAll}
-                  className="h-4 w-4 text-blue-600 focus:ring-blue-500 border-gray-300 rounded"
+                  className="h-4 w-4 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
                 />
                 Select All ({pendingPayments.length})
               </label>
@@ -228,7 +249,7 @@ const PaymentVerification = () => {
           )}
         </div>
 
-        <TabsContent value="pending" className="space-y-4 mt-6">
+        <TabsContent value="pending" className="mt-6 space-y-4">
           {paymentsLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-64 rounded-xl" />
@@ -247,9 +268,11 @@ const PaymentVerification = () => {
               />
             ))
           ) : (
-            <div className="text-center py-12">
-              <Clock className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No pending payments</h3>
+            <div className="py-12 text-center">
+              <Clock className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
+                No pending payments
+              </h3>
               <p className="text-gray-600">
                 All payments have been processed. Great job!
               </p>
@@ -257,7 +280,7 @@ const PaymentVerification = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="verified" className="space-y-4 mt-6">
+        <TabsContent value="verified" className="mt-6 space-y-4">
           {paymentsLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-64 rounded-xl" />
@@ -273,9 +296,11 @@ const PaymentVerification = () => {
               />
             ))
           ) : (
-            <div className="text-center py-12">
-              <CheckCircle className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No verified payments</h3>
+            <div className="py-12 text-center">
+              <CheckCircle className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
+                No verified payments
+              </h3>
               <p className="text-gray-600">
                 Verified payments will appear here.
               </p>
@@ -283,7 +308,7 @@ const PaymentVerification = () => {
           )}
         </TabsContent>
 
-        <TabsContent value="all" className="space-y-4 mt-6">
+        <TabsContent value="all" className="mt-6 space-y-4">
           {paymentsLoading ? (
             Array.from({ length: 3 }).map((_, i) => (
               <Skeleton key={i} className="h-64 rounded-xl" />
@@ -299,12 +324,12 @@ const PaymentVerification = () => {
               />
             ))
           ) : (
-            <div className="text-center py-12">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No payments found</h3>
-              <p className="text-gray-600">
-                Payment records will appear here.
-              </p>
+            <div className="py-12 text-center">
+              <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
+                No payments found
+              </h3>
+              <p className="text-gray-600">Payment records will appear here.</p>
             </div>
           )}
         </TabsContent>

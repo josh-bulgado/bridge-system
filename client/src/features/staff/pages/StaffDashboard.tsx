@@ -10,7 +10,13 @@ import {
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Skeleton } from "@/components/ui/skeleton";
 import { PriorityActionCard } from "../components";
 import { StatCard } from "@/components/ui/stat-card";
@@ -19,22 +25,25 @@ import { useStaffDashboard } from "../hooks/useStaffDashboard";
 import type { Request } from "../types";
 
 const StaffDashboard = () => {
-  const { stats, statsLoading, requests, requestsLoading, refetch } = useStaffDashboard();
+  const { stats, statsLoading, requests, requestsLoading, refetch } =
+    useStaffDashboard();
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedDocumentType, setSelectedDocumentType] = useState<string>("all");
+  const [selectedDocumentType, setSelectedDocumentType] =
+    useState<string>("all");
   const [selectedStatus, setSelectedStatus] = useState<string>("all");
 
   // Filter requests based on search and filters
   const filteredRequests = requests.filter((request) => {
-    const matchesSearch = 
+    const matchesSearch =
       request.residentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.trackingNumber.toLowerCase().includes(searchTerm.toLowerCase()) ||
       request.purpose.toLowerCase().includes(searchTerm.toLowerCase());
-    
-    const matchesDocumentType = 
-      selectedDocumentType === "all" || request.documentType === selectedDocumentType;
-    
-    const matchesStatus = 
+
+    const matchesDocumentType =
+      selectedDocumentType === "all" ||
+      request.documentType === selectedDocumentType;
+
+    const matchesStatus =
       selectedStatus === "all" || request.status === selectedStatus;
 
     return matchesSearch && matchesDocumentType && matchesStatus;
@@ -42,40 +51,47 @@ const StaffDashboard = () => {
 
   const handleStatClick = (filterType: string) => {
     switch (filterType) {
-      case 'pending':
-        setSelectedStatus('pending');
+      case "pending":
+        setSelectedStatus("pending");
         break;
-      case 'payment':
-        setSelectedStatus('payment_pending');
+      case "payment":
+        setSelectedStatus("payment_pending");
         break;
-      case 'generation':
-        setSelectedStatus('ready_for_generation');
+      case "generation":
+        setSelectedStatus("ready_for_generation");
         break;
       default:
-        setSelectedStatus('all');
+        setSelectedStatus("all");
     }
   };
 
-  const handlePriorityAction = (actionType: 'payment' | 'generation') => {
-    if (actionType === 'payment') {
+  const handlePriorityAction = (actionType: "payment" | "generation") => {
+    if (actionType === "payment") {
       // Navigate to payment verification page
-      window.location.href = '/staff/payment-verification';
+      window.location.href = "/staff/payment-verification";
     } else {
-      setSelectedStatus('ready_for_generation');
+      setSelectedStatus("ready_for_generation");
     }
   };
 
-  const handleRequestAction = (request: Request, action: 'view' | 'approve' | 'reject') => {
+  const handleRequestAction = (
+    request: Request,
+    action: "view" | "approve" | "reject",
+  ) => {
     console.log(`${action} request:`, request.id);
     // TODO: Implement actual request actions
-    if (action === 'approve' || action === 'reject') {
+    if (action === "approve" || action === "reject") {
       // Refetch data after action
       setTimeout(() => refetch(), 500);
     }
   };
 
-  const paymentPendingCount = requests.filter(r => r.status === 'payment_pending').length;
-  const readyForGenerationCount = requests.filter(r => r.status === 'ready_for_generation').length;
+  const paymentPendingCount = requests.filter(
+    (r) => r.status === "payment_pending",
+  ).length;
+  const readyForGenerationCount = requests.filter(
+    (r) => r.status === "ready_for_generation",
+  ).length;
 
   return (
     <div className="space-y-8 px-4 lg:px-6">
@@ -99,7 +115,7 @@ const StaffDashboard = () => {
               change={stats.totalRequests.change}
               color="green"
               icon={<FileText className="h-8 w-8" />}
-              onClick={() => handleStatClick('all')}
+              onClick={() => handleStatClick("all")}
             />
             <StatCard
               title="Pending Review"
@@ -107,7 +123,7 @@ const StaffDashboard = () => {
               change={stats.pendingReview.change}
               color="amber"
               icon={<Clock className="h-8 w-8" />}
-              onClick={() => handleStatClick('pending')}
+              onClick={() => handleStatClick("pending")}
             />
             <StatCard
               title="Payment Verification"
@@ -115,7 +131,7 @@ const StaffDashboard = () => {
               change={stats.paymentVerification.change}
               color="emerald"
               icon={<CreditCard className="h-8 w-8" />}
-              onClick={() => handleStatClick('payment')}
+              onClick={() => handleStatClick("payment")}
             />
             <StatCard
               title="Ready for Generation"
@@ -123,7 +139,7 @@ const StaffDashboard = () => {
               change={stats.readyForGeneration.change}
               color="teal"
               icon={<Download className="h-8 w-8" />}
-              onClick={() => handleStatClick('generation')}
+              onClick={() => handleStatClick("generation")}
             />
           </>
         ) : null}
@@ -137,7 +153,7 @@ const StaffDashboard = () => {
           theme="emerald"
           icon={CreditCard}
           buttonText="Review Now"
-          onClick={() => handlePriorityAction('payment')}
+          onClick={() => handlePriorityAction("payment")}
         />
         <PriorityActionCard
           title="Document Generation"
@@ -145,7 +161,7 @@ const StaffDashboard = () => {
           theme="teal"
           icon={Download}
           buttonText="Generate Now"
-          onClick={() => handlePriorityAction('generation')}
+          onClick={() => handlePriorityAction("generation")}
         />
       </div>
 
@@ -156,11 +172,11 @@ const StaffDashboard = () => {
           <h2 className="text-2xl font-semibold text-gray-900">
             Document Requests Overview
           </h2>
-          
+
           {/* Search and Filters */}
           <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-            <div className="relative flex-1 max-w-md">
-              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+            <div className="relative max-w-md flex-1">
+              <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
               <Input
                 placeholder="Search by name, ID, or purpose..."
                 value={searchTerm}
@@ -168,38 +184,51 @@ const StaffDashboard = () => {
                 className="pl-10"
               />
             </div>
-            
+
             <div className="flex gap-3">
-              <Select value={selectedDocumentType} onValueChange={setSelectedDocumentType}>
+              <Select
+                value={selectedDocumentType}
+                onValueChange={setSelectedDocumentType}
+              >
                 <SelectTrigger className="w-48">
-                  <Filter className="h-4 w-4 mr-2" />
+                  <Filter className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Document Type" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Documents</SelectItem>
-                  <SelectItem value="Barangay Clearance">Barangay Clearance</SelectItem>
-                  <SelectItem value="Certificate of Residency">Certificate of Residency</SelectItem>
-                  <SelectItem value="Certificate of Indigency">Certificate of Indigency</SelectItem>
+                  <SelectItem value="Barangay Clearance">
+                    Barangay Clearance
+                  </SelectItem>
+                  <SelectItem value="Certificate of Residency">
+                    Certificate of Residency
+                  </SelectItem>
+                  <SelectItem value="Certificate of Indigency">
+                    Certificate of Indigency
+                  </SelectItem>
                 </SelectContent>
               </Select>
 
               <Select value={selectedStatus} onValueChange={setSelectedStatus}>
                 <SelectTrigger className="w-40">
-                  <Clock className="h-4 w-4 mr-2" />
+                  <Clock className="mr-2 h-4 w-4" />
                   <SelectValue placeholder="Status" />
                 </SelectTrigger>
                 <SelectContent>
                   <SelectItem value="all">All Status</SelectItem>
                   <SelectItem value="pending">Pending</SelectItem>
                   <SelectItem value="approved">Approved</SelectItem>
-                  <SelectItem value="payment_pending">Payment Pending</SelectItem>
-                  <SelectItem value="ready_for_generation">Ready for Generation</SelectItem>
+                  <SelectItem value="payment_pending">
+                    Payment Pending
+                  </SelectItem>
+                  <SelectItem value="ready_for_generation">
+                    Ready for Generation
+                  </SelectItem>
                   <SelectItem value="completed">Completed</SelectItem>
                 </SelectContent>
               </Select>
 
               <Button variant="outline">
-                <Calendar className="h-4 w-4 mr-2" />
+                <Calendar className="mr-2 h-4 w-4" />
                 Date Range
               </Button>
             </div>
@@ -217,28 +246,34 @@ const StaffDashboard = () => {
               <RequestCard
                 key={request.id}
                 request={request}
-                onViewDetails={(id) => handleRequestAction(request, 'view')}
-                onApprove={(id) => handleRequestAction(request, 'approve')}
-                onReject={(id) => handleRequestAction(request, 'reject')}
+                onViewDetails={() => handleRequestAction(request, "view")}
+                onApprove={() => handleRequestAction(request, "approve")}
+                onReject={() => handleRequestAction(request, "reject")}
               />
             ))
           ) : (
-            <div className="text-center py-12">
-              <FileText className="h-12 w-12 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-medium text-gray-900 mb-2">No requests found</h3>
+            <div className="py-12 text-center">
+              <FileText className="mx-auto mb-4 h-12 w-12 text-gray-400" />
+              <h3 className="mb-2 text-lg font-medium text-gray-900">
+                No requests found
+              </h3>
               <p className="text-gray-600">
-                {searchTerm || selectedDocumentType !== 'all' || selectedStatus !== 'all'
-                  ? 'Try adjusting your filters or search terms.'
-                  : 'No document requests have been submitted yet.'}
+                {searchTerm ||
+                selectedDocumentType !== "all" ||
+                selectedStatus !== "all"
+                  ? "Try adjusting your filters or search terms."
+                  : "No document requests have been submitted yet."}
               </p>
-              {(searchTerm || selectedDocumentType !== 'all' || selectedStatus !== 'all') && (
+              {(searchTerm ||
+                selectedDocumentType !== "all" ||
+                selectedStatus !== "all") && (
                 <Button
                   variant="outline"
                   className="mt-4"
                   onClick={() => {
-                    setSearchTerm('');
-                    setSelectedDocumentType('all');
-                    setSelectedStatus('all');
+                    setSearchTerm("");
+                    setSelectedDocumentType("all");
+                    setSelectedStatus("all");
                   }}
                 >
                   Clear Filters
@@ -250,6 +285,6 @@ const StaffDashboard = () => {
       </div>
     </div>
   );
-}
+};
 
 export { StaffDashboard as default };
