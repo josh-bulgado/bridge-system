@@ -1,0 +1,254 @@
+import { Checkbox } from "@/components/ui/checkbox";
+import type { ColumnDef } from "@tanstack/react-table";
+import type { DocumentRequest } from "../types/documentRequest";
+import {
+  TooltipProvider,
+  TooltipTrigger,
+  TooltipContent,
+  Tooltip,
+} from "@/components/ui/tooltip";
+import { Badge } from "@/components/ui/badge";
+import { DocumentRequestActionsCell } from "./DocumentRequestActionsCell";
+
+function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat("en-PH", {
+    style: "currency",
+    currency: "PHP",
+  }).format(amount);
+}
+
+function formatDate(dateString: string): string {
+  return new Date(dateString).toLocaleDateString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+  });
+}
+
+function formatDateTime(dateString: string): string {
+  return new Date(dateString).toLocaleString("en-US", {
+    month: "short",
+    day: "numeric",
+    year: "numeric",
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+}
+
+function getStatusBadge(status: DocumentRequest["status"]) {
+  switch (status) {
+    case "pending":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/25 dark:bg-yellow-500/10 dark:text-yellow-400 dark:hover:bg-yellow-500/20"
+        >
+          Pending Review
+        </Badge>
+      );
+    case "approved":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-green-500/15 text-green-700 hover:bg-green-500/25 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20"
+        >
+          Approved
+        </Badge>
+      );
+    case "rejected":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-red-500/15 text-red-700 hover:bg-red-500/25 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+        >
+          Rejected
+        </Badge>
+      );
+    case "payment_pending":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-orange-500/15 text-orange-700 hover:bg-orange-500/25 dark:bg-orange-500/10 dark:text-orange-400 dark:hover:bg-orange-500/20"
+        >
+          Payment Pending
+        </Badge>
+      );
+    case "payment_verified":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-blue-500/15 text-blue-700 hover:bg-blue-500/25 dark:bg-blue-500/10 dark:text-blue-400 dark:hover:bg-blue-500/20"
+        >
+          Payment Verified
+        </Badge>
+      );
+    case "ready_for_generation":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-purple-500/15 text-purple-700 hover:bg-purple-500/25 dark:bg-purple-500/10 dark:text-purple-400 dark:hover:bg-purple-500/20"
+        >
+          Ready for Generation
+        </Badge>
+      );
+    case "completed":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-emerald-500/15 text-emerald-700 hover:bg-emerald-500/25 dark:bg-emerald-500/10 dark:text-emerald-400 dark:hover:bg-emerald-500/20"
+        >
+          Completed
+        </Badge>
+      );
+    default:
+      return <Badge variant="secondary">{status}</Badge>;
+  }
+}
+
+export const columns: ColumnDef<DocumentRequest>[] = [
+  {
+    id: "select",
+    header: ({ table }) => (
+      <div className="flex items-center justify-center">
+        <Checkbox
+          checked={
+            table.getIsAllPageRowsSelected() ||
+            (table.getIsSomePageRowsSelected() && "indeterminate")
+          }
+          onCheckedChange={(value) => table.toggleAllPageRowsSelected(!!value)}
+          aria-label="Select all"
+        />
+      </div>
+    ),
+    cell: ({ row }) => (
+      <div className="flex items-center justify-center">
+        <Checkbox
+          checked={row.getIsSelected()}
+          onCheckedChange={(value) => row.toggleSelected(!!value)}
+          aria-label="Select row"
+        />
+      </div>
+    ),
+    enableSorting: false,
+    enableHiding: false,
+  },
+  {
+    accessorKey: "trackingNumber",
+    header: "Tracking #",
+    cell: ({ row }) => (
+      <div className="font-mono text-sm font-medium">
+        {row.original.trackingNumber}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "residentName",
+    header: "Resident",
+    cell: ({ row }) => (
+      <div className="space-y-1">
+        <div className="font-medium">{row.original.residentName}</div>
+        <div className="text-xs text-muted-foreground">
+          {row.original.residentEmail}
+        </div>
+      </div>
+    ),
+  },
+  {
+    accessorKey: "documentType",
+    header: "Document Type",
+    cell: ({ row }) => (
+      <div className="font-medium">{row.original.documentType}</div>
+    ),
+  },
+  {
+    accessorKey: "purpose",
+    header: "Purpose",
+    cell: ({ row }) => {
+      const purpose = row.original.purpose;
+      const maxLength = 30;
+      const truncated = purpose.length > maxLength;
+      
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="cursor-help text-sm">
+                {truncated ? `${purpose.substring(0, maxLength)}...` : purpose}
+              </div>
+            </TooltipTrigger>
+            {truncated && (
+              <TooltipContent>
+                <div className="max-w-[300px]">{purpose}</div>
+              </TooltipContent>
+            )}
+          </Tooltip>
+        </TooltipProvider>
+      );
+    },
+  },
+  {
+    accessorKey: "amount",
+    header: "Amount",
+    cell: ({ row }) => (
+      <div className="font-medium">{formatCurrency(row.original.amount)}</div>
+    ),
+  },
+  {
+    accessorKey: "status",
+    header: "Status",
+    cell: ({ row }) => {
+      const request = row.original;
+      return (
+        <TooltipProvider>
+          <Tooltip>
+            <TooltipTrigger asChild>
+              <div className="cursor-help">
+                {getStatusBadge(request.status)}
+              </div>
+            </TooltipTrigger>
+            <TooltipContent>
+              <div className="space-y-1 text-sm">
+                <p>
+                  <strong>Status:</strong> {request.status.replace(/_/g, " ")}
+                </p>
+                {request.rejectionReason && (
+                  <p>
+                    <strong>Reason:</strong> {request.rejectionReason}
+                  </p>
+                )}
+                {request.notes && (
+                  <p>
+                    <strong>Notes:</strong> {request.notes}
+                  </p>
+                )}
+              </div>
+            </TooltipContent>
+          </Tooltip>
+        </TooltipProvider>
+      );
+    },
+  },
+  {
+    accessorKey: "submittedAt",
+    header: "Submitted",
+    cell: ({ row }) => (
+      <div className="text-sm text-muted-foreground">
+        {formatDateTime(row.original.submittedAt)}
+      </div>
+    ),
+  },
+  {
+    accessorKey: "updatedAt",
+    header: "Last Updated",
+    cell: ({ row }) => (
+      <div className="text-sm text-muted-foreground">
+        {formatDate(row.original.updatedAt)}
+      </div>
+    ),
+  },
+  {
+    id: "actions",
+    header: "Actions",
+    cell: ({ row }) => <DocumentRequestActionsCell request={row.original} />,
+  },
+];
