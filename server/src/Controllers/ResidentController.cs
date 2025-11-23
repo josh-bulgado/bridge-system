@@ -12,11 +12,13 @@ namespace server.Controllers
     {
         private readonly ResidentService _residentService;
         private readonly UserService _userService;
+        private readonly CloudinaryService _cloudinaryService;
 
-        public ResidentController(ResidentService residentService, UserService userService)
+        public ResidentController(ResidentService residentService, UserService userService, CloudinaryService cloudinaryService)
         {
             _residentService = residentService;
             _userService = userService;
+            _cloudinaryService = cloudinaryService;
         }
 
         /// <summary>
@@ -52,7 +54,13 @@ namespace server.Controllers
                     request.GovernmentIdFront,
                     request.GovernmentIdBack,
                     request.ProofOfResidencyType,
-                    request.ProofOfResidency
+                    request.ProofOfResidency,
+                    request.GovernmentIdFrontUrl,
+                    request.GovernmentIdBackUrl,
+                    request.ProofOfResidencyUrl,
+                    request.GovernmentIdFrontFileType,
+                    request.GovernmentIdBackFileType,
+                    request.ProofOfResidencyFileType
                 );
 
                 if (resident == null)
@@ -129,6 +137,7 @@ namespace server.Controllers
 
         /// <summary>
         /// Get all residents (for staff/admin)
+        /// 🔒 SECURITY: Role-based access with audit logging
         /// </summary>
         [HttpGet]
         [Authorize(Roles = "staff,admin")]
@@ -143,6 +152,13 @@ namespace server.Controllers
                     // Get user email for this resident
                     var user = _userService.GetByResidentIdAsync(r.Id ?? "").Result;
 
+                    // Determine actual verification status
+                    string verificationStatus = r.ResidentVerificationStatus;
+                    if (r.VerificationDocuments == null)
+                    {
+                        verificationStatus = "Not Submitted";
+                    }
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -150,17 +166,25 @@ namespace server.Controllers
                         Email = user?.Email ?? "N/A",
                         ContactNumber = r.ContactNumber,
                         LocalAddress = $"{r.Address?.HouseNumberUnit ?? ""} {r.Address?.StreetPurok ?? ""}".Trim(),
-                        VerificationStatus = r.ResidentVerificationStatus,
+                        VerificationStatus = verificationStatus,
                         IsEmailVerified = user?.IsEmailVerified ?? false,
+                        IsDeleted = user?.IsDeleted ?? false,
+                        DeletedAt = user?.DeletedAt,
                         RegistrationDate = r.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                         VerifiedDate = r.VerifiedAt,
                         HasDocuments = r.VerificationDocuments != null,
                         // Include verification documents
                         GovernmentIdType = r.VerificationDocuments?.GovernmentIdType,
                         GovernmentIdFront = r.VerificationDocuments?.GovernmentIdFront,
+                        GovernmentIdFrontUrl = r.VerificationDocuments?.GovernmentIdFrontUrl,
+                        GovernmentIdFrontFileType = r.VerificationDocuments?.GovernmentIdFrontFileType,
                         GovernmentIdBack = r.VerificationDocuments?.GovernmentIdBack,
+                        GovernmentIdBackUrl = r.VerificationDocuments?.GovernmentIdBackUrl,
+                        GovernmentIdBackFileType = r.VerificationDocuments?.GovernmentIdBackFileType,
                         ProofOfResidencyType = r.VerificationDocuments?.ProofOfResidencyType,
                         ProofOfResidency = r.VerificationDocuments?.ProofOfResidency,
+                        ProofOfResidencyUrl = r.VerificationDocuments?.ProofOfResidencyUrl,
+                        ProofOfResidencyFileType = r.VerificationDocuments?.ProofOfResidencyFileType,
                         StreetPurok = r.Address?.StreetPurok,
                         HouseNumberUnit = r.Address?.HouseNumberUnit
                     };
@@ -178,7 +202,7 @@ namespace server.Controllers
         /// Approve resident verification (for staff/admin)
         /// </summary>
         [HttpPost("{residentId}/approve")]
-        // [Authorize(Roles = "staff,admin")]
+        [Authorize(Roles = "staff,admin")]
         public async Task<ActionResult> ApproveResident(string residentId)
         {
             try
@@ -218,7 +242,7 @@ namespace server.Controllers
         /// Reject resident verification (for staff/admin)
         /// </summary>
         [HttpPost("{residentId}/reject")]
-        // [Authorize(Roles = "staff,admin")]
+        [Authorize(Roles = "staff,admin")]
         public async Task<ActionResult> RejectResident(string residentId)
         {
             try
@@ -257,7 +281,7 @@ namespace server.Controllers
         /// Get resident by ID (for staff/admin)
         /// </summary>
         [HttpGet("{residentId}")]
-        // [Authorize(Roles = "staff,admin")]
+        [Authorize(Roles = "staff,admin")]
         public async Task<ActionResult<ResidentListResponse>> GetResidentById(string residentId)
         {
             try
@@ -271,6 +295,13 @@ namespace server.Controllers
                 // Get user email for this resident
                 var user = await _userService.GetByResidentIdAsync(residentId);
 
+                // Determine actual verification status
+                string verificationStatus = resident.ResidentVerificationStatus;
+                if (resident.VerificationDocuments == null)
+                {
+                    verificationStatus = "Not Submitted";
+                }
+
                 var response = new ResidentListResponse
                 {
                     Id = resident.Id ?? "",
@@ -278,16 +309,24 @@ namespace server.Controllers
                     Email = user?.Email ?? "N/A",
                     ContactNumber = resident.ContactNumber,
                     LocalAddress = $"{resident.Address?.HouseNumberUnit ?? ""} {resident.Address?.StreetPurok ?? ""}".Trim(),
-                    VerificationStatus = resident.ResidentVerificationStatus,
+                    VerificationStatus = verificationStatus,
                     IsEmailVerified = user?.IsEmailVerified ?? false,
-                    RegistrationDate = resident.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
+                        IsDeleted = user?.IsDeleted ?? false,
+                        DeletedAt = user?.DeletedAt,
+                        RegistrationDate = resident.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                     VerifiedDate = resident.VerifiedAt,
                     HasDocuments = resident.VerificationDocuments != null,
                     GovernmentIdType = resident.VerificationDocuments?.GovernmentIdType,
                     GovernmentIdFront = resident.VerificationDocuments?.GovernmentIdFront,
+                    GovernmentIdFrontUrl = resident.VerificationDocuments?.GovernmentIdFrontUrl,
+                    GovernmentIdFrontFileType = resident.VerificationDocuments?.GovernmentIdFrontFileType,
                     GovernmentIdBack = resident.VerificationDocuments?.GovernmentIdBack,
+                    GovernmentIdBackUrl = resident.VerificationDocuments?.GovernmentIdBackUrl,
+                    GovernmentIdBackFileType = resident.VerificationDocuments?.GovernmentIdBackFileType,
                     ProofOfResidencyType = resident.VerificationDocuments?.ProofOfResidencyType,
                     ProofOfResidency = resident.VerificationDocuments?.ProofOfResidency,
+                    ProofOfResidencyUrl = resident.VerificationDocuments?.ProofOfResidencyUrl,
+                    ProofOfResidencyFileType = resident.VerificationDocuments?.ProofOfResidencyFileType,
                     StreetPurok = resident.Address?.StreetPurok,
                     HouseNumberUnit = resident.Address?.HouseNumberUnit
                 };
@@ -304,7 +343,7 @@ namespace server.Controllers
         /// Search residents by query (for staff/admin)
         /// </summary>
         [HttpGet("search")]
-        // [Authorize(Roles = "staff,admin")]
+        [Authorize(Roles = "staff,admin")]
         public async Task<ActionResult<List<ResidentListResponse>>> SearchResidents([FromQuery] string query)
         {
             try
@@ -320,6 +359,13 @@ namespace server.Controllers
                 {
                     var user = _userService.GetByResidentIdAsync(r.Id ?? "").Result;
 
+                    // Determine actual verification status
+                    string verificationStatus = r.ResidentVerificationStatus;
+                    if (r.VerificationDocuments == null)
+                    {
+                        verificationStatus = "Not Submitted";
+                    }
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -327,16 +373,24 @@ namespace server.Controllers
                         Email = user?.Email ?? "N/A",
                         ContactNumber = r.ContactNumber,
                         LocalAddress = $"{r.Address?.HouseNumberUnit ?? ""} {r.Address?.StreetPurok ?? ""}".Trim(),
-                        VerificationStatus = r.ResidentVerificationStatus,
+                        VerificationStatus = verificationStatus,
                         IsEmailVerified = user?.IsEmailVerified ?? false,
+                        IsDeleted = user?.IsDeleted ?? false,
+                        DeletedAt = user?.DeletedAt,
                         RegistrationDate = r.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                         VerifiedDate = r.VerifiedAt,
                         HasDocuments = r.VerificationDocuments != null,
                         GovernmentIdType = r.VerificationDocuments?.GovernmentIdType,
                         GovernmentIdFront = r.VerificationDocuments?.GovernmentIdFront,
+                        GovernmentIdFrontUrl = r.VerificationDocuments?.GovernmentIdFrontUrl,
+                        GovernmentIdFrontFileType = r.VerificationDocuments?.GovernmentIdFrontFileType,
                         GovernmentIdBack = r.VerificationDocuments?.GovernmentIdBack,
+                        GovernmentIdBackUrl = r.VerificationDocuments?.GovernmentIdBackUrl,
+                        GovernmentIdBackFileType = r.VerificationDocuments?.GovernmentIdBackFileType,
                         ProofOfResidencyType = r.VerificationDocuments?.ProofOfResidencyType,
                         ProofOfResidency = r.VerificationDocuments?.ProofOfResidency,
+                        ProofOfResidencyUrl = r.VerificationDocuments?.ProofOfResidencyUrl,
+                        ProofOfResidencyFileType = r.VerificationDocuments?.ProofOfResidencyFileType,
                         StreetPurok = r.Address?.StreetPurok,
                         HouseNumberUnit = r.Address?.HouseNumberUnit
                     };
@@ -354,15 +408,15 @@ namespace server.Controllers
         /// Get residents by verification status (for staff/admin)
         /// </summary>
         [HttpGet("status/{status}")]
-        // [Authorize(Roles = "staff,admin")]
+        [Authorize(Roles = "staff,admin")]
         public async Task<ActionResult<List<ResidentListResponse>>> GetResidentsByStatus(string status)
         {
             try
             {
-                var validStatuses = new[] { "Pending", "Approved", "Rejected", "Under Review" };
+                var validStatuses = new[] { "Pending", "Approved", "Rejected", "Under Review", "Not Submitted" };
                 if (!validStatuses.Contains(status, StringComparer.OrdinalIgnoreCase))
                 {
-                    return BadRequest(new { message = "Invalid status. Must be one of: Pending, Approved, Rejected, Under Review" });
+                    return BadRequest(new { message = "Invalid status. Must be one of: Pending, Approved, Rejected, Under Review, Not Submitted" });
                 }
 
                 var residents = await _residentService.GetByStatusAsync(status);
@@ -371,6 +425,13 @@ namespace server.Controllers
                 {
                     var user = _userService.GetByResidentIdAsync(r.Id ?? "").Result;
 
+                    // Determine actual verification status
+                    string verificationStatus = r.ResidentVerificationStatus;
+                    if (r.VerificationDocuments == null)
+                    {
+                        verificationStatus = "Not Submitted";
+                    }
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -378,16 +439,24 @@ namespace server.Controllers
                         Email = user?.Email ?? "N/A",
                         ContactNumber = r.ContactNumber,
                         LocalAddress = $"{r.Address?.HouseNumberUnit ?? ""} {r.Address?.StreetPurok ?? ""}".Trim(),
-                        VerificationStatus = r.ResidentVerificationStatus,
+                        VerificationStatus = verificationStatus,
                         IsEmailVerified = user?.IsEmailVerified ?? false,
+                        IsDeleted = user?.IsDeleted ?? false,
+                        DeletedAt = user?.DeletedAt,
                         RegistrationDate = r.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                         VerifiedDate = r.VerifiedAt,
                         HasDocuments = r.VerificationDocuments != null,
                         GovernmentIdType = r.VerificationDocuments?.GovernmentIdType,
                         GovernmentIdFront = r.VerificationDocuments?.GovernmentIdFront,
+                        GovernmentIdFrontUrl = r.VerificationDocuments?.GovernmentIdFrontUrl,
+                        GovernmentIdFrontFileType = r.VerificationDocuments?.GovernmentIdFrontFileType,
                         GovernmentIdBack = r.VerificationDocuments?.GovernmentIdBack,
+                        GovernmentIdBackUrl = r.VerificationDocuments?.GovernmentIdBackUrl,
+                        GovernmentIdBackFileType = r.VerificationDocuments?.GovernmentIdBackFileType,
                         ProofOfResidencyType = r.VerificationDocuments?.ProofOfResidencyType,
                         ProofOfResidency = r.VerificationDocuments?.ProofOfResidency,
+                        ProofOfResidencyUrl = r.VerificationDocuments?.ProofOfResidencyUrl,
+                        ProofOfResidencyFileType = r.VerificationDocuments?.ProofOfResidencyFileType,
                         StreetPurok = r.Address?.StreetPurok,
                         HouseNumberUnit = r.Address?.HouseNumberUnit
                     };
@@ -405,7 +474,7 @@ namespace server.Controllers
         /// Contact resident via email (for staff/admin)
         /// </summary>
         [HttpPost("{residentId}/contact")]
-        // [Authorize(Roles = "staff,admin")]
+        [Authorize(Roles = "staff,admin")]
         public async Task<ActionResult> ContactResident(string residentId, [FromBody] ContactResidentRequest request)
         {
             try
@@ -443,7 +512,7 @@ namespace server.Controllers
         /// Update resident information (for admin only)
         /// </summary>
         [HttpPut("{residentId}")]
-        // [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult<ResidentListResponse>> UpdateResident(string residentId, [FromBody] UpdateResidentRequest request)
         {
             try
@@ -472,6 +541,13 @@ namespace server.Controllers
                 // Get user email for this resident
                 var user = await _userService.GetByResidentIdAsync(residentId);
 
+                // Determine actual verification status
+                string verificationStatus = resident.ResidentVerificationStatus;
+                if (resident.VerificationDocuments == null)
+                {
+                    verificationStatus = "Not Submitted";
+                }
+
                 var response = new ResidentListResponse
                 {
                     Id = resident.Id ?? "",
@@ -479,16 +555,24 @@ namespace server.Controllers
                     Email = user?.Email ?? "N/A",
                     ContactNumber = resident.ContactNumber,
                     LocalAddress = $"{resident.Address?.HouseNumberUnit ?? ""} {resident.Address?.StreetPurok ?? ""}".Trim(),
-                    VerificationStatus = resident.ResidentVerificationStatus,
+                    VerificationStatus = verificationStatus,
                     IsEmailVerified = user?.IsEmailVerified ?? false,
-                    RegistrationDate = resident.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
+                        IsDeleted = user?.IsDeleted ?? false,
+                        DeletedAt = user?.DeletedAt,
+                        RegistrationDate = resident.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                     VerifiedDate = resident.VerifiedAt,
                     HasDocuments = resident.VerificationDocuments != null,
                     GovernmentIdType = resident.VerificationDocuments?.GovernmentIdType,
                     GovernmentIdFront = resident.VerificationDocuments?.GovernmentIdFront,
+                    GovernmentIdFrontUrl = resident.VerificationDocuments?.GovernmentIdFrontUrl,
+                    GovernmentIdFrontFileType = resident.VerificationDocuments?.GovernmentIdFrontFileType,
                     GovernmentIdBack = resident.VerificationDocuments?.GovernmentIdBack,
+                    GovernmentIdBackUrl = resident.VerificationDocuments?.GovernmentIdBackUrl,
+                    GovernmentIdBackFileType = resident.VerificationDocuments?.GovernmentIdBackFileType,
                     ProofOfResidencyType = resident.VerificationDocuments?.ProofOfResidencyType,
                     ProofOfResidency = resident.VerificationDocuments?.ProofOfResidency,
+                    ProofOfResidencyUrl = resident.VerificationDocuments?.ProofOfResidencyUrl,
+                    ProofOfResidencyFileType = resident.VerificationDocuments?.ProofOfResidencyFileType,
                     StreetPurok = resident.Address?.StreetPurok,
                     HouseNumberUnit = resident.Address?.HouseNumberUnit
                 };
@@ -505,7 +589,7 @@ namespace server.Controllers
         /// Delete resident (for admin only)
         /// </summary>
         [HttpDelete("{residentId}")]
-        // [Authorize(Roles = "admin")]
+        [Authorize(Roles = "admin")]
         public async Task<ActionResult> DeleteResident(string residentId)
         {
             try
@@ -523,6 +607,91 @@ namespace server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while deleting resident", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get a signed URL for a document (for authenticated Cloudinary resources)
+        /// 🔒 SECURITY: Enhanced with role-based access, audit logging, and document ownership verification
+        /// </summary>
+        [HttpGet("{residentId}/document-url")]
+        [Authorize(Roles = "staff,admin")]
+        public async Task<ActionResult> GetDocumentSignedUrl(string residentId, [FromQuery] string publicId)
+        {
+            try
+            {
+                // 🔒 Security: Validate input parameters
+                if (string.IsNullOrEmpty(publicId))
+                {
+                    return BadRequest(new { message = "Public ID is required" });
+                }
+
+                if (string.IsNullOrEmpty(residentId))
+                {
+                    return BadRequest(new { message = "Resident ID is required" });
+                }
+
+                // 🔒 Security: Get authenticated user info
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                var userRole = User.FindFirst(ClaimTypes.Role)?.Value;
+                var userEmail = User.FindFirst(ClaimTypes.Email)?.Value;
+
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated" });
+                }
+
+                // 🔒 Security: Verify resident exists
+                var resident = await _residentService.GetByIdAsync(residentId);
+                if (resident == null)
+                {
+                    return NotFound(new { message = "Resident not found" });
+                }
+
+                // 🔒 Security: Verify document belongs to resident
+                var isValidDocument = false;
+                if (resident.VerificationDocuments != null)
+                {
+                    isValidDocument = 
+                        resident.VerificationDocuments.GovernmentIdFront == publicId ||
+                        resident.VerificationDocuments.GovernmentIdBack == publicId ||
+                        resident.VerificationDocuments.ProofOfResidency == publicId;
+                }
+
+                if (!isValidDocument)
+                {
+                    // 🔒 Security: Log unauthorized access attempt
+                    Console.WriteLine($"[SECURITY ALERT] User {userEmail} (Role: {userRole}) attempted to access document {publicId} for resident {residentId} - Document not found or not owned by resident");
+                    return Forbid();
+                }
+
+                // 🔒 Security: Generate time-limited signed URL (15 minutes for security)
+                var signedUrl = _cloudinaryService.GetSignedDocumentUrl(publicId, 15);
+
+                if (string.IsNullOrEmpty(signedUrl))
+                {
+                    return StatusCode(500, new { message = "Failed to generate signed URL" });
+                }
+
+                // 🔒 Security: Audit log - Document access
+                Console.WriteLine($"[AUDIT] User {userEmail} (ID: {userId}, Role: {userRole}) accessed document {publicId} for resident {resident.FullName} (ID: {residentId}) at {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
+
+                // 🔒 Security: Return URL with security headers
+                Response.Headers.Add("X-Content-Type-Options", "nosniff");
+                Response.Headers.Add("X-Frame-Options", "DENY");
+                Response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate, private");
+                Response.Headers.Add("Pragma", "no-cache");
+
+                return Ok(new { 
+                    url = signedUrl,
+                    expiresIn = 15, // minutes
+                    residentName = resident.FullName
+                });
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"[ERROR] Failed to generate signed URL: {ex.Message}");
+                return StatusCode(500, new { message = "An error occurred while generating document URL" });
             }
         }
     }

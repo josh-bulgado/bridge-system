@@ -64,9 +64,15 @@ export const useVerification = () => {
         HouseNumberUnit: data.houseNumberUnit,
         GovernmentIdType: data.governmentIdType,
         GovernmentIdFront: data.governmentIdFront,
+        GovernmentIdFrontUrl: data.governmentIdFrontUrl,
+        GovernmentIdFrontFileType: data.governmentIdFrontFileType,
         GovernmentIdBack: data.governmentIdBack,
+        GovernmentIdBackUrl: data.governmentIdBackUrl,
+        GovernmentIdBackFileType: data.governmentIdBackFileType,
         ProofOfResidencyType: data.proofOfResidencyType,
         ProofOfResidency: data.proofOfResidency,
+        ProofOfResidencyUrl: data.proofOfResidencyUrl,
+        ProofOfResidencyFileType: data.proofOfResidencyFileType,
       };
       
       if (import.meta.env.DEV) {

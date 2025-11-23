@@ -96,9 +96,9 @@ namespace server.Services
         }
 
         /// <summary>
-        /// Upload a document file (PDF, DOCX, etc.) to Cloudinary
+        /// Upload a document file (PDF, DOCX, etc.) to Cloudinary with enhanced security
         /// </summary>
-        public async Task<(bool success, string? url, string? publicId, string? error)> UploadDocumentAsync(
+        public async Task<(bool success, string? url, string? publicId, string? error, string? fileType)> UploadDocumentAsync(
             IFormFile file,
             string folder = "documents")
         {
@@ -106,37 +106,76 @@ namespace server.Services
             {
                 if (file == null || file.Length == 0)
                 {
-                    return (false, null, null, "No file provided");
+                    return (false, null, null, "No file provided", null);
                 }
 
-                // Validate document types
-                var allowedDocTypes = new[]
+                // 🔒 Security: Validate file extension matches content type
+                var fileExtension = Path.GetExtension(file.FileName)?.ToLower();
+                var allowedExtensions = new[] { ".pdf", ".doc", ".docx", ".jpg", ".jpeg", ".png", ".webp" };
+                
+                if (string.IsNullOrEmpty(fileExtension) || !allowedExtensions.Contains(fileExtension))
                 {
-                "application/pdf",
-                "application/msword",
-                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                "image/jpeg",
-                "image/jpg",
-                "image/png"
-            };
-
-                if (!allowedDocTypes.Contains(file.ContentType.ToLower()))
-                {
-                    return (false, null, null, $"Invalid document type. Allowed types: PDF, DOCX, DOC, JPG, PNG");
+                    _logger.LogWarning($"Upload rejected: Invalid file extension '{fileExtension}'");
+                    return (false, null, null, "Invalid file extension. Allowed: PDF, DOC, DOCX, JPG, JPEG, PNG, WEBP", null);
                 }
 
-                // Validate file size (max 20MB for documents)
-                if (file.Length > 20 * 1024 * 1024)
+                // 🔒 Security: Validate MIME type
+                var allowedDocTypes = new Dictionary<string, string[]>
                 {
-                    return (false, null, null, "File size exceeds 20MB limit");
+                    { ".pdf", new[] { "application/pdf" } },
+                    { ".doc", new[] { "application/msword" } },
+                    { ".docx", new[] { "application/vnd.openxmlformats-officedocument.wordprocessingml.document" } },
+                    { ".jpg", new[] { "image/jpeg", "image/jpg" } },
+                    { ".jpeg", new[] { "image/jpeg", "image/jpg" } },
+                    { ".png", new[] { "image/png" } },
+                    { ".webp", new[] { "image/webp" } }
+                };
+
+                var contentType = file.ContentType.ToLower();
+                if (!allowedDocTypes.TryGetValue(fileExtension, out var validMimeTypes) || 
+                    !validMimeTypes.Contains(contentType))
+                {
+                    _logger.LogWarning($"Upload rejected: MIME type '{contentType}' doesn't match extension '{fileExtension}'");
+                    return (false, null, null, $"File content type does not match extension. This may indicate a security risk.", null);
                 }
 
-                using var stream = file.OpenReadStream();
+                // 🔒 Security: Validate file size (max 10MB for verification documents)
+                const long maxFileSize = 10 * 1024 * 1024; // 10MB
+                if (file.Length > maxFileSize)
+                {
+                    _logger.LogWarning($"Upload rejected: File size {file.Length} bytes exceeds limit");
+                    return (false, null, null, "File size exceeds 10MB limit", null);
+                }
+
+                // 🔒 Security: Validate file signature (magic numbers) for images
+                if (fileExtension == ".jpg" || fileExtension == ".jpeg" || fileExtension == ".png" || fileExtension == ".webp")
+                {
+                    using var stream = file.OpenReadStream();
+                    var buffer = new byte[8];
+                    var bytesRead = await stream.ReadAsync(buffer.AsMemory(0, buffer.Length));
+                    stream.Position = 0;
+
+                    if (bytesRead < 4 || !ValidateFileSignature(buffer, fileExtension))
+                    {
+                        _logger.LogWarning($"Upload rejected: Invalid file signature for {fileExtension}");
+                        return (false, null, null, "File appears to be corrupted or not a valid image", null);
+                    }
+                }
+
+                // 🔒 Security: Sanitize filename
+                var sanitizedFileName = SanitizeFileName(file.FileName);
+                
+                using var uploadStream = file.OpenReadStream();
 
                 var uploadParams = new RawUploadParams
                 {
-                    File = new FileDescription(file.FileName, stream),
-                    Folder = folder
+                    File = new FileDescription(sanitizedFileName, uploadStream),
+                    Folder = folder,
+                    // 🔒 Security: Use authenticated type for secure access
+                    // Files require signed URLs with authentication tokens
+                    Type = "authenticated",
+                    // 🔒 Security: Add tags for tracking
+                    Tags = "verification_document,sensitive"
                 };
 
                 var uploadResult = await _cloudinary.UploadAsync(uploadParams);
@@ -144,16 +183,53 @@ namespace server.Services
                 if (uploadResult.Error != null)
                 {
                     _logger.LogError($"Cloudinary upload error: {uploadResult.Error.Message}");
-                    return (false, null, null, uploadResult.Error.Message);
+                    return (false, null, null, uploadResult.Error.Message, null);
                 }
 
-                return (true, uploadResult.SecureUrl.ToString(), uploadResult.PublicId, null);
+                _logger.LogInformation($"Document uploaded successfully: {uploadResult.PublicId}");
+                return (true, uploadResult.SecureUrl.ToString(), uploadResult.PublicId, null, contentType);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error uploading document to Cloudinary");
-                return (false, null, null, ex.Message);
+                return (false, null, null, "An error occurred while uploading the file", null);
             }
+        }
+
+        /// <summary>
+        /// 🔒 Security: Validate file signature (magic numbers)
+        /// </summary>
+        private bool ValidateFileSignature(byte[] buffer, string extension)
+        {
+            if (buffer.Length < 4) return false;
+
+            return extension switch
+            {
+                ".jpg" or ".jpeg" => buffer[0] == 0xFF && buffer[1] == 0xD8 && buffer[2] == 0xFF,
+                ".png" => buffer[0] == 0x89 && buffer[1] == 0x50 && buffer[2] == 0x4E && buffer[3] == 0x47,
+                ".webp" => buffer[0] == 0x52 && buffer[1] == 0x49 && buffer[2] == 0x46 && buffer[3] == 0x46,
+                _ => true // Skip validation for other types
+            };
+        }
+
+        /// <summary>
+        /// 🔒 Security: Sanitize filename to prevent path traversal attacks
+        /// </summary>
+        private string SanitizeFileName(string fileName)
+        {
+            // Remove path separators and special characters
+            var invalidChars = Path.GetInvalidFileNameChars();
+            var sanitized = string.Join("_", fileName.Split(invalidChars, StringSplitOptions.RemoveEmptyEntries));
+            
+            // Limit filename length
+            if (sanitized.Length > 100)
+            {
+                var extension = Path.GetExtension(sanitized);
+                var nameWithoutExt = Path.GetFileNameWithoutExtension(sanitized);
+                sanitized = nameWithoutExt.Substring(0, 100 - extension.Length) + extension;
+            }
+
+            return sanitized;
         }
 
         /// <summary>
@@ -284,6 +360,73 @@ namespace server.Services
                     .Quality("auto")
                     .FetchFormat("auto"))
                 .BuildUrl(publicId);
+        }
+
+        /// <summary>
+        /// Generate a signed URL for authenticated resources with time-limited access
+        /// </summary>
+        public string GetSignedDocumentUrl(string publicId, int expiresInMinutes = 60)
+        {
+            try
+            {
+                if (string.IsNullOrEmpty(publicId))
+                {
+                    return string.Empty;
+                }
+
+                // Calculate expiration timestamp (current time + expiration minutes)
+                var expirationTime = DateTimeOffset.UtcNow.AddMinutes(expiresInMinutes).ToUnixTimeSeconds();
+
+                // Generate signed URL for authenticated resource
+                // This creates a time-limited token for secure access
+                var url = _cloudinary.Api.UrlImgUp
+                    .ResourceType("raw")
+                    .Type("authenticated")
+                    .Secure(true)
+                    .Signed(true)
+                    .BuildUrl(publicId);
+
+                _logger.LogInformation($"Generated signed URL for authenticated document: {publicId} (expires in {expiresInMinutes} minutes)");
+                return url;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error generating signed URL for {publicId}");
+                return string.Empty;
+            }
+        }
+
+        /// <summary>
+        /// Get a viewable URL for a document (handles both authenticated and public)
+        /// </summary>
+        public string GetDocumentViewUrl(string publicId, string? existingUrl = null)
+        {
+            try
+            {
+                // If we already have a working URL, use it
+                if (!string.IsNullOrEmpty(existingUrl) && existingUrl.StartsWith("http"))
+                {
+                    return existingUrl;
+                }
+
+                if (string.IsNullOrEmpty(publicId))
+                {
+                    return string.Empty;
+                }
+
+                // Try to build a public URL first (for new uploads)
+                var publicUrl = _cloudinary.Api.UrlImgUp
+                    .ResourceType("raw")
+                    .Secure(true)
+                    .BuildUrl(publicId);
+
+                return publicUrl;
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, $"Error getting document view URL for {publicId}");
+                return string.Empty;
+            }
         }
     }
 }

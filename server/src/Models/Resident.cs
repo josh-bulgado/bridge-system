@@ -146,9 +146,25 @@ namespace server.Models
         [BsonIgnoreIfNull]
         public string? GovernmentIdFront { get; set; }
 
+        [BsonElement("governmentIdFrontUrl")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdFrontUrl { get; set; }
+
+        [BsonElement("governmentIdFrontFileType")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdFrontFileType { get; set; }
+
         [BsonElement("governmentIdBack")]
         [BsonIgnoreIfNull]
         public string? GovernmentIdBack { get; set; }
+
+        [BsonElement("governmentIdBackUrl")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdBackUrl { get; set; }
+
+        [BsonElement("governmentIdBackFileType")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdBackFileType { get; set; }
 
         [BsonElement("proofOfResidencyType")]
         public string? ProofOfResidencyType { get; set; }
@@ -156,6 +172,14 @@ namespace server.Models
         [BsonElement("proofOfResidency")]
         [BsonIgnoreIfNull]
         public string? ProofOfResidency { get; set; }
+
+        [BsonElement("proofOfResidencyUrl")]
+        [BsonIgnoreIfNull]
+        public string? ProofOfResidencyUrl { get; set; }
+
+        [BsonElement("proofOfResidencyFileType")]
+        [BsonIgnoreIfNull]
+        public string? ProofOfResidencyFileType { get; set; }
 
         [BsonElement("submittedAt")]
         [BsonIgnoreIfDefault]

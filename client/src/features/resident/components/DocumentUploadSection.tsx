@@ -14,9 +14,9 @@ interface DocumentUploadSectionProps {
   uploadingIdFront: boolean;
   uploadingIdBack: boolean;
   uploadingProof: boolean;
-  onUploadIdFront: (file: File, onChange: (url: string) => void) => void;
-  onUploadIdBack: (file: File, onChange: (url: string) => void) => void;
-  onUploadProof: (file: File, onChange: (url: string) => void) => void;
+  onUploadIdFront: (file: File, onChange: (url: string) => void, urlOnChange: (url: string) => void, fileTypeOnChange: (fileType: string) => void) => void;
+  onUploadIdBack: (file: File, onChange: (url: string) => void, urlOnChange: (url: string) => void, fileTypeOnChange: (fileType: string) => void) => void;
+  onUploadProof: (file: File, onChange: (url: string) => void, urlOnChange: (url: string) => void, fileTypeOnChange: (fileType: string) => void) => void;
   onRemoveIdFront: (onChange: (url: string) => void) => void;
   onRemoveIdBack: (onChange: (url: string) => void) => void;
   onRemoveProof: (onChange: (url: string) => void) => void;
@@ -90,14 +90,26 @@ export const DocumentUploadSection = ({
           name="governmentIdFront"
           render={({ field }) => (
             <FormItem>
-              <FileUploadZone
-                accept="image/*"
-                label="ID Front Side"
-                description="Upload a clear photo of the front side"
-                uploaded={uploadedIdFront}
-                uploading={uploadingIdFront}
-                onUpload={(file) => onUploadIdFront(file, field.onChange)}
-                onRemove={() => onRemoveIdFront(field.onChange)}
+              <FormField
+                control={form.control}
+                name="governmentIdFrontUrl"
+                render={({ field: urlField }) => (
+                  <FormField
+                    control={form.control}
+                    name="governmentIdFrontFileType"
+                    render={({ field: fileTypeField }) => (
+                      <FileUploadZone
+                        accept="image/*"
+                        label="ID Front Side"
+                        description="Upload a clear photo of the front side"
+                        uploaded={uploadedIdFront}
+                        uploading={uploadingIdFront}
+                        onUpload={(file) => onUploadIdFront(file, field.onChange, urlField.onChange, fileTypeField.onChange)}
+                        onRemove={() => onRemoveIdFront(field.onChange)}
+                      />
+                    )}
+                  />
+                )}
               />
               <FormMessage />
             </FormItem>
@@ -110,14 +122,26 @@ export const DocumentUploadSection = ({
           name="governmentIdBack"
           render={({ field }) => (
             <FormItem>
-              <FileUploadZone
-                accept="image/*"
-                label="ID Back Side"
-                description="Upload a clear photo of the back side"
-                uploaded={uploadedIdBack}
-                uploading={uploadingIdBack}
-                onUpload={(file) => onUploadIdBack(file, field.onChange)}
-                onRemove={() => onRemoveIdBack(field.onChange)}
+              <FormField
+                control={form.control}
+                name="governmentIdBackUrl"
+                render={({ field: urlField }) => (
+                  <FormField
+                    control={form.control}
+                    name="governmentIdBackFileType"
+                    render={({ field: fileTypeField }) => (
+                      <FileUploadZone
+                        accept="image/*"
+                        label="ID Back Side"
+                        description="Upload a clear photo of the back side"
+                        uploaded={uploadedIdBack}
+                        uploading={uploadingIdBack}
+                        onUpload={(file) => onUploadIdBack(file, field.onChange, urlField.onChange, fileTypeField.onChange)}
+                        onRemove={() => onRemoveIdBack(field.onChange)}
+                      />
+                    )}
+                  />
+                )}
               />
               <FormMessage />
             </FormItem>
@@ -169,14 +193,26 @@ export const DocumentUploadSection = ({
           name="proofOfResidency"
           render={({ field }) => (
             <FormItem>
-              <FileUploadZone
-                accept="image/*,application/pdf"
-                label="Upload Document"
-                description="Upload your proof of residency document (image or PDF)"
-                uploaded={uploadedProof}
-                uploading={uploadingProof}
-                onUpload={(file) => onUploadProof(file, field.onChange)}
-                onRemove={() => onRemoveProof(field.onChange)}
+              <FormField
+                control={form.control}
+                name="proofOfResidencyUrl"
+                render={({ field: urlField }) => (
+                  <FormField
+                    control={form.control}
+                    name="proofOfResidencyFileType"
+                    render={({ field: fileTypeField }) => (
+                      <FileUploadZone
+                        accept="image/*,application/pdf"
+                        label="Upload Document"
+                        description="Upload your proof of residency document (image or PDF)"
+                        uploaded={uploadedProof}
+                        uploading={uploadingProof}
+                        onUpload={(file) => onUploadProof(file, field.onChange, urlField.onChange, fileTypeField.onChange)}
+                        onRemove={() => onRemoveProof(field.onChange)}
+                      />
+                    )}
+                  />
+                )}
               />
               <FormMessage />
             </FormItem>

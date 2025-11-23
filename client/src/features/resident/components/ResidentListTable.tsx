@@ -38,7 +38,7 @@ interface Resident {
   email: string;
   contactNumber: string;
   localAddress: string;
-  verificationStatus: "Pending" | "Approved" | "Rejected" | "Under Review";
+  verificationStatus: "Not Submitted" | "Pending" | "Approved" | "Rejected" | "Under Review";
   isEmailVerified: boolean;
   registrationDate: string;
   verifiedDate: string | null;
@@ -52,6 +52,15 @@ interface ResidentListTableProps {
 
 function getVerificationStatusBadge(status: Resident["verificationStatus"]) {
   switch (status) {
+    case "Not Submitted":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-gray-500/15 text-gray-700 hover:bg-gray-500/25 dark:bg-gray-500/10 dark:text-gray-300 dark:hover:bg-gray-500/20"
+        >
+          Not Submitted
+        </Badge>
+      );
     case "Pending":
       return (
         <Badge

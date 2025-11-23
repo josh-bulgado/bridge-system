@@ -17,9 +17,9 @@ interface VerificationFormProps {
   uploadingIdFront: boolean;
   uploadingIdBack: boolean;
   uploadingProof: boolean;
-  onUploadIdFront: (file: File, onChange: (url: string) => void) => void;
-  onUploadIdBack: (file: File, onChange: (url: string) => void) => void;
-  onUploadProof: (file: File, onChange: (url: string) => void) => void;
+  onUploadIdFront: (file: File, onChange: (url: string) => void, urlOnChange: (url: string) => void, fileTypeOnChange: (fileType: string) => void) => void;
+  onUploadIdBack: (file: File, onChange: (url: string) => void, urlOnChange: (url: string) => void, fileTypeOnChange: (fileType: string) => void) => void;
+  onUploadProof: (file: File, onChange: (url: string) => void, urlOnChange: (url: string) => void, fileTypeOnChange: (fileType: string) => void) => void;
   onRemoveIdFront: (onChange: (url: string) => void) => void;
   onRemoveIdBack: (onChange: (url: string) => void) => void;
   onRemoveProof: (onChange: (url: string) => void) => void;

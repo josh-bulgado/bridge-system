@@ -19,10 +19,38 @@ function formatDate(dateString: string | null): string {
   });
 }
 
+// Format phone number to include +63 prefix
+function formatPhoneNumber(phone?: string): string {
+  if (!phone) return '';
+  
+  // Remove any existing +63, 63, or leading 0
+  let cleanNumber = phone.replace(/^\+63/, '').replace(/^63/, '').replace(/^0/, '').trim();
+  
+  // If the number already starts with +, return as is
+  if (phone.startsWith('+')) return phone;
+  
+  // Add +63 prefix if we have a valid number
+  if (cleanNumber.length >= 10) {
+    return `+63 ${cleanNumber}`;
+  }
+  
+  // Return original if invalid
+  return phone;
+}
+
 function getVerificationStatusBadge(
   status: ResidentListItem["verificationStatus"],
 ) {
   switch (status) {
+    case "Not Submitted":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-gray-500/15 text-gray-700 hover:bg-gray-500/25 dark:bg-gray-500/10 dark:text-gray-300 dark:hover:bg-gray-500/20"
+        >
+          Not Submitted
+        </Badge>
+      );
     case "Pending":
       return (
         <Badge
@@ -113,11 +141,7 @@ export const columns: ColumnDef<ResidentListItem>[] = [
             </TooltipTrigger>
             <TooltipContent>
               <div className="text-sm">
-                <p>
-                  {resident.isEmailVerified
-                    ? "✓ Email Verified"
-                    : "⚠ Email Unverified"}
-                </p>
+                <p>{resident.email}</p>
               </div>
             </TooltipContent>
           </Tooltip>
@@ -130,7 +154,7 @@ export const columns: ColumnDef<ResidentListItem>[] = [
     header: "Contact",
     cell: ({ row }) => (
       <div className="text-muted-foreground text-sm">
-        {row.original.contactNumber}
+        {formatPhoneNumber(row.original.contactNumber)}
       </div>
     ),
   },
@@ -165,20 +189,20 @@ export const columns: ColumnDef<ResidentListItem>[] = [
     },
   },
   {
-    accessorKey: "isEmailVerified",
-    header: "Email Verified",
+    accessorKey: "isDeleted",
+    header: "Account Status",
     cell: ({ row }) => {
-      const isVerified = row.original.isEmailVerified;
+      const isDeleted = row.original.isDeleted;
       return (
         <Badge
           variant="outline"
           className={
-            isVerified
-              ? "border-0 bg-green-500/15 text-green-700 hover:bg-green-500/25 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20"
-              : "border-0 bg-gray-500/15 text-gray-700 hover:bg-gray-500/25 dark:bg-gray-500/10 dark:text-gray-400 dark:hover:bg-gray-500/20"
+            isDeleted
+              ? "border-0 bg-red-500/15 text-red-700 hover:bg-red-500/25 dark:bg-red-500/10 dark:text-red-400 dark:hover:bg-red-500/20"
+              : "border-0 bg-green-500/15 text-green-700 hover:bg-green-500/25 dark:bg-green-500/10 dark:text-green-400 dark:hover:bg-green-500/20"
           }
         >
-          {isVerified ? "✓ Verified" : "Unverified"}
+          {isDeleted ? "Deleted" : "Active"}
         </Badge>
       );
     },

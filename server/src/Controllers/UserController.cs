@@ -216,12 +216,14 @@ namespace MongoBackend.Controllers
           }
         }
 
-        // Delete user account
-        var deleted = await _userService.DeleteUserByEmail(userEmail);
+        // Soft delete user account (mark as deleted instead of removing)
+        var deleted = await _userService.SoftDeleteUserByEmail(userEmail);
         if (!deleted)
         {
           return StatusCode(500, new { message = "Failed to delete account" });
         }
+
+        Console.WriteLine($"[AUDIT] User {userEmail} (ID: {userId}) deleted their account at {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
 
         return Ok(new { message = "Account deleted successfully" });
       }

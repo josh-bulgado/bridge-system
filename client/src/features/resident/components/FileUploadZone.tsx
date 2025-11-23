@@ -124,7 +124,7 @@ export const FileUploadZone = ({
                 <p className="text-xs font-medium">
                   Drag and drop or click to select
                 </p>
-                <p className="text-xs text-gray-500">Max size: 5MB</p>
+                <p className="text-xs text-gray-500">Max size: 10MB</p>
               </>
             )}
           </div>

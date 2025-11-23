@@ -66,10 +66,16 @@ namespace server.Controllers
       dto.ContactNumber = dto.ContactNumber.Trim();
       dto.Email = dto.Email.Trim();
 
-      // 1️⃣ Check if email already exists
-      var existingUser = await _userService.GetByEmailAsync(dto.Email);
+      // 1️⃣ Check if email already exists (including deleted accounts)
+      var existingUser = await _userService.GetByEmailIncludingDeletedAsync(dto.Email);
       if (existingUser != null)
+      {
+        if (existingUser.IsDeleted)
+        {
+          return BadRequest(new { message = "This email was previously registered. Please use a different email or contact support." });
+        }
         return BadRequest(new { message = "Email already registered." });
+      }
 
       // 2️⃣ Create Resident
       var resident = new Resident
@@ -216,7 +222,7 @@ namespace server.Controllers
       // This makes it harder for attackers to determine if an email exists based on response time
       var startTime = DateTime.UtcNow;
       
-      // Check if email already exists
+      // Check if email already exists (excluding deleted accounts for availability check)
       var existingUser = await _userService.GetByEmailAsync(email);
       
       // 🔒 Security: Ensure consistent response time (minimum 100ms, max 150ms for randomness)
@@ -256,6 +262,18 @@ namespace server.Controllers
       var user = await _userService.GetByEmailAsync(dto.Email);
       if (user == null)
         return Unauthorized(new { message = "Invalid email or password." });
+
+      // 🔒 Security: Check if account is deleted
+      if (user.IsDeleted)
+      {
+        return Unauthorized(new { message = "This account has been deleted. Please contact support if you believe this is an error." });
+      }
+
+      // 🔒 Security: Check if account is inactive
+      if (!user.IsActive)
+      {
+        return Unauthorized(new { message = "Your account has been deactivated. Please contact support." });
+      }
 
       // 2️⃣ Verify password
       bool isPasswordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
@@ -592,6 +610,12 @@ namespace server.Controllers
         if (user.AuthProvider == "local" && !string.IsNullOrEmpty(user.PasswordHash))
         {
           return BadRequest(new { status = "ERROR", message = "This email is registered with a password. Please sign in using your email and password instead." });
+        }
+
+        // Check if account is deleted
+        if (user.IsDeleted)
+        {
+          return BadRequest(new { status = "ERROR", message = "This account has been deleted. Please contact support if you believe this is an error." });
         }
 
         // Check if account is inactive

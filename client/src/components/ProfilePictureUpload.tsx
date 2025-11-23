@@ -6,6 +6,12 @@ import { Camera, Loader2, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
 
+/**
+ * Profile Picture Upload with Validation
+ * - File type and size validation
+ * - Secure error handling
+ */
+
 interface ProfilePictureUploadProps {
   currentImageUrl?: string;
   currentPublicId?: string;

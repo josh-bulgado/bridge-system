@@ -45,6 +45,12 @@ namespace server.Models
     [BsonElement("isActive")]
     public bool IsActive { get; set; } = true;
 
+    [BsonElement("isDeleted")]
+    public bool IsDeleted { get; set; } = false;
+
+    [BsonElement("deletedAt")]
+    public DateTime? DeletedAt { get; set; }
+
     [BsonElement("isEmailVerified")]
     public bool IsEmailVerified { get; set; } = false;
 

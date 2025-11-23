@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Check, AlertCircle, Info, Mail, Loader2, XCircle } from "lucide-react";
 import {
   FormControl,
@@ -18,6 +18,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { useEmailAvailability } from "../hooks/useEmailAvailability";
+import { useEmailAvailabilityContext } from "./RegistrationForm";
 
 const StepContactInfo_New = () => {
   const {
@@ -32,6 +33,14 @@ const StepContactInfo_New = () => {
 
   // Email availability check
   const { isChecking, isAvailable, error: availabilityError } = useEmailAvailability(email);
+  
+  // Get context to update parent form
+  const { setEmailAvailable } = useEmailAvailabilityContext();
+  
+  // Update parent form whenever email availability changes
+  useEffect(() => {
+    setEmailAvailable(isAvailable);
+  }, [isAvailable, setEmailAvailable]);
 
   // Email validation helper
   const isValidEmail = (email: string) => {
@@ -223,9 +232,17 @@ const StepContactInfo_New = () => {
                       onBlur={() => setPhoneFocused(false)}
                       onInput={(e) => {
                         let value = e.currentTarget.value.replace(/[^0-9]/g, "");
+                        
+                        // Auto-detect and handle "09" format - remove leading 0
+                        if (value.startsWith("09")) {
+                          value = value.slice(1); // Remove the leading 0
+                        }
+                        
+                        // Limit to 10 digits (9XXXXXXXXX format)
                         if (value.length > 10) {
                           value = value.slice(0, 10);
                         }
+                        
                         e.currentTarget.value = value;
                         field.onChange(value);
                       }}

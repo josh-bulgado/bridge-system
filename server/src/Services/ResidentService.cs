@@ -60,7 +60,9 @@ namespace server.Services
         // Submit verification request
         public async Task<Resident?> SubmitVerificationAsync(string residentId, string streetPurok, string houseNumberUnit, 
             string governmentIdType, string governmentIdFront, string governmentIdBack, 
-            string proofOfResidencyType, string proofOfResidency)
+            string proofOfResidencyType, string proofOfResidency,
+            string? governmentIdFrontUrl = null, string? governmentIdBackUrl = null, string? proofOfResidencyUrl = null,
+            string? governmentIdFrontFileType = null, string? governmentIdBackFileType = null, string? proofOfResidencyFileType = null)
         {
             var resident = await GetByIdAsync(residentId);
             if (resident == null)
@@ -81,9 +83,15 @@ namespace server.Services
             {
                 GovernmentIdType = governmentIdType,
                 GovernmentIdFront = governmentIdFront,
+                GovernmentIdFrontUrl = governmentIdFrontUrl,
+                GovernmentIdFrontFileType = governmentIdFrontFileType,
                 GovernmentIdBack = governmentIdBack,
+                GovernmentIdBackUrl = governmentIdBackUrl,
+                GovernmentIdBackFileType = governmentIdBackFileType,
                 ProofOfResidencyType = proofOfResidencyType,
                 ProofOfResidency = proofOfResidency,
+                ProofOfResidencyUrl = proofOfResidencyUrl,
+                ProofOfResidencyFileType = proofOfResidencyFileType,
                 SubmittedAt = DateTime.UtcNow
             };
 

@@ -6,8 +6,10 @@ export interface ResidentListItem {
   email: string;
   contactNumber: string;
   localAddress: string;
-  verificationStatus: "Pending" | "Approved" | "Rejected" | "Under Review";
+  verificationStatus: "Not Submitted" | "Pending" | "Approved" | "Rejected" | "Under Review";
   isEmailVerified: boolean;
+  isDeleted: boolean;
+  deletedAt: string | null;
   registrationDate: string;
   verifiedDate: string | null;
   hasDocuments: boolean;

@@ -4,6 +4,8 @@ import { VerificationHeader } from "../components/VerificationHeader";
 import { VerificationForm } from "../components/VerificationForm";
 import { VerificationSuccessScreen } from "../components/VerificationSuccessScreen";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Button } from "@/components/ui/button";
+import { X } from "lucide-react";
 
 const VerificationPage = () => {
   const { form, isSubmitted, isSubmitting, onSubmit, handleBackToDashboard } =
@@ -29,7 +31,20 @@ const VerificationPage = () => {
   // Show success screen if submitted
   if (isSubmitted) {
     return (
-      <VerificationSuccessScreen onBackToDashboard={handleBackToDashboard} />
+      <div className="flex h-full flex-col">
+        <div className="flex justify-end p-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleBackToDashboard}
+            className="h-8 w-8"
+          >
+            <X className="h-4 w-4" />
+            <span className="sr-only">Close</span>
+          </Button>
+        </div>
+        <VerificationSuccessScreen />
+      </div>
     );
   }
 

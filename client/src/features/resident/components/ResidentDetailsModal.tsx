@@ -10,11 +10,14 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { UserCheck, UserX, ExternalLink, X } from "lucide-react";
+import { UserCheck, UserX, ExternalLink } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useApproveResidentVerification, useRejectResidentVerification } from "../hooks";
 import { RejectVerificationDialog } from "./RejectVerificationDialog";
+import { DocumentViewer } from "@/components/ui/document-viewer";
+import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
+import { cn } from "@/lib/utils";
 
 interface Resident {
   id: string;
@@ -22,15 +25,25 @@ interface Resident {
   email: string;
   contactNumber: string;
   localAddress: string;
-  verificationStatus: "Pending" | "Approved" | "Rejected" | "Under Review";
+  verificationStatus: "Not Submitted" | "Pending" | "Approved" | "Rejected" | "Under Review";
   isEmailVerified: boolean;
+  isDeleted: boolean;
+  deletedAt?: string | null;
   registrationDate: string;
   verifiedDate: string | null;
   hasDocuments: boolean;
   // Verification documents
+  governmentIdType?: string;
   governmentIdFront?: string;
+  governmentIdFrontUrl?: string;
+  governmentIdFrontFileType?: string;
   governmentIdBack?: string;
+  governmentIdBackUrl?: string;
+  governmentIdBackFileType?: string;
+  proofOfResidencyType?: string;
   proofOfResidency?: string;
+  proofOfResidencyUrl?: string;
+  proofOfResidencyFileType?: string;
   streetPurok?: string;
   houseNumberUnit?: string;
 }
@@ -56,6 +69,15 @@ function formatDate(dateString: string | null): string {
 
 function getVerificationStatusBadge(status: Resident["verificationStatus"]) {
   switch (status) {
+    case "Not Submitted":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-gray-500/15 text-gray-700 hover:bg-gray-500/25 dark:bg-gray-500/10 dark:text-gray-300"
+        >
+          Not Submitted
+        </Badge>
+      );
     case "Pending":
       return (
         <Badge
@@ -93,6 +115,70 @@ function getVerificationStatusBadge(status: Resident["verificationStatus"]) {
         </Badge>
       );
   }
+}
+
+// Format government ID type for display
+function formatGovernmentIdType(idType?: string): string {
+  if (!idType) return '';
+  
+  const formattedTypes: Record<string, string> = {
+    'philsys': 'PhilSys ID',
+    'drivers_license': "Driver's License",
+    'passport': 'Passport',
+    'voters_id': "Voter's ID",
+    'sss_id': 'SSS ID',
+    'umid': 'UMID',
+    'tin_id': 'TIN ID',
+    'postal_id': 'Postal ID',
+    'prc_id': 'PRC ID',
+    'senior_citizen_id': 'Senior Citizen ID',
+    'pwd_id': 'PWD ID',
+    'national_id': 'National ID',
+  };
+  
+  return formattedTypes[idType.toLowerCase()] || idType
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+// Format proof of residency type for display
+function formatProofOfResidencyType(proofType?: string): string {
+  if (!proofType) return '';
+  
+  const formattedTypes: Record<string, string> = {
+    'barangay_certificate': 'Barangay Certificate',
+    'barangay_clearance': 'Barangay Clearance',
+    'utility_bill': 'Utility Bill',
+    'lease_contract': 'Lease Contract',
+    'tax_declaration': 'Tax Declaration',
+    'cedula': 'Cedula',
+    'certificate_of_residency': 'Certificate of Residency',
+  };
+  
+  return formattedTypes[proofType.toLowerCase()] || proofType
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
+// Format phone number to include +63 prefix
+function formatPhoneNumber(phone?: string): string {
+  if (!phone) return '';
+  
+  // Remove any existing +63, 63, or leading 0
+  let cleanNumber = phone.replace(/^\+63/, '').replace(/^63/, '').replace(/^0/, '').trim();
+  
+  // If the number already starts with +, return as is
+  if (phone.startsWith('+')) return phone;
+  
+  // Add +63 prefix if we have a valid number
+  if (cleanNumber.length >= 10) {
+    return `+63 ${cleanNumber}`;
+  }
+  
+  // Return original if invalid
+  return phone;
 }
 
 export default function ResidentDetailsModal({
@@ -145,245 +231,171 @@ export default function ResidentDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
-        <DialogClose className="absolute top-4 right-4 opacity-70 transition-opacity hover:opacity-100">
-          <X className="h-4 w-4" />
-          <span className="sr-only">Close</span>
-        </DialogClose>
-        <DialogHeader>
-          <DialogTitle className="text-2xl">Resident Details</DialogTitle>
-          <DialogDescription>
-            Review resident information and verification documents
-          </DialogDescription>
-        </DialogHeader>
-
-        <div className="space-y-6">
-          {/* Personal Information */}
-          <div>
-            <h3 className="mb-3 text-lg font-semibold">Personal Information</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-muted-foreground text-sm">
-                  Full Name
-                </Label>
-                <p className="font-medium">{resident.fullName}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-sm">
-                  Contact Number
-                </Label>
-                <p className="font-medium">{resident.contactNumber}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-sm">Email</Label>
-                <p className="font-medium">{resident.email}</p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-sm">
-                  Email Status
-                </Label>
-                <div className="mt-1">
-                  {resident.isEmailVerified ? (
-                    <Badge
-                      variant="outline"
-                      className="border-0 bg-green-500/15 text-green-700"
-                    >
-                      ✓ Verified
-                    </Badge>
-                  ) : (
-                    <Badge
-                      variant="outline"
-                      className="border-0 bg-gray-500/15 text-gray-700"
-                    >
-                      Unverified
-                    </Badge>
-                  )}
-                </div>
-              </div>
+      <DialogContent className="max-h-[90vh] max-w-7xl p-0">
+        {/* Header with Status Badge */}
+        <div className="border-b bg-muted/30 px-6 py-4">
+          <div className="flex items-start gap-4">
+            <div className="flex-1">
+              <DialogTitle className="text-xl font-semibold">{resident.fullName}</DialogTitle>
+              <DialogDescription className="mt-1 text-sm">
+                {resident.email} • {formatPhoneNumber(resident.contactNumber)}
+              </DialogDescription>
+            </div>
+            <div className="flex items-center pr-10">
+              {getVerificationStatusBadge(resident.verificationStatus)}
             </div>
           </div>
+        </div>
 
-          <Separator />
-
-          {/* Address Information */}
-          <div>
-            <h3 className="mb-3 text-lg font-semibold">Address Information</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-muted-foreground text-sm">
-                  House Number/Unit
-                </Label>
-                <p className="font-medium">
-                  {resident.houseNumberUnit || "Not provided"}
-                </p>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-sm">
-                  Street/Purok
-                </Label>
-                <p className="font-medium">
-                  {resident.streetPurok || "Not provided"}
-                </p>
-              </div>
-              <div className="col-span-2">
-                <Label className="text-muted-foreground text-sm">
-                  Complete Address
-                </Label>
-                <p className="font-medium">{resident.localAddress}</p>
-              </div>
-            </div>
-          </div>
-
-          <Separator />
-
-          {/* Verification Status */}
-          <div>
-            <h3 className="mb-3 text-lg font-semibold">Verification Status</h3>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <Label className="text-muted-foreground text-sm">Status</Label>
-                <div className="mt-1">
-                  {getVerificationStatusBadge(resident.verificationStatus)}
-                </div>
-              </div>
-              <div>
-                <Label className="text-muted-foreground text-sm">
-                  Registration Date
-                </Label>
-                <p className="font-medium">
-                  {formatDate(resident.registrationDate)}
-                </p>
-              </div>
-              {resident.verifiedDate && (
+        {/* Two Column Layout */}
+        <div className={cn(
+          "flex overflow-hidden",
+          canApproveReject ? "max-h-[calc(90vh-200px)]" : "max-h-[calc(90vh-140px)]"
+        )}>
+          {/* Left Column - Resident Details */}
+          <ScrollArea className="w-1/2 border-r">
+            <div className="space-y-4 px-6 py-4">
+              {/* Address Info */}
+              <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                 <div>
-                  <Label className="text-muted-foreground text-sm">
-                    Verified Date
-                  </Label>
-                  <p className="font-medium">
-                    {formatDate(resident.verifiedDate)}
-                  </p>
+                  <Label className="text-muted-foreground text-xs">House/Unit</Label>
+                  <p className="text-sm mt-0.5">{resident.houseNumberUnit || "—"}</p>
+                </div>
+                <div>
+                  <Label className="text-muted-foreground text-xs">Street/Purok</Label>
+                  <p className="text-sm mt-0.5">{resident.streetPurok || "—"}</p>
+                </div>
+              </div>
+
+              <Separator className="my-3" />
+
+              {/* Timeline Info */}
+              <div className="grid grid-cols-2 gap-3 text-sm">
+                <div>
+                  <Label className="text-muted-foreground text-xs">Registered</Label>
+                  <p className="text-sm mt-0.5">{formatDate(resident.registrationDate)}</p>
+                </div>
+                {resident.verifiedDate && (
+                  <div>
+                    <Label className="text-muted-foreground text-xs">
+                      {resident.verificationStatus === "Approved" ? "Approved" : 
+                       resident.verificationStatus === "Rejected" ? "Rejected" : "Verified"}
+                    </Label>
+                    <p className="text-sm mt-0.5">{formatDate(resident.verifiedDate)}</p>
+                  </div>
+                )}
+              </div>
+
+              <Separator className="my-3" />
+
+              {/* Verification Documents */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  Government ID Documents
+                </Label>
+                {resident.hasDocuments ? (
+                  <div className="space-y-3">
+                    {resident.governmentIdFront && (
+                      <DocumentViewer
+                        title={`${formatGovernmentIdType(resident.governmentIdType)} (Front)`}
+                        url={resident.governmentIdFrontUrl}
+                        publicId={resident.governmentIdFront}
+                        fileType={resident.governmentIdFrontFileType}
+                        showDownload={userRole === "admin"}
+                        residentId={resident.id}
+                      />
+                    )}
+                    {resident.governmentIdBack && (
+                      <DocumentViewer
+                        title={`${formatGovernmentIdType(resident.governmentIdType)} (Back)`}
+                        url={resident.governmentIdBackUrl}
+                        publicId={resident.governmentIdBack}
+                        fileType={resident.governmentIdBackFileType}
+                        showDownload={userRole === "admin"}
+                        residentId={resident.id}
+                      />
+                    )}
+                  </div>
+                ) : (
+                  <p className="text-muted-foreground text-sm">No documents submitted yet.</p>
+                )}
+              </div>
+            </div>
+          </ScrollArea>
+
+          {/* Right Column - Proof of Residency */}
+          <div className="w-1/2 flex flex-col bg-muted/20 overflow-hidden">
+            <div className="border-b px-6 py-3 bg-muted/30 flex items-center justify-between flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <Label className="text-sm font-semibold">Proof of Residency</Label>
+                {resident.proofOfResidencyType && (
+                  <span className="text-xs text-muted-foreground">
+                    {formatProofOfResidencyType(resident.proofOfResidencyType)}
+                  </span>
+                )}
+              </div>
+              {resident.proofOfResidency && (
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="h-8 text-xs"
+                  onClick={() => {
+                    // Open the document in new tab
+                    if (resident.proofOfResidencyUrl) {
+                      window.open(resident.proofOfResidencyUrl, '_blank', 'noopener,noreferrer');
+                    }
+                  }}
+                >
+                  <ExternalLink className="h-3 w-3 mr-1.5" />
+                  Open in New Tab
+                </Button>
+              )}
+            </div>
+            <div className="flex-1 min-h-0 overflow-auto">
+              {resident.proofOfResidency ? (
+                <div className="h-full">
+                  <InlineDocumentViewer
+                    title={formatProofOfResidencyType(resident.proofOfResidencyType)}
+                    url={resident.proofOfResidencyUrl}
+                    publicId={resident.proofOfResidency}
+                    fileType={resident.proofOfResidencyFileType}
+                    showDownload={userRole === "admin"}
+                    residentId={resident.id}
+                  />
+                </div>
+              ) : (
+                <div className="flex items-center justify-center h-full">
+                  <p className="text-muted-foreground text-sm">No proof of residency submitted yet.</p>
                 </div>
               )}
             </div>
           </div>
-
-          <Separator />
-
-          {/* Verification Documents */}
-          <div>
-            <h3 className="mb-3 text-lg font-semibold">
-              Verification Documents
-            </h3>
-            {resident.hasDocuments ? (
-              <div className="space-y-3">
-                {resident.governmentIdFront && (
-                  <div className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        Government ID (Front)
-                      </Label>
-                      <p className="text-muted-foreground text-xs">
-                        Click to view document
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        window.open(
-                          `/api/FileUpload/${resident.governmentIdFront}`,
-                          "_blank",
-                        )
-                      }
-                    >
-                      <ExternalLink className="mr-2 size-4" />
-                      View
-                    </Button>
-                  </div>
-                )}
-                {resident.governmentIdBack && (
-                  <div className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        Government ID (Back)
-                      </Label>
-                      <p className="text-muted-foreground text-xs">
-                        Click to view document
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        window.open(
-                          `/api/FileUpload/${resident.governmentIdBack}`,
-                          "_blank",
-                        )
-                      }
-                    >
-                      <ExternalLink className="mr-2 size-4" />
-                      View
-                    </Button>
-                  </div>
-                )}
-                {resident.proofOfResidency && (
-                  <div className="flex items-center justify-between rounded-lg border p-3">
-                    <div>
-                      <Label className="text-sm font-medium">
-                        Proof of Residency
-                      </Label>
-                      <p className="text-muted-foreground text-xs">
-                        Click to view document
-                      </p>
-                    </div>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() =>
-                        window.open(
-                          `/api/FileUpload/${resident.proofOfResidency}`,
-                          "_blank",
-                        )
-                      }
-                    >
-                      <ExternalLink className="mr-2 size-4" />
-                      View
-                    </Button>
-                  </div>
-                )}
-              </div>
-            ) : (
-              <p className="text-muted-foreground text-sm">
-                No documents have been submitted yet.
-              </p>
-            )}
-          </div>
-
-          <Separator />
-
-          {/* Action Buttons */}
-          {canApproveReject && (
-            <div className="flex items-center justify-end gap-2 pt-4">
-              <Button
-                variant="outline"
-                className="text-red-600 hover:bg-red-500 hover:text-white"
-                onClick={handleRejectClick}
-                disabled={isRejecting || isApproving}
-              >
-                <UserX className="mr-2 size-4" />
-                Reject
-              </Button>
-              <Button 
-                className="bg-green-600 hover:bg-green-700"
-                onClick={handleApprove}
-                disabled={isApproving || isRejecting}
-              >
-                <UserCheck className="mr-2 size-4" />
-                {isApproving ? "Approving..." : "Approve"}
-              </Button>
-            </div>
-          )}
         </div>
+
+        {/* Action Buttons Footer */}
+        {canApproveReject && (
+          <div className="border-t bg-muted/30 px-6 py-4 flex items-center justify-end gap-3">
+            <Button
+              variant="outline"
+              size="sm"
+              className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
+              onClick={handleRejectClick}
+              disabled={isRejecting || isApproving}
+            >
+              <UserX className="mr-1.5 size-4" />
+              Reject
+            </Button>
+            <Button 
+              size="sm"
+              className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
+              onClick={handleApprove}
+              disabled={isApproving || isRejecting}
+            >
+              <UserCheck className="mr-1.5 size-4" />
+              {isApproving ? "Approving..." : "Approve"}
+            </Button>
+          </div>
+        )}
       </DialogContent>
 
       {/* Reject Verification Dialog */}

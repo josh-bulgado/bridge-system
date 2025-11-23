@@ -43,26 +43,28 @@ export const VerificationDialog = ({
     removeFile,
   } = useFileUpload();
 
-  // Handle success and close dialog
-  const handleSuccess = () => {
-    handleBackToDashboard();
-    onOpenChange(false);
-    if (onVerificationSuccess) {
-      onVerificationSuccess();
+  // Handle dialog close - clear files and reset form
+  const handleDialogClose = (open: boolean) => {
+    if (!open && isSubmitted) {
+      // Clear files and reset when closing after successful submission
+      setUploadedIdFront(null);
+      setUploadedIdBack(null);
+      setUploadedProof(null);
+      handleBackToDashboard();
+      if (onVerificationSuccess) {
+        onVerificationSuccess();
+      }
     }
-    // Clear files only after successful submission
-    setUploadedIdFront(null);
-    setUploadedIdBack(null);
-    setUploadedProof(null);
+    onOpenChange(open);
   };
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-3xl max-h-[90vh] p-0" hideCloseButton={isSubmitted}>
+    <Dialog open={open} onOpenChange={handleDialogClose}>
+      <DialogContent className="max-w-3xl max-h-[90vh] p-0">
         <ScrollArea className="max-h-[90vh]">
           <div className="p-6">
             {isSubmitted ? (
-              <VerificationSuccessScreen onBackToDashboard={handleSuccess} />
+              <VerificationSuccessScreen />
             ) : (
               <>
                 <DialogHeader className="mb-6">
@@ -85,28 +87,34 @@ export const VerificationDialog = ({
                   uploadingIdFront={uploadingIdFront}
                   uploadingIdBack={uploadingIdBack}
                   uploadingProof={uploadingProof}
-                  onUploadIdFront={(file, onChange) =>
+                  onUploadIdFront={(file, onChange, urlOnChange, fileTypeOnChange) =>
                     handleFileUpload(
                       file,
                       setUploadedIdFront,
                       setUploadingIdFront,
-                      onChange
+                      onChange,
+                      urlOnChange,
+                      fileTypeOnChange
                     )
                   }
-                  onUploadIdBack={(file, onChange) =>
+                  onUploadIdBack={(file, onChange, urlOnChange, fileTypeOnChange) =>
                     handleFileUpload(
                       file,
                       setUploadedIdBack,
                       setUploadingIdBack,
-                      onChange
+                      onChange,
+                      urlOnChange,
+                      fileTypeOnChange
                     )
                   }
-                  onUploadProof={(file, onChange) =>
+                  onUploadProof={(file, onChange, urlOnChange, fileTypeOnChange) =>
                     handleFileUpload(
                       file,
                       setUploadedProof,
                       setUploadingProof,
-                      onChange
+                      onChange,
+                      urlOnChange,
+                      fileTypeOnChange
                     )
                   }
                   onRemoveIdFront={(onChange) =>

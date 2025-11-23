@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, createContext, useContext } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useNavigate } from "react-router-dom";
@@ -18,9 +18,21 @@ import StepPersonalInfo from "./StepPersonalInfo";
 import StepContactInfo_New from "./StepContactInfo_New";
 import StepSecuritySetup from "./StepSecuritySetup";
 
+// Context to share email availability state
+interface EmailAvailabilityContextType {
+  setEmailAvailable: (available: boolean | null) => void;
+}
+
+const EmailAvailabilityContext = createContext<EmailAvailabilityContextType>({
+  setEmailAvailable: () => {},
+});
+
+export const useEmailAvailabilityContext = () => useContext(EmailAvailabilityContext);
+
 export const RegistrationForm = () => {
   const [step, setStep] = useState(1);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [emailAvailable, setEmailAvailable] = useState<boolean | null>(null);
   const navigate = useNavigate();
   const { register, isLoading, error, success, data, clearError } =
     useRegistration();
@@ -61,24 +73,32 @@ export const RegistrationForm = () => {
     }
     
     if (stepIndex === 1) {
-      // Step 2: Contact Info - Check phone and email validation
+      // Step 2: Contact Info - Check phone and email validation + availability
       const hasErrors = errors.contactNumber || errors.email;
       const allFilled = fields[0] && fields[1];
       
-      // Debug logging in development
-      // if (import.meta.env.DEV) {
-      //   console.log('Step 2 Validation:', {
-      //     contactNumber: fields[0] ? '✓ Filled' : '✗ Empty',
-      //     email: fields[1] ? '✓ Filled' : '✗ Empty',
-      //     contactNumberError: errors.contactNumber?.message || 'No error',
-      //     emailError: errors.email?.message || 'No error',
-      //     allFilled: allFilled ? '✓' : '✗',
-      //     hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
-      //     isValid: (allFilled && !hasErrors) ? '✓ Valid' : '✗ Invalid'
-      //   });
-      // }
+      // Check if phone number is valid (10 digits starting with 9)
+      const phoneValid = fields[0] && /^9[0-9]{9}$/.test(fields[0]);
       
-      return allFilled && !hasErrors;
+      // Check if email is available (not already registered)
+      const emailIsAvailable = emailAvailable === true;
+      
+      // Debug logging in development
+      if (import.meta.env.DEV) {
+        console.log('Step 2 Validation:', {
+          contactNumber: fields[0] || 'Empty',
+          email: fields[1] || 'Empty',
+          phoneValid: phoneValid ? '✓ Valid' : '✗ Invalid',
+          emailAvailable: emailIsAvailable ? '✓ Available' : '✗ Not available',
+          contactNumberError: errors.contactNumber?.message || 'No error',
+          emailError: errors.email?.message || 'No error',
+          allFilled: allFilled ? '✓' : '✗',
+          hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
+          isValid: (allFilled && !hasErrors && phoneValid && emailIsAvailable) ? '✓ Valid' : '✗ Invalid'
+        });
+      }
+      
+      return allFilled && !hasErrors && phoneValid && emailIsAvailable;
     }
     
     if (stepIndex === 2) {
@@ -169,49 +189,50 @@ export const RegistrationForm = () => {
 
 
   return (
-    <div className="w-full max-w-xl">
-      <Card className="border-none shadow-none lg:border lg:shadow-sm">
-        <CardHeader className="space-y-6 pb-6">
-          <div className="flex items-center justify-between">
-            <CardTitle className="text-2xl font-bold">Create account</CardTitle>
-            <div className="text-muted-foreground text-sm font-medium">
-              Step {step} of 3
-            </div>
-          </div>
-
-          <div className="space-y-2">
-            <Progress
-              value={(step / 3) * 100}
-              className="h-2 transition-all duration-500 ease-in-out"
-            />
-            <div className="flex justify-between px-1">
-              <span
-                className={`text-xs font-medium transition-colors duration-300 ${step >= 1 ? "text-primary" : "text-muted-foreground"}`}
-              >
-                Personal
-              </span>
-              <span
-                className={`text-xs font-medium transition-colors duration-300 ${step >= 2 ? "text-primary" : "text-muted-foreground"}`}
-              >
-                Contact
-              </span>
-              <span
-                className={`text-xs font-medium transition-colors duration-300 ${step >= 3 ? "text-primary" : "text-muted-foreground"}`}
-              >
-                Security
-              </span>
-            </div>
-          </div>
-        </CardHeader>
-
-        <CardContent className="p-6 pt-0">
-          <FormProvider {...methods}>
-            <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
-              <div className="min-h-[400px] animate-in fade-in slide-in-from-right-4 duration-300">
-                {step === 1 && <StepPersonalInfo />}
-                {step === 2 && <StepContactInfo_New />}
-                {step === 3 && <StepSecuritySetup />}
+    <EmailAvailabilityContext.Provider value={{ setEmailAvailable }}>
+      <div className="w-full max-w-xl">
+        <Card className="border-none shadow-none lg:border lg:shadow-sm">
+          <CardHeader className="space-y-6 pb-6">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-2xl font-bold">Create account</CardTitle>
+              <div className="text-muted-foreground text-sm font-medium">
+                Step {step} of 3
               </div>
+            </div>
+
+            <div className="space-y-2">
+              <Progress
+                value={(step / 3) * 100}
+                className="h-2 transition-all duration-500 ease-in-out"
+              />
+              <div className="flex justify-between px-1">
+                <span
+                  className={`text-xs font-medium transition-colors duration-300 ${step >= 1 ? "text-primary" : "text-muted-foreground"}`}
+                >
+                  Personal
+                </span>
+                <span
+                  className={`text-xs font-medium transition-colors duration-300 ${step >= 2 ? "text-primary" : "text-muted-foreground"}`}
+                >
+                  Contact
+                </span>
+                <span
+                  className={`text-xs font-medium transition-colors duration-300 ${step >= 3 ? "text-primary" : "text-muted-foreground"}`}
+                >
+                  Security
+                </span>
+              </div>
+            </div>
+          </CardHeader>
+
+          <CardContent className="p-6 pt-0">
+            <FormProvider {...methods}>
+              <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
+                <div className="min-h-[400px] animate-in fade-in slide-in-from-right-4 duration-300">
+                  {step === 1 && <StepPersonalInfo />}
+                  {step === 2 && <StepContactInfo_New />}
+                  {step === 3 && <StepSecuritySetup />}
+                </div>
 
               {error && (
                 <Alert variant="destructive">
@@ -303,5 +324,6 @@ export const RegistrationForm = () => {
         </CardContent>
       </Card>
     </div>
+    </EmailAvailabilityContext.Provider>
   );
 };

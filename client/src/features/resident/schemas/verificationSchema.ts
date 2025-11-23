@@ -36,27 +36,54 @@ export const verificationSchema = z.object({
   houseNumberUnit: z.string().min(1, "House number/unit is required"),
   governmentIdType: z.string().min(1, "Please select your ID type"),
   governmentIdFront: z.string().min(1, "Government ID front is required"),
+  governmentIdFrontUrl: z.string().optional(),
+  governmentIdFrontFileType: z.string().optional(),
   governmentIdBack: z.string().min(1, "Government ID back is required"),
+  governmentIdBackUrl: z.string().optional(),
+  governmentIdBackFileType: z.string().optional(),
   proofOfResidencyType: z.string().min(1, "Please select proof of residency type"),
   proofOfResidency: z.string().min(1, "Proof of residency is required"),
+  proofOfResidencyUrl: z.string().optional(),
+  proofOfResidencyFileType: z.string().optional(),
 });
 
 export type VerificationFormData = z.infer<typeof verificationSchema>;
 
-// File upload validation
+// File upload validation with enhanced security
 export const fileUploadSchema = z.object({
   file: z
     .instanceof(File)
-    .refine((file) => file.size <= 5 * 1024 * 1024, {
-      message: "File size must be less than 5MB",
+    .refine((file) => file.size <= 10 * 1024 * 1024, {
+      message: "File size must be less than 10MB",
+    })
+    .refine((file) => file.size >= 1024, {
+      message: "File is too small or corrupted",
     })
     .refine(
       (file) => {
-        const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/gif", "application/pdf"];
-        return validTypes.includes(file.type);
+        const validTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp", "application/pdf"];
+        return validTypes.includes(file.type.toLowerCase());
       },
       {
-        message: "File must be an image (JPEG, PNG, GIF) or PDF",
+        message: "File must be an image (JPEG, PNG, WEBP) or PDF",
+      }
+    )
+    .refine(
+      (file) => {
+        // Validate file extension matches MIME type
+        const extension = file.name.split('.').pop()?.toLowerCase();
+        const mimeToExtension: Record<string, string[]> = {
+          'image/jpeg': ['jpg', 'jpeg'],
+          'image/jpg': ['jpg', 'jpeg'],
+          'image/png': ['png'],
+          'image/webp': ['webp'],
+          'application/pdf': ['pdf']
+        };
+        const expectedExtensions = mimeToExtension[file.type.toLowerCase()];
+        return expectedExtensions && extension && expectedExtensions.includes(extension);
+      },
+      {
+        message: "File extension does not match file type",
       }
     ),
 });

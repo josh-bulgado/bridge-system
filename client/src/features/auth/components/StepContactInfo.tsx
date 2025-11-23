@@ -64,7 +64,7 @@ const StepContactInfo = () => {
   // Phone validation helper
   const isValidPhone = (phone: string) => {
     const digitsOnly = phone.replace(/\D/g, "");
-    return /^09[0-9]{9}$/.test(digitsOnly);
+    return /^[9][0-9]{9}$/.test(digitsOnly);
   };
 
   return (
@@ -139,17 +139,25 @@ const StepContactInfo = () => {
                   <Input
                     {...field}
                     type="tel"
-                    placeholder="09XXXXXXXXX"
+                    placeholder="9123456789"
                     className="h-10"
                     onInput={(e) => {
                       let value = e.currentTarget.value.replace(/[^0-9]/g, "");
-                      if (value.length > 11) {
-                        value = value.slice(0, 11);
+                      
+                      // Auto-detect and handle "09" format - remove leading 0
+                      if (value.startsWith("09")) {
+                        value = value.slice(1); // Remove the leading 0
                       }
+                      
+                      // Limit to 10 digits (9XXXXXXXXX format)
+                      if (value.length > 10) {
+                        value = value.slice(0, 10);
+                      }
+                      
                       e.currentTarget.value = value;
                       field.onChange(value);
                     }}
-                    maxLength={11}
+                    maxLength={10}
                   />
                 </FormControl>
                 <div className="h-5 text-sm">

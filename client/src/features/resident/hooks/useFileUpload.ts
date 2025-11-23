@@ -23,26 +23,21 @@ export const useFileUpload = () => {
     setUploaded: (file: UploadedFile | null) => void,
     setUploading: (loading: boolean) => void,
     fieldOnChange: (id: string) => void,
+    urlFieldOnChange?: (url: string) => void,
+    fileTypeFieldOnChange?: (fileType: string) => void,
   ) => {
-    // Security: Don't log sensitive file information
+    // 🔒 Security: Don't log sensitive file information
     if (import.meta.env.DEV) {
       console.log("📤 Starting secure file upload");
     }
 
-    // Note: File size validation is now done in verificationService.uploadFile
-    // with a 20MB limit. This 5MB check is kept for backward compatibility.
-    if (file.size > 5 * 1024 * 1024) {
-      toast.error("File size must be less than 5MB");
-      return;
-    }
-
     setUploading(true);
     try {
+      // All validation is now handled in verificationService.uploadFile
       const uploadedFile = await verificationService.uploadFile(file);
 
       if (import.meta.env.DEV) {
         console.log("✅ Upload successful");
-        // Don't log file details for security
       }
 
       setUploaded(uploadedFile);
@@ -50,15 +45,24 @@ export const useFileUpload = () => {
       // Update the form field with the file ID (Cloudinary public ID)
       fieldOnChange(uploadedFile.id);
       
+      // Update the URL field if callback is provided
+      if (urlFieldOnChange) {
+        urlFieldOnChange(uploadedFile.url);
+      }
+      
+      // Update the file type field if callback is provided
+      if (fileTypeFieldOnChange) {
+        fileTypeFieldOnChange(uploadedFile.fileType);
+      }
+      
       toast.success("File uploaded successfully");
     } catch (error: any) {
       if (import.meta.env.DEV) {
-        console.error("❌ Upload failed");
-        // Don't log full error details for security
+        console.error("❌ Upload failed:", error.message);
       }
 
-      const errorMessage =
-        error.response?.data?.message || error.message || "Failed to upload file";
+      // Error message is already user-friendly from verificationService
+      const errorMessage = error.message || "Failed to upload file";
       toast.error(errorMessage);
     } finally {
       setUploading(false);

@@ -162,7 +162,34 @@ export function PersonalInfoSection() {
                   <FormItem>
                     <FormLabel>Contact Number *</FormLabel>
                     <FormControl>
-                      <Input placeholder="+63 912 345 6789" {...field} />
+                      <div className="flex items-center">
+                        <div className="flex items-center justify-center px-3 py-2 border border-r-0 rounded-l-md bg-muted text-muted-foreground border-input h-10">
+                          <span className="text-sm font-medium">+63</span>
+                        </div>
+                        <Input 
+                          {...field}
+                          type="tel"
+                          placeholder="9123456789" 
+                          maxLength={10}
+                          className="rounded-l-none"
+                          onInput={(e) => {
+                            let value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                            
+                            // Auto-detect and handle "09" format - remove leading 0
+                            if (value.startsWith("09")) {
+                              value = value.slice(1); // Remove the leading 0
+                            }
+                            
+                            // Limit to 10 digits (9XXXXXXXXX format)
+                            if (value.length > 10) {
+                              value = value.slice(0, 10);
+                            }
+                            
+                            e.currentTarget.value = value;
+                            field.onChange(value);
+                          }}
+                        />
+                      </div>
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -129,30 +129,30 @@ export function ResidentDataTable<TData, TValue>({
             </SelectContent>
           </Select>
 
-          {/* Filter by email verification */}
+          {/* Filter by account status */}
           <Select
             value={
               (table
-                .getColumn("isEmailVerified")
+                .getColumn("isDeleted")
                 ?.getFilterValue() as string) ?? "all"
             }
             onValueChange={(value) => {
               if (value === "all") {
-                table.getColumn("isEmailVerified")?.setFilterValue(undefined);
+                table.getColumn("isDeleted")?.setFilterValue(undefined);
               } else {
                 table
-                  .getColumn("isEmailVerified")
-                  ?.setFilterValue(value === "verified");
+                  .getColumn("isDeleted")
+                  ?.setFilterValue(value === "deleted");
               }
             }}
           >
             <SelectTrigger className="h-10 w-[180px]">
-              <SelectValue placeholder="Email Status" />
+              <SelectValue placeholder="Account Status" />
             </SelectTrigger>
             <SelectContent>
-              <SelectItem value="all">All Email Status</SelectItem>
-              <SelectItem value="verified">Email Verified</SelectItem>
-              <SelectItem value="unverified">Email Unverified</SelectItem>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="active">Active</SelectItem>
+              <SelectItem value="deleted">Deleted</SelectItem>
             </SelectContent>
           </Select>
         </div>
