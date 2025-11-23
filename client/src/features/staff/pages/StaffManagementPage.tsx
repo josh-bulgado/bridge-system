@@ -32,7 +32,7 @@ const StaffManagementPage = () => {
           </span>
         </div>
       ) : (
-        <StaffDataTable data={staff} columns={columns} />
+        <StaffDataTable data={staff} columns={columns} isLoading={isLoading}/>
       )}
     </div>
   );

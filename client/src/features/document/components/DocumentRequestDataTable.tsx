@@ -41,7 +41,6 @@ import {
 } from "@/components/ui/select";
 
 import { TablePagination } from "@/components/ui/table-pagination";
-import { AddDocumentSheet } from "./AddDocumentSheet";
 import { useDeleteDocument } from "../hooks";
 import type { Document } from "../types/document";
 import DataTable from "@/components/data-table";
@@ -49,11 +48,13 @@ import DataTable from "@/components/data-table";
 interface DocumentRequestDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading: boolean;
 }
 
 export function DocumentRequestDataTable<TData, TValue>({
   columns,
   data,
+  isLoading
 }: DocumentRequestDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -200,7 +201,7 @@ export function DocumentRequestDataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <DataTable table={table} />
+      <DataTable table={table} isLoading={isLoading}/>
 
       {/* Pagination */}
       <TablePagination

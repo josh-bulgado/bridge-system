@@ -3,7 +3,6 @@ import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  flexRender,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
@@ -50,11 +49,13 @@ import DataTable from "@/components/data-table";
 interface StaffDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading: boolean;
 }
 
 export function StaffDataTable<TData, TValue>({
   columns,
   data,
+  isLoading
 }: StaffDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -227,7 +228,7 @@ export function StaffDataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <DataTable table={table} />
+      <DataTable table={table} isLoading={isLoading}/>
 
       {/* Pagination */}
       <TablePagination

@@ -41,7 +41,7 @@ const DocumentRequestPage = () => {
           </Button>
         </div>
       ) : (
-        <DocumentRequestDataTable data={requests} columns={columns} />
+        <DocumentRequestDataTable data={requests} columns={columns} isLoading={isLoading} />
         // <DataTable
         //   columns={columns}
         //   data={requests}
