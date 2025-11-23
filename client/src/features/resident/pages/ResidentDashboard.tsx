@@ -5,6 +5,9 @@ import {
   StatsGrid,
   QuickActions,
   RecentRequests,
+  AvailableDocumentsInfo,
+  OfficeInfoCard,
+  HowToVerifyCard,
   type DashboardStat,
   type RequestData,
 } from "../components";
@@ -79,29 +82,22 @@ const ResidentDashboard = () => {
 
   const handleStatClick = (stat: DashboardStat, index: number) => {
     // TODO: Navigate to specific stat details
-
-    console.log("Stat clicked:", stat.title);
-    console.log("Stat index:", index);
   };
 
   const handleNewRequest = () => {
     // TODO: Navigate to new request form
-    console.log("New request clicked");
   };
 
   const handleViewAllRequests = () => {
     // TODO: Navigate to all requests page
-    console.log("View all requests clicked");
   };
 
   const handlePickupSchedule = () => {
     // TODO: Navigate to pickup schedule
-    console.log("Pickup schedule clicked");
   };
 
   const handleRequestClick = (request: RequestData) => {
     // TODO: Navigate to request details
-    console.log("Request clicked:", request.id);
   };
 
   // Get the user's first name for the greeting
@@ -184,23 +180,43 @@ const ResidentDashboard = () => {
       {/* Welcome Section */}
       <WelcomeSection userName={firstName} />
 
-      {/* Stats Cards */}
-      <StatsGrid isVerified={isVerified} onStatClick={handleStatClick} />
+      {/* Conditional Content Based on Verification Status */}
+      {isVerified ? (
+        <>
+          {/* Verified Users: Show Full Dashboard */}
+          {/* Stats Cards */}
+          <StatsGrid isVerified={isVerified} onStatClick={handleStatClick} />
 
-      {/* Quick Actions */}
-      <QuickActions
-        isVerified={isVerified}
-        onNewRequest={handleNewRequest}
-        onViewAllRequests={handleViewAllRequests}
-        onPickupSchedule={handlePickupSchedule}
-      />
+          {/* Quick Actions */}
+          <QuickActions
+            isVerified={isVerified}
+            onNewRequest={handleNewRequest}
+            onViewAllRequests={handleViewAllRequests}
+            onPickupSchedule={handlePickupSchedule}
+          />
 
-      {/* Recent Requests */}
-      <RecentRequests
-        isVerified={isVerified}
-        requests={recentRequests}
-        onRequestClick={handleRequestClick}
-      />
+          {/* Recent Requests */}
+          <RecentRequests
+            isVerified={isVerified}
+            requests={recentRequests}
+            onRequestClick={handleRequestClick}
+          />
+        </>
+      ) : (
+        <>
+          {/* Non-Verified Users: Show Information and Guide */}
+          <div className="grid gap-6 md:grid-cols-2">
+            {/* How to Get Verified */}
+            <HowToVerifyCard onStartVerification={handleVerifyClick} />
+
+            {/* Office Information */}
+            <OfficeInfoCard />
+          </div>
+
+          {/* Available Documents Information */}
+          <AvailableDocumentsInfo />
+        </>
+      )}
       </div>
     </>
   );

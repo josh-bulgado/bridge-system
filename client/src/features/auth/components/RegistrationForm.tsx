@@ -66,17 +66,17 @@ export const RegistrationForm = () => {
       const allFilled = fields[0] && fields[1];
       
       // Debug logging in development
-      if (import.meta.env.DEV) {
-        console.log('Step 2 Validation:', {
-          contactNumber: fields[0] ? '✓ Filled' : '✗ Empty',
-          email: fields[1] ? '✓ Filled' : '✗ Empty',
-          contactNumberError: errors.contactNumber?.message || 'No error',
-          emailError: errors.email?.message || 'No error',
-          allFilled: allFilled ? '✓' : '✗',
-          hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
-          isValid: (allFilled && !hasErrors) ? '✓ Valid' : '✗ Invalid'
-        });
-      }
+      // if (import.meta.env.DEV) {
+      //   console.log('Step 2 Validation:', {
+      //     contactNumber: fields[0] ? '✓ Filled' : '✗ Empty',
+      //     email: fields[1] ? '✓ Filled' : '✗ Empty',
+      //     contactNumberError: errors.contactNumber?.message || 'No error',
+      //     emailError: errors.email?.message || 'No error',
+      //     allFilled: allFilled ? '✓' : '✗',
+      //     hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
+      //     isValid: (allFilled && !hasErrors) ? '✓ Valid' : '✗ Invalid'
+      //   });
+      // }
       
       return allFilled && !hasErrors;
     }
@@ -89,17 +89,17 @@ export const RegistrationForm = () => {
       const isValid = allFilled && passwordsMatch && !hasErrors;
       
       // Debug logging in development
-      if (import.meta.env.DEV) {
-        console.log('Step 3 Validation:', {
-          password: fields[0] ? '✓ Filled' : '✗ Empty',
-          confirmPassword: fields[1] ? '✓ Filled' : '✗ Empty',
-          agreeToTerms: fields[2] ? '✓ Checked' : '✗ Unchecked',
-          passwordsMatch: passwordsMatch ? '✓ Match' : '✗ No Match',
-          hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
-          isValid: isValid ? '✓ Valid' : '✗ Invalid',
-          formErrors: errors
-        });
-      }
+      // if (import.meta.env.DEV) {
+      //   console.log('Step 3 Validation:', {
+      //     password: fields[0] ? '✓ Filled' : '✗ Empty',
+      //     confirmPassword: fields[1] ? '✓ Filled' : '✗ Empty',
+      //     agreeToTerms: fields[2] ? '✓ Checked' : '✗ Unchecked',
+      //     passwordsMatch: passwordsMatch ? '✓ Match' : '✗ No Match',
+      //     hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
+      //     isValid: isValid ? '✓ Valid' : '✗ Invalid',
+      //     formErrors: errors
+      //   });
+      // }
       
       return isValid;
     }
@@ -247,20 +247,20 @@ export const RegistrationForm = () => {
                       disabled={!isStepValid(2) || isLoading || Object.keys(methods.formState.errors).length > 0}
                       className="gap-2"
                       onClick={() => {
-                        if (import.meta.env.DEV) {
-                          const hasErrors = Object.keys(methods.formState.errors).length > 0;
-                          console.log('Create Account button clicked', {
-                            isStepValid: isStepValid(2),
-                            isLoading,
-                            hasFormErrors: hasErrors,
-                            formErrors: methods.formState.errors,
-                            errorFields: Object.keys(methods.formState.errors),
-                          });
-                          
-                          if (hasErrors) {
-                            console.warn('❌ Form has validation errors. Please fix them before submitting.');
-                          }
-                        }
+                        // if (import.meta.env.DEV) {
+                        //   const hasErrors = Object.keys(methods.formState.errors).length > 0;
+                        //   console.log('Create Account button clicked:', {
+                        //     isStepValid: isStepValid(2),
+                        //     isLoading,
+                        //     hasFormErrors: hasErrors,
+                        //     formErrors: methods.formState.errors,
+                        //     errorFields: Object.keys(methods.formState.errors),
+                        //   });
+                        //   
+                        //   if (hasErrors) {
+                        //     console.warn('❌ Form has validation errors. Please fix them before submitting.');
+                        //   }
+                        // }
                       }}
                     >
                       {isLoading ? (
