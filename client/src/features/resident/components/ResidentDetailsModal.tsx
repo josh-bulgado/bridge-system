@@ -12,9 +12,9 @@ import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { UserCheck, UserX, ExternalLink, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
-import { toast } from "sonner";
-import { residentService } from "../services/residentService";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { useApproveResidentVerification, useRejectResidentVerification } from "../hooks";
+import { RejectVerificationDialog } from "./RejectVerificationDialog";
 
 interface Resident {
   id: string;
@@ -102,50 +102,46 @@ export default function ResidentDetailsModal({
   onRefresh,
   userRole,
 }: ResidentDetailsModalProps) {
-  const [isApproving, setIsApproving] = useState(false);
-  const [isRejecting, setIsRejecting] = useState(false);
+  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const approveResidentMutation = useApproveResidentVerification();
+  const rejectResidentMutation = useRejectResidentVerification();
 
   if (!resident) return null;
 
   const handleApprove = async () => {
-    setIsApproving(true);
     try {
-      await residentService.approveResident(resident.id);
-      toast.success(`${resident.fullName} has been approved!`);
+      await approveResidentMutation.mutateAsync(resident.id);
       onClose();
       if (onRefresh) onRefresh();
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to approve resident";
-      toast.error(errorMessage);
-    } finally {
-      setIsApproving(false);
+    } catch (error) {
+      // Error handling is done in the hook
     }
   };
 
-  const handleReject = async () => {
-    setIsRejecting(true);
+  const handleRejectClick = () => {
+    setIsRejectDialogOpen(true);
+  };
+
+  const handleRejectConfirm = async (reason?: string) => {
     try {
-      await residentService.rejectResident(resident.id);
-      toast.success(`${resident.fullName} has been rejected`);
+      await rejectResidentMutation.mutateAsync({ 
+        residentId: resident.id,
+        reason 
+      });
+      setIsRejectDialogOpen(false);
       onClose();
       if (onRefresh) onRefresh();
-    } catch (error: any) {
-      const errorMessage =
-        error.response?.data?.message ||
-        error.message ||
-        "Failed to reject resident";
-      toast.error(errorMessage);
-    } finally {
-      setIsRejecting(false);
+    } catch (error) {
+      // Error handling is done in the hook
     }
   };
 
   const canApproveReject =
     resident.verificationStatus === "Pending" ||
     resident.verificationStatus === "Under Review";
+
+  const isApproving = approveResidentMutation.isPending;
+  const isRejecting = rejectResidentMutation.isPending;
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -371,19 +367,33 @@ export default function ResidentDetailsModal({
               <Button
                 variant="outline"
                 className="text-red-600 hover:bg-red-500 hover:text-white"
-                disabled
+                onClick={handleRejectClick}
+                disabled={isRejecting || isApproving}
               >
                 <UserX className="mr-2 size-4" />
                 Reject
               </Button>
-              <Button className="bg-green-600 hover:bg-green-700" disabled>
+              <Button 
+                className="bg-green-600 hover:bg-green-700"
+                onClick={handleApprove}
+                disabled={isApproving || isRejecting}
+              >
                 <UserCheck className="mr-2 size-4" />
-                Approve
+                {isApproving ? "Approving..." : "Approve"}
               </Button>
             </div>
           )}
         </div>
       </DialogContent>
+
+      {/* Reject Verification Dialog */}
+      <RejectVerificationDialog
+        isOpen={isRejectDialogOpen}
+        onClose={() => setIsRejectDialogOpen(false)}
+        onConfirm={handleRejectConfirm}
+        residentName={resident.fullName}
+        isLoading={isRejecting}
+      />
     </Dialog>
   );
 }

@@ -1,6 +1,6 @@
 import { StaffDataTable } from "../components/StaffDataTable";
 import { columns } from "../components/StaffDataColumn";
-import { Loader2 } from "lucide-react";
+
 import { useFetchStaff } from "../hooks";
 
 const StaffManagementPage = () => {
@@ -20,19 +20,14 @@ const StaffManagementPage = () => {
       </div>
 
       {/* Show loading state while fetching data */}
-      {isLoading ? (
-        <div className="flex items-center justify-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span>Loading staff...</span>
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="flex items-center justify-center">
           <span className="text-red-500">
             Error loading staff. Please try again.
           </span>
         </div>
       ) : (
-        <StaffDataTable data={staff} columns={columns} />
+        <StaffDataTable data={staff} columns={columns} isLoading={isLoading} />
       )}
     </div>
   );

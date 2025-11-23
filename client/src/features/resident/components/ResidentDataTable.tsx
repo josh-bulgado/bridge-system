@@ -35,11 +35,13 @@ import { useState } from "react";
 interface ResidentDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading: boolean;
 }
 
 export function ResidentDataTable<TData, TValue>({
   columns,
   data,
+  isLoading
 }: ResidentDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -191,7 +193,7 @@ export function ResidentDataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <DataTable table={table} />
+      <DataTable table={table} isLoading={isLoading}/>
 
       {/* Pagination */}
       <TablePagination table={table} itemLabel="residents" />

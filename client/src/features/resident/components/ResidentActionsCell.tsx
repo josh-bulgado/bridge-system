@@ -29,6 +29,7 @@ import ResidentDetailsModal from "./ResidentDetailsModal";
 import { Loader2 } from "lucide-react";
 import { useContactResident } from "../../staff/hooks/useContactResident";
 import { useAuth } from "../../auth/hooks/useAuth";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface ResidentActionsCellProps {
   resident: ResidentListItem;
@@ -39,11 +40,16 @@ export function ResidentActionsCell({ resident }: ResidentActionsCellProps) {
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactMessage, setContactMessage] = useState("");
 
+  const queryClient = useQueryClient();
   const contactMutation = useContactResident();
   const { data: user } = useAuth();
   
   // Determine if current user is admin
   const isAdmin = user?.role === "admin";
+
+  const handleRefresh = () => {
+    queryClient.invalidateQueries({ queryKey: ["residents"] });
+  };
 
   const handleViewDetails = () => {
     setIsDetailsModalOpen(true);
@@ -135,7 +141,7 @@ export function ResidentActionsCell({ resident }: ResidentActionsCellProps) {
         resident={resident}
         isOpen={isDetailsModalOpen}
         onClose={() => setIsDetailsModalOpen(false)}
-        onRefresh={() => window.location.reload()}
+        onRefresh={handleRefresh}
         userRole={user?.role === "admin" ? "admin" : "staff"}
       />
 

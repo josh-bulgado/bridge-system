@@ -1,6 +1,5 @@
 import { DocumentDataTable } from "../components/DocumentDataTable";
 import { columns } from "../components/DocumentDataColumn";
-import { Loader2 } from "lucide-react";
 import { useFetchDocuments } from "../hooks";
 
 const DocumentManagementPage = () => {
@@ -20,19 +19,18 @@ const DocumentManagementPage = () => {
       </div>
 
       {/* Show loading state while fetching data */}
-      {isLoading ? (
-        <div className="flex items-center justify-center gap-2">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span>Loading documents...</span>
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="flex items-center justify-center">
           <span className="text-red-500">
             Error loading documents. Please try again.
           </span>
         </div>
       ) : (
-        <DocumentDataTable data={documents} columns={columns} />
+        <DocumentDataTable
+          data={documents}
+          columns={columns}
+          isLoading={isLoading}
+        />
       )}
     </div>
   );

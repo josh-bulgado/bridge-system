@@ -1,6 +1,5 @@
 import { ResidentDataTable } from "../components/ResidentDataTable";
 import { columns } from "../components/ResidentDataColumn";
-import { Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useResidents } from "../../staff/hooks";
 
@@ -21,12 +20,7 @@ const ResidentManagementPage = () => {
       </div>
 
       {/* Show loading state while fetching data */}
-      {isLoading ? (
-        <div className="flex items-center justify-center gap-2 py-8">
-          <Loader2 className="h-8 w-8 animate-spin" />
-          <span>Loading residents...</span>
-        </div>
-      ) : error ? (
+      {error ? (
         <div className="flex flex-col items-center justify-center gap-4 py-8">
           <span className="text-red-500">
             Error loading residents. Please try again.
@@ -36,7 +30,11 @@ const ResidentManagementPage = () => {
           </Button>
         </div>
       ) : (
-        <ResidentDataTable data={residents || []} columns={columns} />
+        <ResidentDataTable
+          data={residents || []}
+          columns={columns}
+          isLoading={isLoading}
+        />
       )}
     </div>
   );

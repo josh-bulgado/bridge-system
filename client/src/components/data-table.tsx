@@ -1,5 +1,6 @@
 import { columns } from "@/features/resident/components/ResidentDataColumn";
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
+import { Skeleton } from "@/components/ui/skeleton"; // Assuming ShadCN's skeleton component is located here
 
 import {
   Table,
@@ -12,9 +13,10 @@ import {
 
 interface DataTableProps<TData> {
   table: TableType<TData>;
+  isLoading: boolean; // Pass a prop to control loading state
 }
 
-const DataTable = ({ table }: DataTableProps<any>) => {
+const DataTable = ({ table, isLoading }: DataTableProps<any>) => {
   return (
     <div className="overflow-hidden rounded-lg border">
       <div className="h-full overflow-auto">
@@ -29,12 +31,14 @@ const DataTable = ({ table }: DataTableProps<any>) => {
                       colSpan={header.colSpan}
                       className="h-12 px-4"
                     >
-                      {header.isPlaceholder
-                        ? null
-                        : flexRender(
-                            header.column.columnDef.header,
-                            header.getContext(),
-                          )}
+                      {header.isPlaceholder ? null : isLoading ? (
+                        <Skeleton className="h-6 w-32" /> // Skeleton loader for header
+                      ) : (
+                        flexRender(
+                          header.column.columnDef.header,
+                          header.getContext(),
+                        )
+                      )}
                     </TableHead>
                   );
                 })}
@@ -42,7 +46,18 @@ const DataTable = ({ table }: DataTableProps<any>) => {
             ))}
           </TableHeader>
           <TableBody>
-            {table.getRowModel().rows?.length ? (
+            {isLoading ? (
+              Array.from({ length: 5 }).map((_, rowIndex) => (
+                <TableRow key={rowIndex}>
+                  {/* Create a skeleton loader for each column in the row */}
+                  {columns.map((_, columnIndex) => (
+                    <TableCell key={columnIndex} className="h-16 px-4">
+                      <Skeleton className="h-6 w-full" />
+                    </TableCell>
+                  ))}
+                </TableRow>
+              ))
+            ) : table.getRowModel().rows?.length ? (
               table.getRowModel().rows.map((row) => (
                 <TableRow
                   key={row.id}

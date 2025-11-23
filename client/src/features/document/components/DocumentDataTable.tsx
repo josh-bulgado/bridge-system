@@ -3,7 +3,6 @@ import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  flexRender,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
@@ -40,14 +39,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { TablePagination } from "@/components/ui/table-pagination";
 import { AddDocumentSheet } from "./AddDocumentSheet";
 import { useDeleteDocument } from "../hooks";
@@ -58,11 +49,13 @@ import DataTable from "@/components/data-table";
 interface DocumentDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  isLoading: boolean;
 }
 
 export function DocumentDataTable<TData, TValue>({
   columns,
   data,
+  isLoading,
 }: DocumentDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -225,7 +218,7 @@ export function DocumentDataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <DataTable table={table} />
+      <DataTable table={table} isLoading={isLoading} />
 
       {/* Pagination */}
       <TablePagination
