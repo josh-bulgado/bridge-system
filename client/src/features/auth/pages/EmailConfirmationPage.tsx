@@ -56,33 +56,6 @@ export const EmailConfirmationPage = () => {
           </p>
         </div>
 
-        {/* Warning Alert */}
-        <div className="rounded-md border border-orange-200 bg-orange-50 p-4 dark:border-orange-900 dark:bg-orange-950">
-          <div className="flex items-start gap-3">
-            <svg
-              className="h-5 w-5 text-orange-600 dark:text-orange-400 mt-0.5 flex-shrink-0"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              strokeWidth="2"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"
-              />
-            </svg>
-            <div className="flex-1 min-w-0">
-              <p className="text-sm font-medium text-orange-800 dark:text-orange-200">
-                Verify within 3 days
-              </p>
-              <p className="text-xs text-orange-700 dark:text-orange-300 mt-1">
-                Your account will be automatically deleted if not verified within 3 days to keep our database clean.
-              </p>
-            </div>
-          </div>
-        </div>
-
         {/* Email Display Card */}
         <div className="rounded-md border bg-muted/50 p-4">
           <div className="flex items-center gap-3">

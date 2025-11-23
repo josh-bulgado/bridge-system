@@ -1,5 +1,4 @@
 import React from "react";
-import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import {
   Item,
@@ -12,23 +11,13 @@ import {
 import { ShieldCheck } from "lucide-react";
 
 interface VerificationReminderProps {
-  onVerifyClick?: () => void;
+  onVerifyClick: () => void;
   onDismiss?: () => void;
-  verificationPath?: string;
 }
 
 export const VerificationReminder: React.FC<VerificationReminderProps> = ({
   onVerifyClick,
-  verificationPath = "/resident/verify",
 }) => {
-  const navigate = useNavigate();
-
-  const handleVerifyClick = () => {
-    if (onVerifyClick) {
-      onVerifyClick();
-    }
-    navigate(verificationPath);
-  };
   return (
     <Item
       variant="outline"
@@ -57,7 +46,7 @@ export const VerificationReminder: React.FC<VerificationReminderProps> = ({
         <Button
           size="sm"
           className="bg-orange-600 text-white hover:bg-orange-700"
-          onClick={handleVerifyClick}
+          onClick={onVerifyClick}
         >
           Verify Now
         </Button>

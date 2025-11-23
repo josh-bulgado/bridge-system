@@ -60,21 +60,22 @@ export const FileUploadZone = ({
 
   if (uploaded) {
     return (
-      <div className="rounded-lg border border-green-200 bg-green-50 p-4">
+      <div className="rounded-lg border border-green-200 bg-green-50 p-2.5">
         <div className="flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <FileImage className="h-8 w-8 text-green-600" />
-            <div>
-              <div className="flex items-center gap-1 text-sm font-medium text-green-600">
-                <Check size={16} /> {uploaded.name}
+          <div className="flex items-center gap-2">
+            <FileImage className="h-6 w-6 text-green-600 flex-shrink-0" />
+            <div className="min-w-0 flex-1">
+              <div className="flex items-center gap-1 text-xs font-medium text-green-600 truncate">
+                <Check size={14} className="flex-shrink-0" /> 
+                <span className="truncate">{uploaded.name}</span>
               </div>
               <p className="text-xs text-gray-500">
                 {(uploaded.size / 1024 / 1024).toFixed(2)} MB
               </p>
             </div>
           </div>
-          <Button type="button" variant="outline" size="icon-lg" onClick={onRemove}>
-            <X size={16}/>
+          <Button type="button" variant="ghost" size="sm" onClick={onRemove} className="h-7 w-7 p-0 flex-shrink-0">
+            <X size={14}/>
           </Button>
         </div>
       </div>
@@ -83,17 +84,17 @@ export const FileUploadZone = ({
 
   return (
     <div>
-      <FormLabel>{label}</FormLabel>
-      <p className="mb-2 text-sm text-gray-600">{description}</p>
+      <FormLabel className="text-sm">{label}</FormLabel>
+      <p className="mb-1.5 text-xs text-muted-foreground">{description}</p>
       <div
         onDragOver={handleDragOver}
         onDragLeave={handleDragLeave}
         onDrop={handleDrop}
         className={cn(
-          "relative cursor-pointer rounded-lg border-2 border-dashed p-8 text-center transition-colors",
+          "relative cursor-pointer rounded-lg border-2 border-dashed p-4 text-center transition-colors",
           isDragging
-            ? "border-orange-500 bg-orange-50"
-            : "border-gray-300 hover:border-gray-400 hover:bg-gray-50",
+            ? "border-blue-500 bg-blue-50 dark:bg-blue-950/20"
+            : "border-gray-300 hover:border-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800/50",
         )}
       >
         <input
@@ -104,24 +105,24 @@ export const FileUploadZone = ({
           disabled={uploading}
         />
         {uploading ? (
-          <div className="space-y-2">
-            <Upload className="mx-auto h-8 w-8 animate-bounce text-orange-600" />
-            <p className="text-sm font-medium text-orange-600">Uploading...</p>
+          <div className="space-y-1">
+            <Upload className="mx-auto h-6 w-6 animate-bounce text-blue-600 dark:text-blue-500" />
+            <p className="text-xs font-medium text-blue-600 dark:text-blue-500">Uploading...</p>
           </div>
         ) : (
-          <div className="space-y-2">
+          <div className="space-y-1">
             {isDragging ? (
               <>
-                <Upload className="mx-auto h-8 w-8 text-orange-600" />
-                <p className="text-sm font-medium text-orange-600">
+                <Upload className="mx-auto h-6 w-6 text-blue-600 dark:text-blue-500" />
+                <p className="text-xs font-medium text-blue-600 dark:text-blue-500">
                   Drop file here...
                 </p>
               </>
             ) : (
               <>
-                <FileImage className="mx-auto h-8 w-8 text-gray-400" />
-                <p className="text-sm font-medium">
-                  Drag and drop file here, or click to select
+                <FileImage className="mx-auto h-6 w-6 text-gray-400" />
+                <p className="text-xs font-medium">
+                  Drag and drop or click to select
                 </p>
                 <p className="text-xs text-gray-500">Max size: 5MB</p>
               </>

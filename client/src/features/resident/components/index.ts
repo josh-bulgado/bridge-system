@@ -14,3 +14,4 @@ export { AddressInformationSection } from "./AddressInformationSection";
 export { DocumentUploadSection } from "./DocumentUploadSection";
 export { VerificationSuccessScreen } from "./VerificationSuccessScreen";
 export { VerificationForm } from "./VerificationForm";
+export { VerificationDialog } from "./VerificationDialog";

@@ -47,6 +47,13 @@ class AuthService {
         console.log("AuthService login response =", response);
       }
 
+      // Clear all existing auth data first (from both storages)
+      localStorage.removeItem("user");
+      localStorage.removeItem("auth_token");
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("auth_token");
+
+      // Store new user data in the appropriate storage
       const storage = data.rememberMe ? localStorage : sessionStorage;
       storage.setItem("user", JSON.stringify(response.user));
       storage.setItem("auth_token", response.token);
@@ -86,12 +93,30 @@ class AuthService {
   }
 
   // Verify email with OTP
-  async verifyEmail(email: string, otp: string): Promise<{ message: string }> {
+  async verifyEmail(email: string, otp: string): Promise<{ message: string; token?: string; user?: LoginResponse["user"] }> {
     try {
-      const { data } = await api.post<{ message: string }>(
+      const { data } = await api.post<{ message: string; token?: string; user?: LoginResponse["user"] }>(
         `${this.baseUrl}/verify-email`,
         { Email: email, Otp: otp },
       );
+
+      if (import.meta.env.DEV) {
+        console.log("AuthService verifyEmail response =", data);
+      }
+
+      // If token and user are returned, store them (auto-login after verification)
+      if (data.token && data.user) {
+        // Clear all existing auth data first
+        localStorage.removeItem("user");
+        localStorage.removeItem("auth_token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("auth_token");
+
+        // Store new user data in localStorage (remember me by default)
+        localStorage.setItem("user", JSON.stringify(data.user));
+        localStorage.setItem("auth_token", data.token);
+      }
+
       return data;
     } catch (error: any) {
       const errorMessage =
@@ -176,8 +201,15 @@ class AuthService {
         console.log("AuthService googleSignInCheck response =", response);
       }
 
-      // If SUCCESS, store the token and user data
+      // If SUCCESS, clear old session and store new token and user data
       if (response.status === "SUCCESS" && response.data) {
+        // Clear all existing auth data first
+        localStorage.removeItem("user");
+        localStorage.removeItem("auth_token");
+        sessionStorage.removeItem("user");
+        sessionStorage.removeItem("auth_token");
+        
+        // Store new user data
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.setItem("auth_token", response.data.token);
       }
@@ -219,7 +251,13 @@ class AuthService {
         console.log("AuthService completeGoogleProfile response =", response);
       }
 
-      // Store in localStorage
+      // Clear all existing auth data first
+      localStorage.removeItem("user");
+      localStorage.removeItem("auth_token");
+      sessionStorage.removeItem("user");
+      sessionStorage.removeItem("auth_token");
+      
+      // Store new user data in localStorage
       localStorage.setItem("user", JSON.stringify(response.user));
       localStorage.setItem("auth_token", response.token);
 

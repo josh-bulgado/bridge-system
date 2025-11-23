@@ -49,8 +49,10 @@ namespace server.Controllers
                     user.ResidentId,
                     request.StreetPurok,
                     request.HouseNumberUnit,
+                    request.GovernmentIdType,
                     request.GovernmentIdFront,
                     request.GovernmentIdBack,
+                    request.ProofOfResidencyType,
                     request.ProofOfResidency
                 );
 
@@ -154,8 +156,10 @@ namespace server.Controllers
                         VerifiedDate = r.VerifiedAt,
                         HasDocuments = r.VerificationDocuments != null,
                         // Include verification documents
+                        GovernmentIdType = r.VerificationDocuments?.GovernmentIdType,
                         GovernmentIdFront = r.VerificationDocuments?.GovernmentIdFront,
                         GovernmentIdBack = r.VerificationDocuments?.GovernmentIdBack,
+                        ProofOfResidencyType = r.VerificationDocuments?.ProofOfResidencyType,
                         ProofOfResidency = r.VerificationDocuments?.ProofOfResidency,
                         StreetPurok = r.Address?.StreetPurok,
                         HouseNumberUnit = r.Address?.HouseNumberUnit
@@ -269,8 +273,10 @@ namespace server.Controllers
                     RegistrationDate = resident.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                     VerifiedDate = resident.VerifiedAt,
                     HasDocuments = resident.VerificationDocuments != null,
+                    GovernmentIdType = resident.VerificationDocuments?.GovernmentIdType,
                     GovernmentIdFront = resident.VerificationDocuments?.GovernmentIdFront,
                     GovernmentIdBack = resident.VerificationDocuments?.GovernmentIdBack,
+                    ProofOfResidencyType = resident.VerificationDocuments?.ProofOfResidencyType,
                     ProofOfResidency = resident.VerificationDocuments?.ProofOfResidency,
                     StreetPurok = resident.Address?.StreetPurok,
                     HouseNumberUnit = resident.Address?.HouseNumberUnit
@@ -315,8 +321,10 @@ namespace server.Controllers
                         RegistrationDate = r.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                         VerifiedDate = r.VerifiedAt,
                         HasDocuments = r.VerificationDocuments != null,
+                        GovernmentIdType = r.VerificationDocuments?.GovernmentIdType,
                         GovernmentIdFront = r.VerificationDocuments?.GovernmentIdFront,
                         GovernmentIdBack = r.VerificationDocuments?.GovernmentIdBack,
+                        ProofOfResidencyType = r.VerificationDocuments?.ProofOfResidencyType,
                         ProofOfResidency = r.VerificationDocuments?.ProofOfResidency,
                         StreetPurok = r.Address?.StreetPurok,
                         HouseNumberUnit = r.Address?.HouseNumberUnit
@@ -363,8 +371,10 @@ namespace server.Controllers
                         RegistrationDate = r.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                         VerifiedDate = r.VerifiedAt,
                         HasDocuments = r.VerificationDocuments != null,
+                        GovernmentIdType = r.VerificationDocuments?.GovernmentIdType,
                         GovernmentIdFront = r.VerificationDocuments?.GovernmentIdFront,
                         GovernmentIdBack = r.VerificationDocuments?.GovernmentIdBack,
+                        ProofOfResidencyType = r.VerificationDocuments?.ProofOfResidencyType,
                         ProofOfResidency = r.VerificationDocuments?.ProofOfResidency,
                         StreetPurok = r.Address?.StreetPurok,
                         HouseNumberUnit = r.Address?.HouseNumberUnit
@@ -462,8 +472,10 @@ namespace server.Controllers
                     RegistrationDate = resident.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                     VerifiedDate = resident.VerifiedAt,
                     HasDocuments = resident.VerificationDocuments != null,
+                    GovernmentIdType = resident.VerificationDocuments?.GovernmentIdType,
                     GovernmentIdFront = resident.VerificationDocuments?.GovernmentIdFront,
                     GovernmentIdBack = resident.VerificationDocuments?.GovernmentIdBack,
+                    ProofOfResidencyType = resident.VerificationDocuments?.ProofOfResidencyType,
                     ProofOfResidency = resident.VerificationDocuments?.ProofOfResidency,
                     StreetPurok = resident.Address?.StreetPurok,
                     HouseNumberUnit = resident.Address?.HouseNumberUnit

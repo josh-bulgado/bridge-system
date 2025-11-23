@@ -1,4 +1,4 @@
-import { useMutation, type UseMutationResult } from "@tanstack/react-query";
+import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/react-query";
 import { authService } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -6,15 +6,22 @@ import { toast } from "sonner";
 // Explicitly type the mutation result
 export function useSignOut(): UseMutationResult<void, Error, void, unknown> {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   return useMutation<void, Error, void>({
     mutationFn: () => authService.logout(),
     onSuccess: () => {
-      navigate("/sign-in");
+      // Clear all React Query cache
+      queryClient.clear();
+      
+      // Navigate to sign-in page
+      navigate("/sign-in", { replace: true });
+      
       toast.success("Logged out successfully");
     },
     onError: (error) => {
       console.error("Logout failed:", error.message || error);
+      toast.error("Logout failed. Please try again.");
     },
   });
 }

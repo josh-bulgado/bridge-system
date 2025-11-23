@@ -314,7 +314,54 @@ namespace server.Controllers
         return BadRequest(new { message = "Invalid or expired verification code." });
       }
 
-      return Ok(new { message = "Email verified successfully!" });
+      // Get the verified user
+      var user = await _userService.GetByEmailAsync(dto.Email);
+      if (user == null)
+      {
+        return BadRequest(new { message = "User not found." });
+      }
+
+      // Generate JWT Token
+      var token = _jwtService.GenerateToken(user);
+
+      // Get resident information if user is a resident
+      object userResponse;
+      if (user.Role == "resident" && !string.IsNullOrEmpty(user.ResidentId))
+      {
+        var resident = await _residentService.GetByIdAsync(user.ResidentId);
+        userResponse = new
+        {
+          id = user.Id,
+          email = user.Email,
+          role = user.Role,
+          isEmailVerified = user.IsEmailVerified,
+          firstName = resident?.FirstName ?? user.FirstName,
+          lastName = resident?.LastName ?? user.LastName,
+          middleName = resident?.MiddleName ?? user.MiddleName,
+          fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
+        };
+      }
+      else
+      {
+        userResponse = new
+        {
+          id = user.Id,
+          email = user.Email,
+          role = user.Role,
+          isEmailVerified = user.IsEmailVerified,
+          firstName = user.FirstName,
+          lastName = user.LastName,
+          middleName = user.MiddleName
+        };
+      }
+
+      // Return token and user info
+      return Ok(new
+      {
+        message = "Email verified successfully!",
+        token,
+        user = userResponse
+      });
     }
 
     [HttpPost("resend-otp")]

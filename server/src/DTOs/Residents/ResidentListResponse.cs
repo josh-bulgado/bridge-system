@@ -14,8 +14,10 @@ namespace server.DTOs.Residents
         public bool HasDocuments { get; set; }
         
         // Verification documents
+        public string? GovernmentIdType { get; set; }
         public string? GovernmentIdFront { get; set; }
         public string? GovernmentIdBack { get; set; }
+        public string? ProofOfResidencyType { get; set; }
         public string? ProofOfResidency { get; set; }
         public string? StreetPurok { get; set; }
         public string? HouseNumberUnit { get; set; }

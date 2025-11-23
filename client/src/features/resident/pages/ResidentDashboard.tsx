@@ -8,6 +8,7 @@ import {
   type DashboardStat,
   type RequestData,
 } from "../components";
+import { VerificationDialog } from "../components/VerificationDialog";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { verificationService } from "../services/verificationService";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
@@ -18,25 +19,31 @@ const ResidentDashboard = () => {
   const [isVerified, setIsVerified] = useState(false);
   const [verificationStatus, setVerificationStatus] = useState<string | null>(null);
   const [isLoadingStatus, setIsLoadingStatus] = useState(true);
+  const [isVerificationDialogOpen, setIsVerificationDialogOpen] = useState(false);
 
   useEffect(() => {
-    const fetchVerificationStatus = async () => {
-      try {
-        const status = await verificationService.getVerificationStatus();
-        setIsVerified(status.isVerified);
-        setVerificationStatus(status.status);
-      } catch (error: any) {
-        console.error("Failed to fetch verification status:", error);
-        // If unauthorized or error, default to "Not Submitted"
-        setIsVerified(false);
-        setVerificationStatus("Not Submitted");
-      } finally {
-        setIsLoadingStatus(false);
-      }
-    };
-
     fetchVerificationStatus();
   }, []);
+
+  const fetchVerificationStatus = async () => {
+    try {
+      const status = await verificationService.getVerificationStatus();
+      setIsVerified(status.isVerified);
+      setVerificationStatus(status.status);
+    } catch (error: any) {
+      console.error("Failed to fetch verification status:", error);
+      // If unauthorized or error, default to "Not Submitted"
+      setIsVerified(false);
+      setVerificationStatus("Not Submitted");
+    } finally {
+      setIsLoadingStatus(false);
+    }
+  };
+
+  // Refresh verification status after submission
+  const handleVerificationSuccess = () => {
+    fetchVerificationStatus();
+  };
 
   // Mock data for dashboard stats
 
@@ -67,8 +74,7 @@ const ResidentDashboard = () => {
 
   // Event handlers
   const handleVerifyClick = () => {
-    // TODO: Implement verification logic
-    console.log("Verify clicked");
+    setIsVerificationDialogOpen(true);
   };
 
   const handleStatClick = (stat: DashboardStat, index: number) => {
@@ -102,9 +108,16 @@ const ResidentDashboard = () => {
   const firstName = user?.firstName || user?.email?.split("@")[0] || "Resident";
 
   return (
-    <div className="space-y-6 px-4 lg:px-6">
-      {/* Verification Status Banner */}
-      {!isLoadingStatus && (
+    <>
+      <VerificationDialog
+        open={isVerificationDialogOpen}
+        onOpenChange={setIsVerificationDialogOpen}
+        onVerificationSuccess={handleVerificationSuccess}
+      />
+      
+      <div className="space-y-6 px-4 lg:px-6">
+        {/* Verification Status Banner */}
+        {!isLoadingStatus && (
         <>
           {/* Not Verified - Show Verification Reminder */}
           {!isVerified && verificationStatus === "Not Submitted" && (
@@ -188,7 +201,8 @@ const ResidentDashboard = () => {
         requests={recentRequests}
         onRequestClick={handleRequestClick}
       />
-    </div>
+      </div>
+    </>
   );
 };
 

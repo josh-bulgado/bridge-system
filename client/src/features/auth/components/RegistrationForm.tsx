@@ -51,8 +51,42 @@ export const RegistrationForm = () => {
   // Validation checks for each step
   const isStepValid = (stepIndex: number) => {
     const fields = stepFields[stepIndex];
+    const errors = methods.formState.errors;
+    
+    if (stepIndex === 0) {
+      // Step 1: Personal Info
+      const hasErrors = errors.firstName || errors.lastName || errors.dateOfBirth;
+      const allFilled = fields[0] && fields[1] && fields[2];
+      return allFilled && !hasErrors;
+    }
+    
+    if (stepIndex === 1) {
+      // Step 2: Contact Info - Check phone and email validation
+      const hasErrors = errors.contactNumber || errors.email;
+      const allFilled = fields[0] && fields[1];
+      
+      // Debug logging in development
+      if (import.meta.env.DEV) {
+        console.log('Step 2 Validation:', {
+          contactNumber: fields[0] ? '✓ Filled' : '✗ Empty',
+          email: fields[1] ? '✓ Filled' : '✗ Empty',
+          contactNumberError: errors.contactNumber?.message || 'No error',
+          emailError: errors.email?.message || 'No error',
+          allFilled: allFilled ? '✓' : '✗',
+          hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
+          isValid: (allFilled && !hasErrors) ? '✓ Valid' : '✗ Invalid'
+        });
+      }
+      
+      return allFilled && !hasErrors;
+    }
+    
     if (stepIndex === 2) {
-      const isValid = fields[0] && fields[1] && fields[2] && fields[0] === fields[1];
+      // Step 3: Security
+      const hasErrors = errors.password || errors.confirmPassword || errors.agreeToTerms;
+      const passwordsMatch = fields[0] === fields[1];
+      const allFilled = fields[0] && fields[1] && fields[2];
+      const isValid = allFilled && passwordsMatch && !hasErrors;
       
       // Debug logging in development
       if (import.meta.env.DEV) {
@@ -60,15 +94,17 @@ export const RegistrationForm = () => {
           password: fields[0] ? '✓ Filled' : '✗ Empty',
           confirmPassword: fields[1] ? '✓ Filled' : '✗ Empty',
           agreeToTerms: fields[2] ? '✓ Checked' : '✗ Unchecked',
-          passwordsMatch: fields[0] === fields[1] ? '✓ Match' : '✗ No Match',
+          passwordsMatch: passwordsMatch ? '✓ Match' : '✗ No Match',
+          hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
           isValid: isValid ? '✓ Valid' : '✗ Invalid',
-          formErrors: methods.formState.errors
+          formErrors: errors
         });
       }
       
       return isValid;
     }
-    return fields.every((field) => field); // for other steps, check if all fields are filled
+    
+    return fields.every((field) => field);
   };
 
   // Handle successful registration - redirect directly to email verification
@@ -238,11 +274,6 @@ export const RegistrationForm = () => {
                         </>
                       )}
                     </Button>
-                    {import.meta.env.DEV && Object.keys(methods.formState.errors).length > 0 && (
-                      <p className="text-sm text-red-500 mt-2">
-                        ⚠️ Please fix validation errors in previous steps
-                      </p>
-                    )}
                   </>
                 )}
               </div>

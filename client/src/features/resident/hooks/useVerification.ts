@@ -21,8 +21,10 @@ export const useVerification = () => {
     defaultValues: {
       streetPurok: "",
       houseNumberUnit: "",
+      governmentIdType: "",
       governmentIdFront: "",
       governmentIdBack: "",
+      proofOfResidencyType: "",
       proofOfResidency: "",
     },
   });
@@ -60,8 +62,10 @@ export const useVerification = () => {
       const submissionData = {
         StreetPurok: data.streetPurok,
         HouseNumberUnit: data.houseNumberUnit,
+        GovernmentIdType: data.governmentIdType,
         GovernmentIdFront: data.governmentIdFront,
         GovernmentIdBack: data.governmentIdBack,
+        ProofOfResidencyType: data.proofOfResidencyType,
         ProofOfResidency: data.proofOfResidency,
       };
       

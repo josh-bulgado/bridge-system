@@ -130,11 +130,17 @@ namespace server.Models
 
     public class VerificationDocuments
     {
+        [BsonElement("governmentIdType")]
+        public string? GovernmentIdType { get; set; }
+
         [BsonElement("governmentIdFront")]
         public string? GovernmentIdFront { get; set; }
 
         [BsonElement("governmentIdBack")]
         public string? GovernmentIdBack { get; set; }
+
+        [BsonElement("proofOfResidencyType")]
+        public string? ProofOfResidencyType { get; set; }
 
         [BsonElement("proofOfResidency")]
         public string? ProofOfResidency { get; set; }

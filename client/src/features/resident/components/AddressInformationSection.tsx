@@ -17,9 +17,9 @@ export const AddressInformationSection = ({
   form,
 }: AddressInformationSectionProps) => {
   return (
-    <div className="space-y-4">
-      <h3 className="text-lg font-semibold">Address Information</h3>
-      <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+    <div className="space-y-3">
+      <h3 className="text-base font-semibold">Address Information</h3>
+      <div className="grid grid-cols-1 gap-3 md:grid-cols-2">
         <FormField
           control={form.control}
           name="houseNumberUnit"

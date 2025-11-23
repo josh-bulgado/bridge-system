@@ -9,11 +9,18 @@ namespace server.DTOs.Residents
 
         [Required(ErrorMessage = "House number/unit is required")]
         public required string HouseNumberUnit { get; set; }
+
+        [Required(ErrorMessage = "Government ID type is required")]
+        public required string GovernmentIdType { get; set; }
+
         [Required(ErrorMessage = "Government ID front is required")]
         public required string GovernmentIdFront { get; set; }
 
         [Required(ErrorMessage = "Government ID back is required")]
         public required string GovernmentIdBack { get; set; }
+
+        [Required(ErrorMessage = "Proof of residency type is required")]
+        public required string ProofOfResidencyType { get; set; }
 
         [Required(ErrorMessage = "Proof of residency is required")]
         public required string ProofOfResidency { get; set; }

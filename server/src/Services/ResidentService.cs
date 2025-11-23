@@ -59,7 +59,8 @@ namespace server.Services
 
         // Submit verification request
         public async Task<Resident?> SubmitVerificationAsync(string residentId, string streetPurok, string houseNumberUnit, 
-            string governmentIdFront, string governmentIdBack, string proofOfResidency)
+            string governmentIdType, string governmentIdFront, string governmentIdBack, 
+            string proofOfResidencyType, string proofOfResidency)
         {
             var resident = await GetByIdAsync(residentId);
             if (resident == null)
@@ -78,8 +79,10 @@ namespace server.Services
             // Update verification documents
             resident.VerificationDocuments = new VerificationDocuments
             {
+                GovernmentIdType = governmentIdType,
                 GovernmentIdFront = governmentIdFront,
                 GovernmentIdBack = governmentIdBack,
+                ProofOfResidencyType = proofOfResidencyType,
                 ProofOfResidency = proofOfResidency,
                 SubmittedAt = DateTime.UtcNow
             };
