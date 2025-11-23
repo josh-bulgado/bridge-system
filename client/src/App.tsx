@@ -24,6 +24,7 @@ import { ErrorBoundary } from "./components/ui/error-boundary";
 import VerificationPage from "./features/resident/pages/VerificationPage";
 import ResidentManagementPage from "./features/resident/pages/ResidentManagementPage";
 import StaffManagementPage from "./features/staff/pages/StaffManagementPage";
+import StaffResidentManagementPage from "./features/staff/pages/StaffResidentManagementPage";
 import BarangayConfigPage from "./features/admin/pages/BarangayConfigPage";
 import DocumentManagementPage from "./features/document/pages/DocumentManagementPage";
 
@@ -74,11 +75,8 @@ function App() {
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              <Route path="resident-management" element={<ResidentManagementPage />} />
-              <Route
-                path="staff-management"
-                element={<StaffManagementPage />}
-              />
+              <Route path="resident-management" element={<ResidentManagementPage />} />  
+              <Route path="staff" element={<StaffManagementPage />} />
               <Route path="config/barangay" element={<BarangayConfigPage />} />
               <Route
                 path="config/document"
@@ -90,6 +88,7 @@ function App() {
             {/* Staff Routes */}
             <Route path="/staff" element={<StaffLayout />}>
               <Route index element={<StaffDashboard />} />
+              <Route path="resident-management" element={<StaffResidentManagementPage />} />
               <Route
                 path="payment-verification"
                 element={<PaymentVerification />}

@@ -107,7 +107,7 @@ export const verificationService = {
     status: string;
     submittedAt?: string;
   }> => {
-    const response = await api.get("/api/Resident/verification/status");
+    const response = await api.get("/resident/verification/status");
     return response.data;
   },
 };

@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
-import ResidentListTable from "../components/ResidentListTable";
+import StaffResidentListTable from "../components/StaffResidentListTable";
 import {
   Select,
   SelectContent,
@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 
-const ResidentManagementPage = () => {
+const StaffResidentManagementPage = () => {
   const [searchTerm, setSearchTerm] = useState("");
 
   return (
@@ -20,15 +20,12 @@ const ResidentManagementPage = () => {
             Resident Management
           </h1>
           <p className="text-muted-foreground">
-            Manage resident registrations, verifications, and account status
+            Manage resident verifications, approve or reject validation requests
           </p>
         </div>
         <div className="flex items-center space-x-2">
           <button className="ring-offset-background focus-visible:ring-ring bg-secondary text-secondary-foreground hover:bg-secondary/80 inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50">
             Export Data
-          </button>
-          <button className="ring-offset-background focus-visible:ring-ring bg-primary text-primary-foreground hover:bg-primary/90 inline-flex h-10 items-center justify-center rounded-md px-4 py-2 text-sm font-medium transition-colors focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:pointer-events-none disabled:opacity-50">
-            Add New Resident
           </button>
         </div>
       </div>
@@ -99,7 +96,7 @@ const ResidentManagementPage = () => {
           </div>
         </div>
 
-        <ResidentListTable searchTerm={searchTerm} />
+        <StaffResidentListTable searchTerm={searchTerm} />
 
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
@@ -120,4 +117,4 @@ const ResidentManagementPage = () => {
   );
 };
 
-export default ResidentManagementPage;
+export default StaffResidentManagementPage;

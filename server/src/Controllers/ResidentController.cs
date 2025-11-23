@@ -102,10 +102,19 @@ namespace server.Controllers
                     return NotFound(new { message = "Resident not found" });
                 }
 
+                // Determine the actual status
+                string actualStatus = resident.ResidentVerificationStatus;
+                
+                // If no documents have been submitted, status should be "Not Submitted"
+                if (resident.VerificationDocuments == null)
+                {
+                    actualStatus = "Not Submitted";
+                }
+
                 return Ok(new VerificationStatusResponse
                 {
                     IsVerified = resident.IsResidentVerified,
-                    Status = resident.ResidentVerificationStatus,
+                    Status = actualStatus,
                     SubmittedAt = resident.VerificationDocuments?.SubmittedAt,
                     VerifiedAt = resident.VerifiedAt,
                     VerifiedBy = resident.VerifiedBy
@@ -114,6 +123,119 @@ namespace server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while fetching verification status", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Get all residents (for staff/admin)
+        /// </summary>
+        [HttpGet]
+        // [Authorize(Roles = "staff,admin")]
+        public async Task<ActionResult<List<ResidentListResponse>>> GetAllResidents()
+        {
+            try
+            {
+                var residents = await _residentService.GetAsync();
+                
+                var response = residents.Select(r => {
+                    // Get user email for this resident
+                    var user = _userService.GetByResidentIdAsync(r.Id ?? "").Result;
+                    
+                    return new ResidentListResponse
+                    {
+                        Id = r.Id ?? "",
+                        FullName = r.FullName,
+                        Email = user?.Email ?? "N/A",
+                        ContactNumber = r.ContactNumber,
+                        LocalAddress = $"{r.Address?.HouseNumberUnit ?? ""} {r.Address?.StreetPurok ?? ""}".Trim(),
+                        VerificationStatus = r.ResidentVerificationStatus,
+                        IsEmailVerified = user?.IsEmailVerified ?? false,
+                        RegistrationDate = r.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
+                        VerifiedDate = r.VerifiedAt,
+                        HasDocuments = r.VerificationDocuments != null,
+                        // Include verification documents
+                        GovernmentIdFront = r.VerificationDocuments?.GovernmentIdFront,
+                        GovernmentIdBack = r.VerificationDocuments?.GovernmentIdBack,
+                        ProofOfResidency = r.VerificationDocuments?.ProofOfResidency,
+                        StreetPurok = r.Address?.StreetPurok,
+                        HouseNumberUnit = r.Address?.HouseNumberUnit
+                    };
+                }).ToList();
+
+                return Ok(response);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while fetching residents", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Approve resident verification (for staff/admin)
+        /// </summary>
+        [HttpPost("{residentId}/approve")]
+        // [Authorize(Roles = "staff,admin")]
+        public async Task<ActionResult> ApproveResident(string residentId)
+        {
+            try
+            {
+                // Get user ID from JWT token
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated" });
+                }
+
+                var resident = await _residentService.ApproveResidentAsync(residentId, userId);
+                if (resident == null)
+                {
+                    return NotFound(new { message = "Resident not found" });
+                }
+
+                return Ok(new { message = "Resident approved successfully", resident = new { 
+                    id = resident.Id,
+                    fullName = resident.FullName,
+                    verificationStatus = resident.ResidentVerificationStatus,
+                    verifiedAt = resident.VerifiedAt
+                }});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while approving resident", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Reject resident verification (for staff/admin)
+        /// </summary>
+        [HttpPost("{residentId}/reject")]
+        // [Authorize(Roles = "staff,admin")]
+        public async Task<ActionResult> RejectResident(string residentId)
+        {
+            try
+            {
+                // Get user ID from JWT token
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+                if (string.IsNullOrEmpty(userId))
+                {
+                    return Unauthorized(new { message = "User not authenticated" });
+                }
+
+                var resident = await _residentService.RejectResidentAsync(residentId, userId);
+                if (resident == null)
+                {
+                    return NotFound(new { message = "Resident not found" });
+                }
+
+                return Ok(new { message = "Resident rejected", resident = new { 
+                    id = resident.Id,
+                    fullName = resident.FullName,
+                    verificationStatus = resident.ResidentVerificationStatus
+                }});
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while rejecting resident", error = ex.Message });
             }
         }
     }

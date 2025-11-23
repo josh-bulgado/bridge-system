@@ -95,5 +95,39 @@ namespace server.Services
         // Get resident by user ID
         public async Task<Resident?> GetByUserIdAsync(string userId) =>
             await _residents.Find(x => x.Id == userId).FirstOrDefaultAsync();
+
+        // Approve resident verification
+        public async Task<Resident?> ApproveResidentAsync(string residentId, string approvedBy)
+        {
+            var resident = await GetByIdAsync(residentId);
+            if (resident == null)
+                return null;
+
+            resident.IsResidentVerified = true;
+            resident.ResidentVerificationStatus = "Approved";
+            resident.VerifiedBy = approvedBy;
+            resident.VerifiedAt = DateTime.UtcNow;
+            resident.LastUpdated = DateTime.UtcNow;
+
+            await UpdateAsync(residentId, resident);
+            return resident;
+        }
+
+        // Reject resident verification
+        public async Task<Resident?> RejectResidentAsync(string residentId, string rejectedBy)
+        {
+            var resident = await GetByIdAsync(residentId);
+            if (resident == null)
+                return null;
+
+            resident.IsResidentVerified = false;
+            resident.ResidentVerificationStatus = "Rejected";
+            resident.VerifiedBy = rejectedBy;
+            resident.VerifiedAt = DateTime.UtcNow;
+            resident.LastUpdated = DateTime.UtcNow;
+
+            await UpdateAsync(residentId, resident);
+            return resident;
+        }
     }
 }

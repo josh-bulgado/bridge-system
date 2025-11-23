@@ -79,7 +79,7 @@ namespace server.Models
         public bool IsResidentVerified { get; set; } = false;
 
         [BsonElement("residentVerificationStatus")]
-        public string ResidentVerificationStatus { get; set; } = "Pending";
+        public string ResidentVerificationStatus { get; set; } = "Not Submitted";
 
         [BsonElement("verifiedBy")]
         [BsonRepresentation(BsonType.ObjectId)]
