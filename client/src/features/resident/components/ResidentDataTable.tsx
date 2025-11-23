@@ -1,9 +1,7 @@
-import * as React from "react";
 import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  flexRender,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
@@ -30,15 +28,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
 import { TablePagination } from "@/components/ui/table-pagination";
+import DataTable from "@/components/data-table";
+import { useState } from "react";
 
 interface ResidentDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -49,18 +41,15 @@ export function ResidentDataTable<TData, TValue>({
   columns,
   data,
 }: ResidentDataTableProps<TData, TValue>) {
-  const [rowSelection, setRowSelection] = React.useState({});
-  const [columnVisibility, setColumnVisibility] =
-    React.useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
-    [],
-  );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
-  const [pagination, setPagination] = React.useState({
+  const [rowSelection, setRowSelection] = useState({});
+  const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  const [sorting, setSorting] = useState<SortingState>([]);
+  const [pagination, setPagination] = useState({
     pageIndex: 0,
     pageSize: 10,
   });
-  const [globalFilter, setGlobalFilter] = React.useState("");
+  const [globalFilter, setGlobalFilter] = useState("");
 
   const table = useReactTable({
     data: data,
@@ -201,85 +190,8 @@ export function ResidentDataTable<TData, TValue>({
         </DropdownMenu>
       </div>
 
-      {/* Selection info */}
-      {/* {table.getFilteredSelectedRowModel().rows.length > 0 && (
-        <div className="bg-muted flex items-center justify-between rounded-md p-3">
-          <div className="text-muted-foreground text-sm">
-            <span className="font-medium">
-              {table.getFilteredSelectedRowModel().rows.length}
-            </span>{" "}
-            of{" "}
-            <span className="font-medium">
-              {table.getFilteredRowModel().rows.length}
-            </span>{" "}
-            row(s) selected
-          </div>
-          <Button
-            variant="ghost"
-            size="sm"
-            onClick={() => table.resetRowSelection()}
-          >
-            Clear selection
-          </Button>
-        </div>
-      )} */}
-
       {/* Table */}
-      <div className="overflow-hidden rounded-lg border">
-        <div className="h-full overflow-auto">
-          <Table>
-            <TableHeader className="bg-muted">
-              {table.getHeaderGroups().map((headerGroup) => (
-                <TableRow key={headerGroup.id} className="hover:bg-transparent">
-                  {headerGroup.headers.map((header) => {
-                    return (
-                      <TableHead key={header.id} className="h-12 px-4">
-                        {header.isPlaceholder
-                          ? null
-                          : flexRender(
-                              header.column.columnDef.header,
-                              header.getContext(),
-                            )}
-                      </TableHead>
-                    );
-                  })}
-                </TableRow>
-              ))}
-            </TableHeader>
-            <TableBody>
-              {table.getRowModel().rows?.length ? (
-                table.getRowModel().rows.map((row) => (
-                  <TableRow
-                    key={row.id}
-                    data-state={row.getIsSelected() && "selected"}
-                    className="hover:bg-muted/50 transition-colors"
-                  >
-                    {row.getVisibleCells().map((cell) => (
-                      <TableCell key={cell.id} className="h-16 px-4">
-                        {flexRender(
-                          cell.column.columnDef.cell,
-                          cell.getContext(),
-                        )}
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                ))
-              ) : (
-                <TableRow>
-                  <TableCell
-                    colSpan={columns.length}
-                    className="h-24 text-center"
-                  >
-                    <div className="text-muted-foreground">
-                      No residents found.
-                    </div>
-                  </TableCell>
-                </TableRow>
-              )}
-            </TableBody>
-          </Table>
-        </div>
-      </div>
+      <DataTable table={table} />
 
       {/* Pagination */}
       <TablePagination table={table} itemLabel="residents" />

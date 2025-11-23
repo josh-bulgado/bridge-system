@@ -2,7 +2,6 @@ import * as React from "react";
 import {
   IconSettings,
   IconHelp,
-  IconDashboard,
   IconFileText,
   IconCreditCard,
   IconDownload,
@@ -42,8 +41,8 @@ const staffData = {
       icon: Users,
     },
     {
-      title: "All Requests",
-      url: "/staff/requests",
+      title: "Document Requests",
+      url: "/staff/doc-requests",
       icon: IconFileText,
     },
     {

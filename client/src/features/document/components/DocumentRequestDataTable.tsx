@@ -3,7 +3,6 @@ import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
-  flexRender,
   getCoreRowModel,
   getFacetedRowModel,
   getFacetedUniqueValues,
@@ -40,22 +39,22 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+
 import { TablePagination } from "@/components/ui/table-pagination";
-import { Trash2 } from "lucide-react";
-import type { Staff } from "../types/staff";
-import { useDeleteStaff } from "../hooks";
-import AddStaffSheet from "./AddStaffSheet";
+import { AddDocumentSheet } from "./AddDocumentSheet";
+import { useDeleteDocument } from "../hooks";
+import type { Document } from "../types/document";
 import DataTable from "@/components/data-table";
 
-interface StaffDataTableProps<TData, TValue> {
+interface DocumentRequestDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
 }
 
-export function StaffDataTable<TData, TValue>({
+export function DocumentRequestDataTable<TData, TValue>({
   columns,
   data,
-}: StaffDataTableProps<TData, TValue>) {
+}: DocumentRequestDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
     React.useState<VisibilityState>({});
@@ -70,7 +69,7 @@ export function StaffDataTable<TData, TValue>({
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
-  const { mutate: deleteStaff } = useDeleteStaff();
+  const { mutate: deleteDocument } = useDeleteDocument();
 
   const table = useReactTable({
     data: data,
@@ -98,19 +97,17 @@ export function StaffDataTable<TData, TValue>({
 
   const selectedCount = table.getFilteredSelectedRowModel().rows.length;
 
-  const handleBulkDelete = () => {
-    setBulkDeleteDialogOpen(true);
-  };
-
   const confirmBulkDelete = async () => {
     setIsDeleting(true);
     const selectedRows = table.getFilteredSelectedRowModel().rows;
-    const selectedStaff = selectedRows.map((row) => row.original as Staff);
+    const selectedDocuments = selectedRows.map(
+      (row) => row.original as Document,
+    );
 
-    // Delete each staff member sequentially
-    for (const staff of selectedStaff) {
+    // Delete each document sequentially
+    for (const doc of selectedDocuments) {
       await new Promise<void>((resolve) => {
-        deleteStaff(staff.id, {
+        deleteDocument(doc.id, {
           onSettled: () => {
             resolve();
           },
@@ -126,57 +123,44 @@ export function StaffDataTable<TData, TValue>({
 
   return (
     <div className="flex h-full w-full flex-col space-y-4">
-      {/* Bulk Actions Bar - Shows when rows are selected */}
-
       {/* Search and Filters */}
       <div className="flex items-center gap-4">
         <Input
-          placeholder="Search by email..."
-          value={(table.getColumn("email")?.getFilterValue() as string) ?? ""}
+          placeholder="Search requests..."
+          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("email")?.setFilterValue(event.target.value)
+            table.getColumn("name")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />
-
         <Select
-          value={(table.getColumn("role")?.getFilterValue() as string) ?? ""}
+          key="status"
+          value={
+            (table.getColumn("status")?.getFilterValue() as string) ?? "all"
+          }
           onValueChange={(value) =>
             table
-              .getColumn("role")
+              .getColumn("status")
               ?.setFilterValue(value === "all" ? "" : value)
           }
         >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Roles" />
+          <SelectTrigger className="w-[200px]">
+            <SelectValue placeholder="Filter by status" />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="all">All Roles</SelectItem>
-            <SelectItem value="admin">Admin</SelectItem>
-            <SelectItem value="staff">Staff</SelectItem>
+            <SelectItem value="all">All Statuses</SelectItem>
+            <SelectItem value="pending">Pending Review</SelectItem>
+            <SelectItem value="approved">Approved</SelectItem>
+            <SelectItem value="rejected">Rejected</SelectItem>
+            <SelectItem value="payment_pending">Payment Pending</SelectItem>
+            <SelectItem value="payment_verified">Payment Verified</SelectItem>
+            <SelectItem value="ready_for_generation">
+              Ready for Generation
+            </SelectItem>
+            <SelectItem value="completed">Completed</SelectItem>
           </SelectContent>
         </Select>
-
-        <Select
-          value={
-            (table.getColumn("isActive")?.getFilterValue() as string) ?? ""
-          }
-          onValueChange={(value) =>
-            table
-              .getColumn("isActive")
-              ?.setFilterValue(value === "all" ? "" : value === "true")
-          }
-        >
-          <SelectTrigger className="w-[180px]">
-            <SelectValue placeholder="All Status" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="true">Active</SelectItem>
-            <SelectItem value="false">Inactive</SelectItem>
-          </SelectContent>
-        </Select>
-
+        ,
         <div className="ml-auto flex items-center gap-2">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
@@ -211,18 +195,7 @@ export function StaffDataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <AddStaffSheet />
-          <Button
-            variant="outline"
-            size="icon"
-            onClick={handleBulkDelete}
-            disabled={isDeleting || selectedCount === 0}
-            className={
-              selectedCount > 0 ? "hover:bg-red-50 hover:text-red-500" : ""
-            }
-          >
-            <Trash2 className="h-4 w-4" />
-          </Button>
+
         </div>
       </div>
 
@@ -232,7 +205,7 @@ export function StaffDataTable<TData, TValue>({
       {/* Pagination */}
       <TablePagination
         table={table}
-        itemLabel="staff members"
+        itemLabel="documents"
         pageSizeOptions={[5, 10, 20, 30, 40, 50]}
       />
 
@@ -245,13 +218,13 @@ export function StaffDataTable<TData, TValue>({
           <AlertDialogHeader>
             <AlertDialogTitle>
               Delete {selectedCount}{" "}
-              {selectedCount === 1 ? "staff member" : "staff members"}?
+              {selectedCount === 1 ? "document" : "documents"}?
             </AlertDialogTitle>
             <AlertDialogDescription>
               This will permanently delete{" "}
               {selectedCount === 1
-                ? "this staff member"
-                : `these ${selectedCount} staff members`}
+                ? "this document"
+                : `these ${selectedCount} documents`}
               . This action cannot be undone and will remove all associated
               data.
             </AlertDialogDescription>

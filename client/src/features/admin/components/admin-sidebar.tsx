@@ -49,6 +49,11 @@ const adminData = {
       icon: UserCog,
     },
     {
+      title: "Document Requests",
+      url: "/admin/doc-requests",
+      icon: UserCog,
+    },
+    {
       title: "Document Configuration",
       url: "/admin/config/document",
       icon: FileText,
