@@ -1,3 +1,4 @@
+// Staff hooks
 export { useFetchStaff } from "./useFetchStaff";
 export { useFetchStaffById } from "./useFetchStaffById";
 export { useCreateStaff } from "./useCreateStaff";
@@ -10,3 +11,15 @@ export { useSearchStaff } from "./useSearchStaff";
 export { useFetchStaffByRole } from "./useFetchStaffByRole";
 export { usePaymentVerification } from "./usePaymentVerification";
 export { useStaffDashboard } from "./useStaffDashboard";
+
+// Resident hooks
+export { useResidents } from "./useResidents";
+export { useFetchResidents } from "./useFetchResidents";
+export { useFetchResidentById } from "./useFetchResidentById";
+export { useUpdateResident } from "./useUpdateResident";
+export { useDeleteResident } from "./useDeleteResident";
+export { useApproveResident } from "./useApproveResident";
+export { useRejectResident } from "./useRejectResident";
+export { useContactResident } from "./useContactResident";
+export { useSearchResidents } from "./useSearchResidents";
+export { useFetchResidentsByStatus } from "./useFetchResidentsByStatus";

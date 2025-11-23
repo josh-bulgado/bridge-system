@@ -42,7 +42,26 @@ builder.Services.AddSingleton<RateLimiterService>();
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "Bridge System API",
+        Version = "v1",
+        Description = "API for Bridge Barangay Management System"
+    });
+
+    // Map IFormFile as binary in Swagger
+    options.MapType<IFormFile>(() => new Microsoft.OpenApi.Models.OpenApiSchema
+    {
+        Type = "string",
+        Format = "binary"
+    });
+
+    // Add the custom file upload operation filter
+    options.OperationFilter<FileUploadOperationFilter>();
+});
+
 
 // CORS - Allow multiple local development ports with security headers
 builder.Services.AddCors(options =>
@@ -50,9 +69,9 @@ builder.Services.AddCors(options =>
     options.AddPolicy("_myAllowSpecificOrigins", policy =>
     {
         policy.WithOrigins(
-                "http://localhost:5173", 
-                "http://localhost:5174", 
-                "http://localhost:5175", 
+                "http://localhost:5173",
+                "http://localhost:5174",
+                "http://localhost:5175",
                 "http://localhost:5176"
               )
               .AllowAnyHeader()
@@ -104,21 +123,21 @@ app.Use(async (context, next) =>
 {
     // Prevent clickjacking attacks
     context.Response.Headers["X-Frame-Options"] = "DENY";
-    
+
     // Prevent MIME type sniffing
     context.Response.Headers["X-Content-Type-Options"] = "nosniff";
-    
+
     // XSS Protection (legacy but still useful for older browsers)
     context.Response.Headers["X-XSS-Protection"] = "1; mode=block";
-    
+
     // Referrer Policy
     context.Response.Headers["Referrer-Policy"] = "strict-origin-when-cross-origin";
-    
+
     // 🔒 Cross-Origin-Opener-Policy: Allow Google OAuth popup to work
     context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
-    
+
     // Content Security Policy
-    context.Response.Headers["Content-Security-Policy"] = 
+    context.Response.Headers["Content-Security-Policy"] =
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com; " +
         "style-src 'self' 'unsafe-inline'; " +
@@ -126,10 +145,10 @@ app.Use(async (context, next) =>
         "font-src 'self' data:; " +
         "connect-src 'self' http://localhost:* ws://localhost:* https://accounts.google.com https://www.googleapis.com; " +
         "frame-src https://accounts.google.com;";
-    
+
     // Remove server header
     context.Response.Headers.Remove("Server");
-    
+
     await next();
 });
 

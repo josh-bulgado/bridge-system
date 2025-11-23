@@ -129,5 +129,26 @@ namespace server.Services
             await UpdateAsync(residentId, resident);
             return resident;
         }
+
+        // Get residents by verification status
+        public async Task<List<Resident>> GetByStatusAsync(string status)
+        {
+            var filter = Builders<Resident>.Filter.Eq(x => x.ResidentVerificationStatus, status);
+            return await _residents.Find(filter).ToListAsync();
+        }
+
+        // Get verified residents only
+        public async Task<List<Resident>> GetVerifiedResidentsAsync()
+        {
+            var filter = Builders<Resident>.Filter.Eq(x => x.IsResidentVerified, true);
+            return await _residents.Find(filter).ToListAsync();
+        }
+
+        // Get pending residents
+        public async Task<List<Resident>> GetPendingResidentsAsync()
+        {
+            var filter = Builders<Resident>.Filter.Eq(x => x.ResidentVerificationStatus, "Pending");
+            return await _residents.Find(filter).ToListAsync();
+        }
     }
 }

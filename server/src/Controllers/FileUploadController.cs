@@ -23,7 +23,7 @@ namespace server.Controllers
         /// Upload a profile picture
         /// </summary>
         [HttpPost("profile-picture")]
-        public async Task<IActionResult> UploadProfilePicture([FromForm] IFormFile file)
+        public async Task<IActionResult> UploadProfilePicture(IFormFile file)
         {
             try
             {
@@ -59,7 +59,7 @@ namespace server.Controllers
         /// </summary>
         [HttpPost("image")]
         public async Task<IActionResult> UploadImage(
-            [FromForm] IFormFile file,
+            IFormFile file,
             [FromForm] string? folder = "images",
             [FromForm] int? maxWidth = null,
             [FromForm] int? maxHeight = null)
@@ -92,7 +92,7 @@ namespace server.Controllers
         /// </summary>
         [HttpPost("document")]
         public async Task<IActionResult> UploadDocument(
-            [FromForm] IFormFile file,
+            IFormFile file,
             [FromForm] string? folder = "documents")
         {
             try
@@ -122,7 +122,7 @@ namespace server.Controllers
         /// Upload verification document
         /// </summary>
         [HttpPost("verification-document")]
-        public async Task<IActionResult> UploadVerificationDocument([FromForm] IFormFile file)
+        public async Task<IActionResult> UploadVerificationDocument(IFormFile file)
         {
             try
             {

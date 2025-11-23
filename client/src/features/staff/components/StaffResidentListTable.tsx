@@ -29,8 +29,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { useResidents } from "../hooks/useResidents";
 import { Skeleton } from "@/components/ui/skeleton";
 import { toast } from "sonner";
-import { residentService } from "../services/residentService";
-import ResidentDetailsModal from "./ResidentDetailsModal";
+import { residentService } from "../../resident/services/residentService";
+import ResidentDetailsModal from "../../resident/components/ResidentDetailsModal";
 
 interface Resident {
   id: string;
@@ -120,17 +120,21 @@ function formatDate(dateString: string | null): string {
   });
 }
 
-export default function StaffResidentListTable({ 
-  searchTerm = "", 
-  onSearchChange 
+export default function StaffResidentListTable({
+  searchTerm = "",
+  onSearchChange,
 }: StaffResidentListTableProps = {}) {
   const { residents, loading, error } = useResidents();
-  const [selectedResident, setSelectedResident] = useState<Resident | null>(null);
+  const [selectedResident, setSelectedResident] = useState<Resident | null>(
+    null,
+  );
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [showContactForm, setShowContactForm] = useState(false);
   const [contactMessage, setContactMessage] = useState("");
   const [isContacting, setIsContacting] = useState(false);
-  const [contactingResidentId, setContactingResidentId] = useState<string | null>(null);
+  const [contactingResidentId, setContactingResidentId] = useState<
+    string | null
+  >(null);
   const [filteredResidents, setFilteredResidents] = useState<Resident[]>([]);
   const rowRefs = useRef<{ [key: string]: HTMLTableRowElement | null }>({});
 
@@ -149,7 +153,7 @@ export default function StaffResidentListTable({
       (resident) =>
         resident.fullName.toLowerCase().includes(searchLower) ||
         resident.email.toLowerCase().includes(searchLower) ||
-        resident.localAddress.toLowerCase().includes(searchLower)
+        resident.localAddress.toLowerCase().includes(searchLower),
     );
 
     setFilteredResidents(filtered);
@@ -179,13 +183,19 @@ export default function StaffResidentListTable({
     setIsContacting(true);
     setContactingResidentId(selectedResident.id);
     try {
-      await residentService.contactResident(selectedResident.id, contactMessage);
+      await residentService.contactResident(
+        selectedResident.id,
+        contactMessage,
+      );
       toast.success(`Message sent to ${selectedResident.fullName}`);
       setContactMessage("");
       setShowContactForm(false);
       setSelectedResident(null);
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to send message";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to send message";
       toast.error(errorMessage);
     } finally {
       setIsContacting(false);
@@ -206,11 +216,10 @@ export default function StaffResidentListTable({
     }
   };
 
-
   const renderResidentRow = (resident: Resident) => {
     return (
-      <TableRow 
-        key={resident.id} 
+      <TableRow
+        key={resident.id}
         className="hover:bg-muted/50 transition-colors"
         ref={(el) => (rowRefs.current[resident.id] = el)}
       >
@@ -388,7 +397,9 @@ export default function StaffResidentListTable({
   if (error) {
     return (
       <div className="bg-card rounded-lg border p-8 text-center">
-        <p className="text-muted-foreground">Error loading residents: {error}</p>
+        <p className="text-muted-foreground">
+          Error loading residents: {error}
+        </p>
       </div>
     );
   }
@@ -426,7 +437,10 @@ export default function StaffResidentListTable({
               filteredResidents.map(renderResidentRow)
             ) : (
               <TableRow>
-                <TableCell colSpan={6} className="h-24 text-center text-muted-foreground">
+                <TableCell
+                  colSpan={6}
+                  className="text-muted-foreground h-24 text-center"
+                >
                   No residents found matching "{searchTerm}"
                 </TableCell>
               </TableRow>

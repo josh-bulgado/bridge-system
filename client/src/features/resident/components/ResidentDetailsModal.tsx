@@ -10,10 +10,11 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { Loader2, UserCheck, UserX, ExternalLink, X } from "lucide-react";
+import { UserCheck, UserX, ExternalLink, X } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { toast } from "sonner";
 import { residentService } from "../services/residentService";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 interface Resident {
   id: string;
@@ -114,7 +115,10 @@ export default function ResidentDetailsModal({
       onClose();
       if (onRefresh) onRefresh();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to approve resident";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to approve resident";
       toast.error(errorMessage);
     } finally {
       setIsApproving(false);
@@ -129,7 +133,10 @@ export default function ResidentDetailsModal({
       onClose();
       if (onRefresh) onRefresh();
     } catch (error: any) {
-      const errorMessage = error.response?.data?.message || error.message || "Failed to reject resident";
+      const errorMessage =
+        error.response?.data?.message ||
+        error.message ||
+        "Failed to reject resident";
       toast.error(errorMessage);
     } finally {
       setIsRejecting(false);
@@ -142,8 +149,8 @@ export default function ResidentDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
-        <DialogClose className="absolute right-4 top-4 opacity-70 hover:opacity-100 transition-opacity">
+      <DialogContent className="max-h-[90vh] max-w-3xl overflow-y-auto">
+        <DialogClose className="absolute top-4 right-4 opacity-70 transition-opacity hover:opacity-100">
           <X className="h-4 w-4" />
           <span className="sr-only">Close</span>
         </DialogClose>
@@ -157,7 +164,7 @@ export default function ResidentDetailsModal({
         <div className="space-y-6">
           {/* Personal Information */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">Personal Information</h3>
+            <h3 className="mb-3 text-lg font-semibold">Personal Information</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-muted-foreground text-sm">
@@ -204,7 +211,7 @@ export default function ResidentDetailsModal({
 
           {/* Address Information */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">Address Information</h3>
+            <h3 className="mb-3 text-lg font-semibold">Address Information</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-muted-foreground text-sm">
@@ -235,7 +242,7 @@ export default function ResidentDetailsModal({
 
           {/* Verification Status */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">Verification Status</h3>
+            <h3 className="mb-3 text-lg font-semibold">Verification Status</h3>
             <div className="grid grid-cols-2 gap-4">
               <div>
                 <Label className="text-muted-foreground text-sm">Status</Label>
@@ -268,7 +275,7 @@ export default function ResidentDetailsModal({
 
           {/* Verification Documents */}
           <div>
-            <h3 className="text-lg font-semibold mb-3">
+            <h3 className="mb-3 text-lg font-semibold">
               Verification Documents
             </h3>
             {resident.hasDocuments ? (
@@ -289,7 +296,7 @@ export default function ResidentDetailsModal({
                       onClick={() =>
                         window.open(
                           `/api/FileUpload/${resident.governmentIdFront}`,
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -314,7 +321,7 @@ export default function ResidentDetailsModal({
                       onClick={() =>
                         window.open(
                           `/api/FileUpload/${resident.governmentIdBack}`,
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -339,7 +346,7 @@ export default function ResidentDetailsModal({
                       onClick={() =>
                         window.open(
                           `/api/FileUpload/${resident.proofOfResidency}`,
-                          "_blank"
+                          "_blank",
                         )
                       }
                     >
@@ -369,10 +376,7 @@ export default function ResidentDetailsModal({
                 <UserX className="mr-2 size-4" />
                 Reject
               </Button>
-              <Button
-                className="bg-green-600 hover:bg-green-700"
-                disabled
-              >
+              <Button className="bg-green-600 hover:bg-green-700" disabled>
                 <UserCheck className="mr-2 size-4" />
                 Approve
               </Button>

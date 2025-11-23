@@ -12,13 +12,16 @@ namespace server.Services
         public CloudinaryService(IOptions<CloudinarySettings> settings, ILogger<CloudinaryService> logger)
         {
             _logger = logger;
-            
+
+            _logger.LogInformation($"Cloudinary API Key: {settings.Value.ApiKey}");
+            _logger.LogInformation($"Cloudinary API Secret: {settings.Value.ApiSecret}");
+
             var account = new Account(
                 settings.Value.CloudName,
                 settings.Value.ApiKey,
                 settings.Value.ApiSecret
             );
-            
+
             _cloudinary = new Cloudinary(account);
             _cloudinary.Api.Secure = true; // Use HTTPS
         }
@@ -27,7 +30,7 @@ namespace server.Services
         /// Upload an image file to Cloudinary
         /// </summary>
         public async Task<(bool success, string? url, string? publicId, string? error)> UploadImageAsync(
-            IFormFile file, 
+            IFormFile file,
             string folder = "images",
             int? maxWidth = null,
             int? maxHeight = null)
@@ -53,7 +56,7 @@ namespace server.Services
                 }
 
                 using var stream = file.OpenReadStream();
-                
+
                 var uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
@@ -93,7 +96,7 @@ namespace server.Services
         /// Upload a document file (PDF, DOCX, etc.) to Cloudinary
         /// </summary>
         public async Task<(bool success, string? url, string? publicId, string? error)> UploadDocumentAsync(
-            IFormFile file, 
+            IFormFile file,
             string folder = "documents")
         {
             try
@@ -104,16 +107,16 @@ namespace server.Services
                 }
 
                 // Validate document types
-                var allowedDocTypes = new[] 
-                { 
-                    "application/pdf",
-                    "application/msword",
-                    "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
-                    "image/jpeg", 
-                    "image/jpg", 
-                    "image/png"
-                };
-                
+                var allowedDocTypes = new[]
+                {
+                "application/pdf",
+                "application/msword",
+                "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                "image/jpeg",
+                "image/jpg",
+                "image/png"
+            };
+
                 if (!allowedDocTypes.Contains(file.ContentType.ToLower()))
                 {
                     return (false, null, null, $"Invalid document type. Allowed types: PDF, DOCX, DOC, JPG, PNG");
@@ -126,7 +129,7 @@ namespace server.Services
                 }
 
                 using var stream = file.OpenReadStream();
-                
+
                 var uploadParams = new RawUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),
@@ -178,7 +181,7 @@ namespace server.Services
                 }
 
                 using var stream = file.OpenReadStream();
-                
+
                 var uploadParams = new ImageUploadParams
                 {
                     File = new FileDescription(file.FileName, stream),

@@ -1,12 +1,5 @@
 import * as React from "react";
-import {
-  IconChevronDown,
-  IconChevronLeft,
-  IconChevronRight,
-  IconChevronsLeft,
-  IconChevronsRight,
-  IconLayoutColumns,
-} from "@tabler/icons-react";
+import { IconChevronDown, IconLayoutColumns } from "@tabler/icons-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -40,7 +33,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 import {
   Select,
   SelectContent,
@@ -56,6 +48,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { TablePagination } from "@/components/ui/table-pagination";
 import { AddDocumentSheet } from "./AddDocumentSheet";
 import { useDeleteDocument } from "../hooks";
 import { Trash2 } from "lucide-react";
@@ -83,7 +76,7 @@ export function DocumentDataTable<TData, TValue>({
   });
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
-  
+
   const { mutate: deleteDocument } = useDeleteDocument();
 
   const table = useReactTable({
@@ -119,7 +112,9 @@ export function DocumentDataTable<TData, TValue>({
   const confirmBulkDelete = async () => {
     setIsDeleting(true);
     const selectedRows = table.getFilteredSelectedRowModel().rows;
-    const selectedDocuments = selectedRows.map((row) => row.original as Document);
+    const selectedDocuments = selectedRows.map(
+      (row) => row.original as Document,
+    );
 
     // Delete each document sequentially
     for (const doc of selectedDocuments) {
@@ -142,10 +137,11 @@ export function DocumentDataTable<TData, TValue>({
     <div className="flex h-full w-full flex-col space-y-4">
       {/* Bulk Actions Bar - Shows when rows are selected */}
       {selectedCount > 0 && (
-        <div className="flex items-center justify-between rounded-lg border bg-muted/50 px-4 py-3">
+        <div className="bg-muted/50 flex items-center justify-between rounded-lg border px-4 py-3">
           <div className="flex items-center gap-2">
             <span className="text-sm font-medium">
-              {selectedCount} {selectedCount === 1 ? "document" : "documents"} selected
+              {selectedCount} {selectedCount === 1 ? "document" : "documents"}{" "}
+              selected
             </span>
           </div>
           <Button
@@ -228,7 +224,7 @@ export function DocumentDataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <div className="h-full flex-1 grow overflow-hidden rounded-lg border">
+      <div className="overflow-hidden rounded-lg border">
         <div className="h-full overflow-auto">
           <Table>
             <TableHeader className="bg-muted">
@@ -283,89 +279,30 @@ export function DocumentDataTable<TData, TValue>({
       </div>
 
       {/* Pagination */}
-      <div className="flex items-center justify-between px-4">
-        <div className="text-muted-foreground hidden flex-1 text-sm lg:flex">
-          {table.getFilteredSelectedRowModel().rows.length} of{" "}
-          {table.getFilteredRowModel().rows.length} row(s) selected.
-        </div>
-        <div className="flex w-full items-center gap-8 lg:w-fit">
-          <div className="hidden items-center gap-2 lg:flex">
-            <Label htmlFor="rows-per-page" className="text-sm font-medium">
-              Rows per page
-            </Label>
-            <Select
-              value={`${table.getState().pagination.pageSize}`}
-              onValueChange={(value) => {
-                table.setPageSize(Number(value));
-              }}
-            >
-              <SelectTrigger size="sm" className="w-20" id="rows-per-page">
-                <SelectValue
-                  placeholder={table.getState().pagination.pageSize}
-                />
-              </SelectTrigger>
-              <SelectContent side="top">
-                {[5, 10, 20, 30, 40, 50].map((pageSize) => (
-                  <SelectItem key={pageSize} value={`${pageSize}`}>
-                    {pageSize}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
-          </div>
-          <div className="flex w-fit items-center justify-center text-sm font-medium">
-            Page {table.getState().pagination.pageIndex + 1} of{" "}
-            {table.getPageCount()}
-          </div>
-          <div className="ml-auto flex items-center gap-2 lg:ml-0">
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(0)}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Go to first page</span>
-              <IconChevronsLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() => table.previousPage()}
-              disabled={!table.getCanPreviousPage()}
-            >
-              <span className="sr-only">Go to previous page</span>
-              <IconChevronLeft className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="h-8 w-8 p-0"
-              onClick={() => table.nextPage()}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Go to next page</span>
-              <IconChevronRight className="h-4 w-4" />
-            </Button>
-            <Button
-              variant="outline"
-              className="hidden h-8 w-8 p-0 lg:flex"
-              onClick={() => table.setPageIndex(table.getPageCount() - 1)}
-              disabled={!table.getCanNextPage()}
-            >
-              <span className="sr-only">Go to last page</span>
-              <IconChevronsRight className="h-4 w-4" />
-            </Button>
-          </div>
-        </div>
-      </div>
+      <TablePagination
+        table={table}
+        itemLabel="documents"
+        pageSizeOptions={[5, 10, 20, 30, 40, 50]}
+      />
 
       {/* Bulk Delete Confirmation Dialog */}
-      <AlertDialog open={bulkDeleteDialogOpen} onOpenChange={setBulkDeleteDialogOpen}>
+      <AlertDialog
+        open={bulkDeleteDialogOpen}
+        onOpenChange={setBulkDeleteDialogOpen}
+      >
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete {selectedCount} {selectedCount === 1 ? "document" : "documents"}?</AlertDialogTitle>
+            <AlertDialogTitle>
+              Delete {selectedCount}{" "}
+              {selectedCount === 1 ? "document" : "documents"}?
+            </AlertDialogTitle>
             <AlertDialogDescription>
-              This will permanently delete {selectedCount === 1 ? "this document" : `these ${selectedCount} documents`}. 
-              This action cannot be undone and will remove all associated data.
+              This will permanently delete{" "}
+              {selectedCount === 1
+                ? "this document"
+                : `these ${selectedCount} documents`}
+              . This action cannot be undone and will remove all associated
+              data.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
