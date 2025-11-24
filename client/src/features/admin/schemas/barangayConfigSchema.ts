@@ -2,6 +2,17 @@ import { z } from "zod";
 
 // Address validation schema
 export const barangayConfigSchema = z.object({
+  barangayCaptain: z
+    .string()
+    .min(1, "Barangay Captain name is required")
+    .min(2, "Captain name must be at least 2 characters"),
+  logoUrl: z
+    .string()
+    .min(1, "Barangay logo is required")
+    .url("Invalid logo URL")
+    .refine((url) => url.includes("cloudinary.com"), {
+      message: "Logo must be uploaded through Cloudinary",
+    }),
   address: z.object({
     regionCode: z.string().min(1, "Region is required"),
     regionName: z.string().min(1, "Region name is required"),

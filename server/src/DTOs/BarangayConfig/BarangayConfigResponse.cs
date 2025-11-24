@@ -3,6 +3,8 @@ namespace server.DTOs.BarangayConfig
     public class BarangayConfigResponse
     {
         public string Id { get; set; } = string.Empty;
+        public string BarangayCaptain { get; set; } = string.Empty;
+        public string LogoUrl { get; set; } = string.Empty;
         public AddressResponse Address { get; set; } = new();
         public ContactResponse Contact { get; set; } = new();
         public string OfficeHours { get; set; } = string.Empty;
