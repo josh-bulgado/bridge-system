@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import {
   VerificationReminder,
   WelcomeSection,
@@ -16,6 +16,7 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { verificationService } from "../services/verificationService";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Clock, CheckCircle, XCircle } from "lucide-react";
+import { useFetchDocumentRequests } from "@/features/document/hooks/useFetchDocumentRequests";
 
 const ResidentDashboard = () => {
   const { data: user } = useAuth();
@@ -51,32 +52,77 @@ const ResidentDashboard = () => {
     fetchVerificationStatus();
   };
 
-  // Mock data for dashboard stats
+  // Fetch real document requests for the logged-in resident
+  const { data: documentRequests, isLoading: isLoadingRequests } = useFetchDocumentRequests({
+    residentId: user?.id,
+  });
 
-  // Mock recent requests data
-  const recentRequests: RequestData[] = [
-    {
-      id: "REQ-2024-001",
-      type: "Barangay Clearance",
-      status: "Ready for Pickup",
-      date: "2024-01-15",
-      statusColor: "text-green-600 bg-green-50",
-    },
-    {
-      id: "REQ-2024-002",
-      type: "Certificate of Residency",
-      status: "Action Required",
-      date: "2024-01-14",
-      statusColor: "text-orange-600 bg-orange-50",
-    },
-    {
-      id: "REQ-2024-003",
-      type: "Business Permit",
-      status: "Processing",
-      date: "2024-01-13",
-      statusColor: "text-blue-600 bg-blue-50",
-    },
-  ];
+  // Transform API data to RequestData format and get recent 5 requests
+  const recentRequests: RequestData[] = useMemo(() => {
+    if (!documentRequests || documentRequests.length === 0) {
+      return [];
+    }
+
+    // Helper function to get status color and display label
+    const getStatusColor = (status: string) => {
+      switch (status) {
+        case "pending":
+          return "text-yellow-600 bg-yellow-50";
+        case "approved":
+          return "text-blue-600 bg-blue-50";
+        case "payment_pending":
+          return "text-orange-600 bg-orange-50";
+        case "payment_verified":
+          return "text-blue-600 bg-blue-50";
+        case "ready_for_generation":
+          return "text-green-600 bg-green-50";
+        case "completed":
+          return "text-emerald-600 bg-emerald-50";
+        case "rejected":
+          return "text-red-600 bg-red-50";
+        default:
+          return "text-gray-600 bg-gray-50";
+      }
+    };
+
+    // Helper function to format status for display
+    const formatStatus = (status: string) => {
+      switch (status) {
+        case "pending":
+          return "Pending Review";
+        case "approved":
+          return "Approved";
+        case "payment_pending":
+          return "Payment Pending";
+        case "payment_verified":
+          return "Payment Verified";
+        case "ready_for_generation":
+          return "Ready for Pickup";
+        case "completed":
+          return "Completed";
+        case "rejected":
+          return "Rejected";
+        default:
+          return status;
+      }
+    };
+
+    // Sort by date (newest first) and take top 5
+    return documentRequests
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .slice(0, 5)
+      .map((req) => ({
+        id: req.id,
+        type: req.documentType,
+        status: formatStatus(req.status),
+        date: new Date(req.createdAt).toLocaleDateString("en-US", {
+          year: "numeric",
+          month: "short",
+          day: "numeric",
+        }),
+        statusColor: getStatusColor(req.status),
+      }));
+  }, [documentRequests]);
 
   // Event handlers
   const handleVerifyClick = () => {
@@ -207,6 +253,7 @@ const ResidentDashboard = () => {
             <RecentRequests
               isVerified={isVerified}
               requests={recentRequests}
+              isLoading={isLoadingRequests}
               onRequestClick={handleRequestClick}
             />
           </>

@@ -1,6 +1,8 @@
 import React from "react";
 import { Check, Clock, FileText, Package, type LucideIcon } from "lucide-react";
 import { StatCard } from "./StatCard";
+import { useResidentStats } from "../hooks/useResidentStats";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 export interface DashboardStat {
   title: string;
@@ -20,13 +22,22 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
   isVerified,
   onStatClick,
 }) => {
+  const { data: user } = useAuth();
+  const {
+    totalRequests,
+    actionRequired,
+    readyForPickup,
+    completed,
+    isLoading,
+  } = useResidentStats(user?.id);
+
   const fgValue = 400;
   const bgValue = 1;
 
   const dashboardStats: DashboardStat[] = [
     {
       title: "Total Requests",
-      count: 12,
+      count: isLoading ? 0 : totalRequests,
       description: "All submitted requests",
       icon: FileText,
       color: `text-blue-600 dark:text-blue-${fgValue}`,
@@ -34,7 +45,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
     },
     {
       title: "Action Required",
-      count: 3,
+      count: isLoading ? 0 : actionRequired,
       description: "Requests needing your action",
       icon: Clock,
       color: `text-orange-600 dark:text-orange-${fgValue}`,
@@ -42,7 +53,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
     },
     {
       title: "Ready for Pickup",
-      count: 2,
+      count: isLoading ? 0 : readyForPickup,
       description: "Documents ready to collect",
       icon: Package,
       color: `text-green-600 dark:text-green-${fgValue}`,
@@ -50,7 +61,7 @@ export const StatsGrid: React.FC<StatsGridProps> = ({
     },
     {
       title: "Completed",
-      count: 7,
+      count: isLoading ? 0 : completed,
       description: "Successfully processed",
       icon: Check,
       color: `text-emerald-600 dark:text-emerald-${fgValue}`,
