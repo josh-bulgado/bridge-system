@@ -5,6 +5,7 @@ export interface Document {
   requirements: string[];
   status: "Active" | "Inactive";
   processingTime: string;
+  templateUrl: string;
   totalRequests: number;
   lastModified: string;
   createdAt: string;
@@ -17,6 +18,7 @@ export interface CreateDocumentRequest {
   requirements: string[];
   status: "Active" | "Inactive";
   processingTime: string;
+  templateUrl: string;
 }
 
 export interface UpdateDocumentRequest {
@@ -25,6 +27,7 @@ export interface UpdateDocumentRequest {
   requirements?: string[];
   status?: "Active" | "Inactive";
   processingTime?: string;
+  templateUrl?: string;
 }
 
 export interface ToggleDocumentStatusRequest {

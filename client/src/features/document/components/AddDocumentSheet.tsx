@@ -1,8 +1,10 @@
 import * as React from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { IconPlus, IconTrash } from "@tabler/icons-react";
+import { IconPlus, IconTrash, IconFileUpload, IconX } from "@tabler/icons-react";
 import { useCreateDocument } from "../hooks";
+import { useUploadDocument } from "@/hooks/useUploadFile";
+import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -41,7 +43,11 @@ import {
 export function AddDocumentSheet() {
   const [open, setOpen] = React.useState(false);
   const [requirements, setRequirements] = React.useState<string[]>([""]);
+  const [templateFile, setTemplateFile] = React.useState<File | null>(null);
+  const [isUploadingTemplate, setIsUploadingTemplate] = React.useState(false);
+  
   const { mutate: createDocument, isPending } = useCreateDocument();
+  const uploadMutation = useUploadDocument();
 
   // Use Form hook with correct type inference
   const form = useForm<AddDocumentFormValues>({
@@ -52,6 +58,7 @@ export function AddDocumentSheet() {
       processingTime: "",
       status: "Active", // Default value for status
       requirements: [""], // Default to an empty requirement
+      templateUrl: "",
     },
   });
 
@@ -75,6 +82,61 @@ export function AddDocumentSheet() {
     setValue("requirements", newRequirements);
   };
 
+  // Handle template file selection
+  const handleTemplateFileSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Validate file type - only .docx
+    if (!file.name.endsWith('.docx') && file.type !== 'application/vnd.openxmlformats-officedocument.wordprocessingml.document') {
+      toast.error("Invalid file type", {
+        description: "Please select a .docx file (Microsoft Word document)",
+      });
+      return;
+    }
+
+    // Validate file size (10MB)
+    if (file.size > 10 * 1024 * 1024) {
+      toast.error("File too large", {
+        description: "Template file must be less than 10MB",
+      });
+      return;
+    }
+
+    setIsUploadingTemplate(true);
+    setTemplateFile(file);
+
+    try {
+      const result = await uploadMutation.mutateAsync({
+        file,
+        folder: "document-templates",
+      });
+
+      toast.success("Template uploaded", {
+        description: "Document template has been uploaded successfully.",
+      });
+
+      setValue("templateUrl", result.url, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+    } catch (error: any) {
+      toast.error("Upload failed", {
+        description: error.message || "Failed to upload template",
+      });
+      setTemplateFile(null);
+    } finally {
+      setIsUploadingTemplate(false);
+    }
+  };
+
+  // Remove template
+  const handleRemoveTemplate = () => {
+    setTemplateFile(null);
+    setValue("templateUrl", "");
+  };
+
   // On form submission
   const onSubmit = (data: AddDocumentFormValues) => {
     const filteredRequirements = data.requirements.filter(
@@ -95,6 +157,7 @@ export function AddDocumentSheet() {
       processingTime: data.processingTime,
       status: data.status,
       requirements: filteredRequirements,
+      templateUrl: data.templateUrl,
     };
 
     // Call the create mutation
@@ -103,6 +166,7 @@ export function AddDocumentSheet() {
         // Reset form after successful creation
         form.reset();
         setRequirements([""]);
+        setTemplateFile(null);
         setOpen(false);
       },
     });
@@ -113,6 +177,7 @@ export function AddDocumentSheet() {
     if (!newOpen) {
       form.reset();
       setRequirements([""]);
+      setTemplateFile(null);
     }
   };
 
@@ -270,6 +335,75 @@ export function AddDocumentSheet() {
                     </div>
                     <FormDescription>
                       Documents or information needed to request this document
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Document Template Upload */}
+              <FormField
+                control={form.control}
+                name="templateUrl"
+                render={() => (
+                  <FormItem>
+                    <FormLabel>Document Template *</FormLabel>
+                    <FormControl>
+                      <div className="space-y-2">
+                        {!templateFile ? (
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="hidden"
+                              {...form.register("templateUrl")}
+                            />
+                            <label
+                              htmlFor="template-upload"
+                              className="flex flex-1 cursor-pointer items-center justify-center gap-2 rounded-md border-2 border-dashed border-muted-foreground/25 p-4 transition-colors hover:border-muted-foreground/50"
+                            >
+                              <IconFileUpload className="h-5 w-5 text-muted-foreground" />
+                              <span className="text-sm text-muted-foreground">
+                                {isUploadingTemplate
+                                  ? "Uploading..."
+                                  : "Click to upload .docx template"}
+                              </span>
+                              <input
+                                id="template-upload"
+                                type="file"
+                                accept=".docx,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                                onChange={handleTemplateFileSelect}
+                                disabled={isUploadingTemplate}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-between rounded-md border border-border bg-muted p-3">
+                            <div className="flex items-center gap-2">
+                              <IconFileUpload className="h-5 w-5 text-primary" />
+                              <div>
+                                <p className="text-sm font-medium">
+                                  {templateFile.name}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  {(templateFile.size / 1024).toFixed(2)} KB
+                                </p>
+                              </div>
+                            </div>
+                            <Button
+                              type="button"
+                              variant="ghost"
+                              size="icon"
+                              onClick={handleRemoveTemplate}
+                              disabled={isUploadingTemplate}
+                            >
+                              <IconX className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        )}
+                      </div>
+                    </FormControl>
+                    <FormDescription>
+                      Upload a .docx template file (max 10MB). Use placeholders like {"<<FULL_NAME>>"} for dynamic data.
                     </FormDescription>
                     <FormMessage />
                   </FormItem>

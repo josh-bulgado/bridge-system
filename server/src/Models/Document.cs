@@ -29,6 +29,10 @@ namespace server.Models
         [Required]
         public required string ProcessingTime { get; set; }
 
+        [BsonElement("templateUrl")]
+        [Required]
+        public required string TemplateUrl { get; set; }
+
         [BsonElement("totalRequests")]
         public int TotalRequests { get; set; } = 0;
 

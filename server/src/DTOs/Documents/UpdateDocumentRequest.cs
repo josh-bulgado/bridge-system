@@ -18,5 +18,8 @@ namespace server.DTOs.Documents
 
         [MinLength(1, ErrorMessage = "At least one requirement is needed")]
         public List<string>? Requirements { get; set; }
+
+        [Url(ErrorMessage = "Invalid template URL")]
+        public string? TemplateUrl { get; set; }
     }
 }

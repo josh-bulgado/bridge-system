@@ -8,6 +8,7 @@ namespace server.DTOs.Documents
         public List<string> Requirements { get; set; } = new List<string>();
         public required string Status { get; set; }
         public required string ProcessingTime { get; set; }
+        public required string TemplateUrl { get; set; }
         public int TotalRequests { get; set; }
         public required string LastModified { get; set; }
         public DateTime CreatedAt { get; set; }
