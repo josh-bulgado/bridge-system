@@ -215,7 +215,7 @@ namespace server.Controllers
       }
 
       // 🔒 Security: Track failed validation attempts per IP
-      var failedAttempts = 0;
+      // var failedAttempts = 0;
       var failedKey = $"email_check_failed_{ipAddress}";
       
       // 🔒 Security: Add artificial delay to prevent timing attacks

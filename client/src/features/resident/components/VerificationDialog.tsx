@@ -10,7 +10,6 @@ import { useFileUpload } from "../hooks/useFileUpload";
 import { VerificationForm } from "./VerificationForm";
 import { VerificationSuccessScreen } from "./VerificationSuccessScreen";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { useEffect } from "react";
 
 interface VerificationDialogProps {
   open: boolean;

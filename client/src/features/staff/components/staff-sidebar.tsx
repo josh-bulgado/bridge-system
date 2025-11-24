@@ -2,13 +2,13 @@ import * as React from "react";
 import {
   LayoutDashboard,
   Users,
-  FileText,
   CreditCard,
   Download,
   BarChart3,
   Settings,
   HelpCircle,
   Building2,
+  FileStack,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -44,7 +44,7 @@ const staffData = {
     {
       title: "Document Requests",
       url: "/staff/doc-requests",
-      icon: FileText,
+      icon: FileStack,
     },
     {
       title: "Payment Verification",

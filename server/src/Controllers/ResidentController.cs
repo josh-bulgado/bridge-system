@@ -677,10 +677,10 @@ namespace server.Controllers
                 Console.WriteLine($"[AUDIT] User {userEmail} (ID: {userId}, Role: {userRole}) accessed document {publicId} for resident {resident.FullName} (ID: {residentId}) at {DateTime.UtcNow:yyyy-MM-dd HH:mm:ss} UTC");
 
                 // 🔒 Security: Return URL with security headers
-                Response.Headers.Add("X-Content-Type-Options", "nosniff");
-                Response.Headers.Add("X-Frame-Options", "DENY");
-                Response.Headers.Add("Cache-Control", "no-store, no-cache, must-revalidate, private");
-                Response.Headers.Add("Pragma", "no-cache");
+                Response.Headers.Append("X-Content-Type-Options", "nosniff");
+                Response.Headers.Append("X-Frame-Options", "DENY");
+                Response.Headers.Append("Cache-Control", "no-store, no-cache, must-revalidate, private");
+                Response.Headers.Append("Pragma", "no-cache");
 
                 return Ok(new { 
                     url = signedUrl,

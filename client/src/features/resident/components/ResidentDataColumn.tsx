@@ -21,19 +21,23 @@ function formatDate(dateString: string | null): string {
 
 // Format phone number to include +63 prefix
 function formatPhoneNumber(phone?: string): string {
-  if (!phone) return '';
-  
+  if (!phone) return "";
+
   // Remove any existing +63, 63, or leading 0
-  let cleanNumber = phone.replace(/^\+63/, '').replace(/^63/, '').replace(/^0/, '').trim();
-  
+  const cleanNumber = phone
+    .replace(/^\+63/, "")
+    .replace(/^63/, "")
+    .replace(/^0/, "")
+    .trim();
+
   // If the number already starts with +, return as is
-  if (phone.startsWith('+')) return phone;
-  
+  if (phone.startsWith("+")) return phone;
+
   // Add +63 prefix if we have a valid number
   if (cleanNumber.length >= 10) {
     return `+63 ${cleanNumber}`;
   }
-  
+
   // Return original if invalid
   return phone;
 }
@@ -123,7 +127,9 @@ export const columns: ColumnDef<ResidentListItem>[] = [
     accessorKey: "fullName",
     header: "Full Name",
     cell: ({ row }) => (
-      <div className="font-medium max-w-40 truncate">{row.original.fullName}</div>
+      <div className="max-w-40 truncate font-medium">
+        {row.original.fullName}
+      </div>
     ),
   },
   {
@@ -187,6 +193,11 @@ export const columns: ColumnDef<ResidentListItem>[] = [
         </TooltipProvider>
       );
     },
+    filterFn: (row, id, value: string) => {
+      if (!value || value === "all") return true;
+      const status = row.getValue<string>(id);
+      return status === value;
+    },
   },
   {
     accessorKey: "isDeleted",
@@ -206,6 +217,12 @@ export const columns: ColumnDef<ResidentListItem>[] = [
         </Badge>
       );
     },
+
+    filterFn: (row, id, value: string) => {
+      if (!value) return true; // "" => All Status
+      const isDeleted = row.getValue<boolean>(id);
+      return value === "deleted" ? isDeleted : !isDeleted; // "active" => false
+    },
   },
   {
     accessorKey: "localAddress",
@@ -216,7 +233,7 @@ export const columns: ColumnDef<ResidentListItem>[] = [
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="text-muted-foreground max-w-60 cursor-help truncate text-sm">
+              <div className="text-muted-foreground max-w-40 cursor-help truncate text-sm">
                 {address}
               </div>
             </TooltipTrigger>

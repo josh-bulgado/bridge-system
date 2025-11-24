@@ -41,7 +41,7 @@ interface ResidentDataTableProps<TData, TValue> {
 export function ResidentDataTable<TData, TValue>({
   columns,
   data,
-  isLoading
+  isLoading,
 }: ResidentDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
@@ -71,7 +71,7 @@ export function ResidentDataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, columnId, filterValue) => {
+    globalFilterFn: (row, filterValue) => {
       const searchValue = filterValue.toLowerCase();
       const fullName = row.getValue("fullName") as string;
       const email = row.getValue("email") as string;
@@ -91,6 +91,12 @@ export function ResidentDataTable<TData, TValue>({
     getFacetedUniqueValues: getFacetedUniqueValues(),
   });
 
+  const statusFilter =
+    (table.getColumn("verificationStatus")?.getFilterValue() as string) || "";
+
+  const accountStatusFilter =
+    (table.getColumn("isDeleted")?.getFilterValue() as string) || "";
+
   return (
     <div className="space-y-4">
       {/* Toolbar */}
@@ -106,19 +112,15 @@ export function ResidentDataTable<TData, TValue>({
 
           {/* Filter by verification status */}
           <Select
-            value={
-              (table
-                .getColumn("verificationStatus")
-                ?.getFilterValue() as string) ?? "all"
-            }
+            value={statusFilter || undefined}
             onValueChange={(value) => {
               table
                 .getColumn("verificationStatus")
-                ?.setFilterValue(value === "all" ? "" : value);
+                ?.setFilterValue(value ?? "");
             }}
           >
-            <SelectTrigger className="h-10 w-[180px]">
-              <SelectValue placeholder="All Status" />
+            <SelectTrigger className="w-50">
+              <SelectValue placeholder="Verification Status" />
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Status</SelectItem>
@@ -131,19 +133,9 @@ export function ResidentDataTable<TData, TValue>({
 
           {/* Filter by account status */}
           <Select
-            value={
-              (table
-                .getColumn("isDeleted")
-                ?.getFilterValue() as string) ?? "all"
-            }
+            value={accountStatusFilter || undefined}
             onValueChange={(value) => {
-              if (value === "all") {
-                table.getColumn("isDeleted")?.setFilterValue(undefined);
-              } else {
-                table
-                  .getColumn("isDeleted")
-                  ?.setFilterValue(value === "deleted");
-              }
+              table.getColumn("isDeleted")?.setFilterValue(value ?? "");
             }}
           >
             <SelectTrigger className="h-10 w-[180px]">
@@ -193,7 +185,7 @@ export function ResidentDataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <DataTable table={table} isLoading={isLoading}/>
+      <DataTable table={table} isLoading={isLoading} />
 
       {/* Pagination */}
       <TablePagination table={table} itemLabel="residents" />

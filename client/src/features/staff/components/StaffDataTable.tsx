@@ -55,7 +55,7 @@ interface StaffDataTableProps<TData, TValue> {
 export function StaffDataTable<TData, TValue>({
   columns,
   data,
-  isLoading
+  isLoading,
 }: StaffDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = React.useState({});
   const [columnVisibility, setColumnVisibility] =
@@ -125,6 +125,9 @@ export function StaffDataTable<TData, TValue>({
     setRowSelection({});
   };
 
+  const isActiveFilter =
+    (table.getColumn("isActive")?.getFilterValue() as string) || "";
+
   return (
     <div className="flex h-full w-full flex-col space-y-4">
       {/* Bulk Actions Bar - Shows when rows are selected */}
@@ -159,22 +162,19 @@ export function StaffDataTable<TData, TValue>({
         </Select>
 
         <Select
-          value={
-            (table.getColumn("isActive")?.getFilterValue() as string) ?? ""
-          }
-          onValueChange={(value) =>
-            table
-              .getColumn("isActive")
-              ?.setFilterValue(value === "all" ? "" : value === "true")
-          }
+          value={isActiveFilter || undefined}
+          onValueChange={(value) => {
+            table.getColumn("isActive")?.setFilterValue(value ?? "");
+          }}
         >
           <SelectTrigger className="w-[180px]">
             <SelectValue placeholder="All Status" />
           </SelectTrigger>
+
           <SelectContent>
             <SelectItem value="all">All Status</SelectItem>
-            <SelectItem value="true">Active</SelectItem>
-            <SelectItem value="false">Inactive</SelectItem>
+            <SelectItem value="active">Active</SelectItem>
+            <SelectItem value="inactive">Inactive</SelectItem>
           </SelectContent>
         </Select>
 
@@ -213,6 +213,7 @@ export function StaffDataTable<TData, TValue>({
           </DropdownMenu>
 
           <AddStaffSheet />
+
           <Button
             variant="outline"
             size="icon"
@@ -228,7 +229,7 @@ export function StaffDataTable<TData, TValue>({
       </div>
 
       {/* Table */}
-      <DataTable table={table} isLoading={isLoading}/>
+      <DataTable table={table} isLoading={isLoading} />
 
       {/* Pagination */}
       <TablePagination

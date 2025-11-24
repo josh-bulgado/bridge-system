@@ -16,6 +16,7 @@ interface DataTableProps<TData> {
   isLoading: boolean; // Pass a prop to control loading state
 }
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const DataTable = ({ table, isLoading }: DataTableProps<any>) => {
   return (
     <div className="overflow-hidden rounded-lg border">
@@ -77,7 +78,7 @@ const DataTable = ({ table, isLoading }: DataTableProps<any>) => {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length}
+                  colSpan={columns.length + 1}
                   className="h-24 text-center"
                 >
                   <div className="text-muted-foreground">No data found.</div>

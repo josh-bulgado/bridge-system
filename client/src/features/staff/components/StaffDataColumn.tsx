@@ -74,17 +74,13 @@ export const columns: ColumnDef<Staff>[] = [
   {
     accessorKey: "email",
     header: "Email",
-    cell: ({ row }) => (
-      <div className="font-medium">
-        {row.original.email}
-      </div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.original.email}</div>,
   },
   {
     accessorKey: "authProvider",
     header: "Auth Provider",
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         {row.original.authProvider === "google" ? "Google" : "Local"}
       </div>
     ),
@@ -98,21 +94,31 @@ export const columns: ColumnDef<Staff>[] = [
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="cursor-help">
-                {getRoleBadge(staff.role)}
-              </div>
+              <div className="cursor-help">{getRoleBadge(staff.role)}</div>
             </TooltipTrigger>
             <TooltipContent>
               <div className="text-sm">
-                <p>{staff.role === "admin" ? "Full admin privileges" : "Staff member privileges"}</p>
-                <p className="mt-1 text-muted-foreground">
-                  {staff.role === "admin" ? "Can manage staff & residents" : "Can manage residents only"}
+                <p>
+                  {staff.role === "admin"
+                    ? "Full admin privileges"
+                    : "Staff member privileges"}
+                </p>
+                <p className="text-muted-foreground mt-1">
+                  {staff.role === "admin"
+                    ? "Can manage staff & residents"
+                    : "Can manage residents only"}
                 </p>
               </div>
             </TooltipContent>
           </Tooltip>
         </TooltipProvider>
       );
+    },
+    filterFn: (row, id, value: string) => {
+      console.log("Filtering role with value:", value);
+      if (!value) return true; // "" => All Status
+      const status = row.getValue<string>(id);
+      return status === value;
     },
   },
   {
@@ -132,6 +138,11 @@ export const columns: ColumnDef<Staff>[] = [
           {isActive ? "✓ Active" : "Inactive"}
         </Badge>
       );
+    },
+    filterFn: (row, id, value: string) => {
+      if (value === "all") return true; // "" => All Status
+      const isActive = row.getValue<boolean>(id);
+      return value === "active" ? isActive : !isActive; // "active" => false
     },
   },
   {
@@ -157,7 +168,7 @@ export const columns: ColumnDef<Staff>[] = [
     accessorKey: "createdAt",
     header: "Created Date",
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         {formatDate(row.original.createdAt)}
       </div>
     ),

@@ -56,11 +56,7 @@ export const columns: ColumnDef<Document>[] = [
   {
     accessorKey: "name",
     header: "Document Name",
-    cell: ({ row }) => (
-      <div className="font-medium">
-        {row.original.name}
-      </div>
-    ),
+    cell: ({ row }) => <div className="font-medium">{row.original.name}</div>,
   },
   {
     accessorKey: "price",
@@ -123,6 +119,11 @@ export const columns: ColumnDef<Document>[] = [
           {status}
         </Badge>
       );
+    },
+    filterFn: (row, id, value: string) => {
+      if (value === "all") return true; // "" => All Status
+      const status = row.getValue<string>(id);
+      return status === value;
     },
   },
   {

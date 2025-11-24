@@ -23,6 +23,7 @@ import {
   Search,
   FolderOpen,
   Building2,
+  FileStack,
 } from "lucide-react";
 import BridgeIcon from "@/components/bridge-icon";
 
@@ -51,7 +52,7 @@ const adminData = {
     {
       title: "Document Requests",
       url: "/admin/doc-requests",
-      icon: UserCog,
+      icon: FileStack,
     },
     {
       title: "Document Configuration",
