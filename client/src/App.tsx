@@ -32,6 +32,12 @@ const VerificationPage = lazy(
 const ResidentManagementPage = lazy(
   () => import("./features/resident/pages/ResidentManagementPage"),
 );
+const ResidentDocumentRequestPage = lazy(
+  () => import("./features/resident/pages/DocumentRequestPage"),
+);
+const CreateDocumentRequestPage = lazy(
+  () => import("./features/resident/pages/CreateDocumentRequestPage"),
+);
 const StaffManagementPage = lazy(
   () => import("./features/staff/pages/StaffManagementPage"),
 );
@@ -93,6 +99,8 @@ function App() {
               <Route index element={<ResidentDashboard />} />
               <Route path="verify" element={<VerificationPage />} />
               <Route path="verification" element={<VerificationPage />} />
+              <Route path="requests" element={<ResidentDocumentRequestPage />} />
+              <Route path="requests/new" element={<CreateDocumentRequestPage />} />
             </Route>
 
             {/* Admin Routes */}

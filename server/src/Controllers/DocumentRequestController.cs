@@ -140,6 +140,53 @@ public class DocumentRequestController : ControllerBase
     }
 
     /// <summary>
+    /// Create new document request by resident (Resident role only)
+    /// </summary>
+    [HttpPost("resident")]
+    [Authorize(Roles = "resident")]
+    public async Task<ActionResult<DocumentRequestResponse>> CreateResidentRequest([FromBody] CreateDocumentRequestRequest request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = GetCurrentUserId();
+            var result = await _documentRequestService.CreateRequestAsync(request, userId);
+            return CreatedAtAction(nameof(GetRequestById), new { id = result.Id }, result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Get all document requests for the logged-in resident
+    /// </summary>
+    [HttpGet("my-requests")]
+    [Authorize(Roles = "resident")]
+    public async Task<ActionResult<List<DocumentRequestResponse>>> GetMyRequests(
+        [FromQuery] string? status = null,
+        [FromQuery] int? page = null,
+        [FromQuery] int? pageSize = null)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            // Get user's resident ID from the service
+            var requests = await _documentRequestService.GetRequestsByUserIdAsync(userId, status, page, pageSize);
+            return Ok(requests);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
     /// Approve document request
     /// </summary>
     [HttpPut("{id}/approve")]

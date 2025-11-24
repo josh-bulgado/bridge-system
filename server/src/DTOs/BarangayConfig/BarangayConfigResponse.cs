@@ -8,6 +8,9 @@ namespace server.DTOs.BarangayConfig
         public AddressResponse Address { get; set; } = new();
         public ContactResponse Contact { get; set; } = new();
         public string OfficeHours { get; set; } = string.Empty;
+        public string? GcashNumber { get; set; }
+        public string? GcashAccountName { get; set; }
+        public string? GcashQrCodeUrl { get; set; }
         public DateTime CreatedAt { get; set; }
         public DateTime UpdatedAt { get; set; }
     }

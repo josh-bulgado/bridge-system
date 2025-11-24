@@ -20,6 +20,14 @@ namespace server.DTOs.BarangayConfig
 
         [Required]
         public required string OfficeHours { get; set; }
+
+        // GCash Payment Information (Optional)
+        public string? GcashNumber { get; set; }
+
+        public string? GcashAccountName { get; set; }
+
+        [Url(ErrorMessage = "Invalid QR code URL")]
+        public string? GcashQrCodeUrl { get; set; }
     }
 
     public class AddressDto

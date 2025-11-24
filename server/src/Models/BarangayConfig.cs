@@ -31,6 +31,16 @@ namespace server.Models
         [Required]
         public required string OfficeHours { get; set; }
 
+        // GCash Payment Information
+        [BsonElement("gcashNumber")]
+        public string? GcashNumber { get; set; }
+
+        [BsonElement("gcashAccountName")]
+        public string? GcashAccountName { get; set; }
+
+        [BsonElement("gcashQrCodeUrl")]
+        public string? GcashQrCodeUrl { get; set; }
+
         [BsonElement("createdAt")]
         public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 

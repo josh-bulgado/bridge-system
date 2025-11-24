@@ -109,6 +109,33 @@ namespace server.Controllers
             }
         }
 
+        [HttpGet("gcash")]
+        public async Task<IActionResult> GetGcashConfig()
+        {
+            try
+            {
+                var config = await _barangayConfigService.GetConfigAsync();
+                
+                if (config == null)
+                {
+                    return NotFound(new { message = "Barangay configuration not found." });
+                }
+
+                var gcashInfo = new
+                {
+                    gcashNumber = config.GcashNumber,
+                    gcashAccountName = config.GcashAccountName,
+                    gcashQrCodeUrl = config.GcashQrCodeUrl
+                };
+
+                return Ok(gcashInfo);
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while retrieving GCash configuration.", error = ex.Message });
+            }
+        }
+
         private static BarangayConfig MapToModel(BarangayConfigRequest request)
         {
             return new BarangayConfig
@@ -131,7 +158,10 @@ namespace server.Controllers
                     Phone = request.Contact.Phone,
                     Email = request.Contact.Email,
                 },
-                OfficeHours = request.OfficeHours
+                OfficeHours = request.OfficeHours,
+                GcashNumber = request.GcashNumber,
+                GcashAccountName = request.GcashAccountName,
+                GcashQrCodeUrl = request.GcashQrCodeUrl
             };
         }
 
@@ -159,6 +189,9 @@ namespace server.Controllers
                     Email = config.Contact.Email,
                 },
                 OfficeHours = config.OfficeHours,
+                GcashNumber = config.GcashNumber,
+                GcashAccountName = config.GcashAccountName,
+                GcashQrCodeUrl = config.GcashQrCodeUrl,
                 CreatedAt = config.CreatedAt,
                 UpdatedAt = config.UpdatedAt
             };

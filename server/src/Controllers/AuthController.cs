@@ -293,11 +293,21 @@ namespace server.Controllers
           id = user.Id,
           email = user.Email,
           role = user.Role,
+          isActive = user.IsActive,
           isEmailVerified = user.IsEmailVerified,
           firstName = resident?.FirstName ?? user.FirstName,
           lastName = resident?.LastName ?? user.LastName,
           middleName = resident?.MiddleName ?? user.MiddleName,
-          fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
+          extension = resident?.Extension ?? user.Extension,
+          fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim(),
+          dateOfBirth = resident?.DateOfBirth ?? user.DateOfBirth?.ToString("yyyy-MM-dd"),
+          contactNumber = resident?.ContactNumber ?? user.ContactNumber,
+          residentId = user.ResidentId,
+          authProvider = user.AuthProvider,
+          googleId = user.GoogleId,
+          emailVerifiedAt = user.EmailVerifiedAt,
+          createdAt = user.CreatedAt,
+          updatedAt = user.UpdatedAt
         };
       }
       else
@@ -307,10 +317,19 @@ namespace server.Controllers
           id = user.Id,
           email = user.Email,
           role = user.Role,
+          isActive = user.IsActive,
           isEmailVerified = user.IsEmailVerified,
           firstName = user.FirstName,
           lastName = user.LastName,
-          middleName = user.MiddleName
+          middleName = user.MiddleName,
+          extension = user.Extension,
+          dateOfBirth = user.DateOfBirth?.ToString("yyyy-MM-dd"),
+          contactNumber = user.ContactNumber,
+          authProvider = user.AuthProvider,
+          googleId = user.GoogleId,
+          emailVerifiedAt = user.EmailVerifiedAt,
+          createdAt = user.CreatedAt,
+          updatedAt = user.UpdatedAt
         };
       }
 
@@ -352,11 +371,21 @@ namespace server.Controllers
           id = user.Id,
           email = user.Email,
           role = user.Role,
+          isActive = user.IsActive,
           isEmailVerified = user.IsEmailVerified,
           firstName = resident?.FirstName ?? user.FirstName,
           lastName = resident?.LastName ?? user.LastName,
           middleName = resident?.MiddleName ?? user.MiddleName,
-          fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
+          extension = resident?.Extension ?? user.Extension,
+          fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim(),
+          dateOfBirth = resident?.DateOfBirth ?? user.DateOfBirth?.ToString("yyyy-MM-dd"),
+          contactNumber = resident?.ContactNumber ?? user.ContactNumber,
+          residentId = user.ResidentId,
+          authProvider = user.AuthProvider,
+          googleId = user.GoogleId,
+          emailVerifiedAt = user.EmailVerifiedAt,
+          createdAt = user.CreatedAt,
+          updatedAt = user.UpdatedAt
         };
       }
       else
@@ -366,10 +395,19 @@ namespace server.Controllers
           id = user.Id,
           email = user.Email,
           role = user.Role,
+          isActive = user.IsActive,
           isEmailVerified = user.IsEmailVerified,
           firstName = user.FirstName,
           lastName = user.LastName,
-          middleName = user.MiddleName
+          middleName = user.MiddleName,
+          extension = user.Extension,
+          dateOfBirth = user.DateOfBirth?.ToString("yyyy-MM-dd"),
+          contactNumber = user.ContactNumber,
+          authProvider = user.AuthProvider,
+          googleId = user.GoogleId,
+          emailVerifiedAt = user.EmailVerifiedAt,
+          createdAt = user.CreatedAt,
+          updatedAt = user.UpdatedAt
         };
       }
 
@@ -654,11 +692,21 @@ namespace server.Controllers
             id = user.Id,
             email = user.Email,
             role = user.Role,
+            isActive = user.IsActive,
             isEmailVerified = user.IsEmailVerified,
             firstName = resident?.FirstName ?? user.FirstName,
             lastName = resident?.LastName ?? user.LastName,
             middleName = resident?.MiddleName ?? user.MiddleName,
-            fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
+            extension = resident?.Extension ?? user.Extension,
+            fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim(),
+            dateOfBirth = resident?.DateOfBirth ?? user.DateOfBirth?.ToString("yyyy-MM-dd"),
+            contactNumber = resident?.ContactNumber ?? user.ContactNumber,
+            residentId = user.ResidentId,
+            authProvider = user.AuthProvider,
+            googleId = user.GoogleId,
+            emailVerifiedAt = user.EmailVerifiedAt,
+            createdAt = user.CreatedAt,
+            updatedAt = user.UpdatedAt
           };
         }
         else
@@ -668,10 +716,19 @@ namespace server.Controllers
             id = user.Id,
             email = user.Email,
             role = user.Role,
+            isActive = user.IsActive,
             isEmailVerified = user.IsEmailVerified,
             firstName = user.FirstName,
             lastName = user.LastName,
-            middleName = user.MiddleName
+            middleName = user.MiddleName,
+            extension = user.Extension,
+            dateOfBirth = user.DateOfBirth?.ToString("yyyy-MM-dd"),
+            contactNumber = user.ContactNumber,
+            authProvider = user.AuthProvider,
+            googleId = user.GoogleId,
+            emailVerifiedAt = user.EmailVerifiedAt,
+            createdAt = user.CreatedAt,
+            updatedAt = user.UpdatedAt
           };
         }
 
@@ -781,11 +838,21 @@ namespace server.Controllers
             id = user.Id,
             email = user.Email,
             role = user.Role,
+            isActive = user.IsActive,
             isEmailVerified = user.IsEmailVerified,
             firstName = resident.FirstName,
             lastName = resident.LastName,
             middleName = resident.MiddleName,
-            fullName = resident.FullName
+            extension = resident.Extension,
+            fullName = resident.FullName,
+            dateOfBirth = resident.DateOfBirth,
+            contactNumber = resident.ContactNumber,
+            residentId = user.ResidentId,
+            authProvider = user.AuthProvider,
+            googleId = user.GoogleId,
+            emailVerifiedAt = user.EmailVerifiedAt,
+            createdAt = user.CreatedAt,
+            updatedAt = user.UpdatedAt
           }
         });
       }

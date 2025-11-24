@@ -3,8 +3,9 @@ import {
   HelpCircle,
   FileText,
   Search,
-  Settings,
   Users,
+  FilePlus,
+  ListChecks,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -27,6 +28,16 @@ const navMainItems = [
     title: "Dashboard",
     url: "/resident",
     icon: LayoutDashboard,
+  },
+  {
+    title: "My Requests",
+    url: "/resident/requests",
+    icon: ListChecks,
+  },
+  {
+    title: "Request Document",
+    url: "/resident/requests/new",
+    icon: FilePlus,
   },
   {
     title: "Community",
@@ -75,12 +86,12 @@ export function ResidentSidebar({
   };
 
   return (
-    <Sidebar 
-      collapsible="icon" 
+    <Sidebar
+      collapsible="icon"
       {...props}
       style={{
-        willChange: 'width',
-        ...props.style
+        willChange: "width",
+        ...props.style,
       }}
     >
       <SidebarHeader>
