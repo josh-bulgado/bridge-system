@@ -11,8 +11,6 @@ export const addDocumentSchema = z.object({
     .array(z.string())
     .min(1, "At least one requirement is needed"),
   templateUrl: z
-    .string()
-    .min(1, "Document template is required")
     .url("Invalid template URL")
     .refine((url) => url.includes("cloudinary.com"), {
       message: "Template must be uploaded through Cloudinary",
