@@ -18,7 +18,16 @@ export interface LoginResponse {
     firstName: string;
     lastName: string;
     middleName?: string;
+    extension?: string;
     fullName?: string;
+    dateOfBirth?: string;
+    contactNumber?: string;
+    residentId?: string; // Link to Resident document
+    authProvider?: "local" | "google";
+    googleId?: string;
+    emailVerifiedAt?: string;
+    createdAt?: string;
+    updatedAt?: string;
   };
 }
 
@@ -78,6 +87,7 @@ class AuthService {
     try {
       const userData =
         localStorage.getItem("user") || sessionStorage.getItem("user");
+
       return userData ? JSON.parse(userData) : null;
     } catch {
       return null;
@@ -93,12 +103,20 @@ class AuthService {
   }
 
   // Verify email with OTP
-  async verifyEmail(email: string, otp: string): Promise<{ message: string; token?: string; user?: LoginResponse["user"] }> {
+  async verifyEmail(
+    email: string,
+    otp: string,
+  ): Promise<{
+    message: string;
+    token?: string;
+    user?: LoginResponse["user"];
+  }> {
     try {
-      const { data } = await api.post<{ message: string; token?: string; user?: LoginResponse["user"] }>(
-        `${this.baseUrl}/verify-email`,
-        { Email: email, Otp: otp },
-      );
+      const { data } = await api.post<{
+        message: string;
+        token?: string;
+        user?: LoginResponse["user"];
+      }>(`${this.baseUrl}/verify-email`, { Email: email, Otp: otp });
 
       if (import.meta.env.DEV) {
         console.log("AuthService verifyEmail response =", data);
@@ -156,7 +174,10 @@ class AuthService {
   }
 
   // Verify OTP for password reset (validate before showing password fields)
-  async verifyResetOtp(email: string, otp: string): Promise<{ message: string }> {
+  async verifyResetOtp(
+    email: string,
+    otp: string,
+  ): Promise<{ message: string }> {
     try {
       const { data } = await api.post<{ message: string }>(
         `${this.baseUrl}/verify-reset-otp`,
@@ -171,7 +192,11 @@ class AuthService {
   }
 
   // Reset Password
-  async resetPassword(email: string, otp: string, newPassword: string): Promise<{ message: string }> {
+  async resetPassword(
+    email: string,
+    otp: string,
+    newPassword: string,
+  ): Promise<{ message: string }> {
     try {
       const { data } = await api.post<{ message: string }>(
         `${this.baseUrl}/reset-password`,
@@ -197,6 +222,11 @@ class AuthService {
         { IdToken: idToken },
       );
 
+      console.log(
+        "AuthService googleSignInCheck idToken =",
+        response.data.user,
+      );
+
       if (import.meta.env.DEV) {
         console.log("AuthService googleSignInCheck response =", response);
       }
@@ -208,7 +238,7 @@ class AuthService {
         localStorage.removeItem("auth_token");
         sessionStorage.removeItem("user");
         sessionStorage.removeItem("auth_token");
-        
+
         // Store new user data
         localStorage.setItem("user", JSON.stringify(response.data.user));
         localStorage.setItem("auth_token", response.data.token);
@@ -216,7 +246,8 @@ class AuthService {
 
       return response;
     } catch (error: Error | any) {
-      const errorMessage = error.response?.data?.message || "Google Sign-In failed";
+      const errorMessage =
+        error.response?.data?.message || "Google Sign-In failed";
       throw new Error(errorMessage);
     }
   }
@@ -231,7 +262,7 @@ class AuthService {
       extension?: string;
       dateOfBirth: string;
       contactNumber: string;
-    }
+    },
   ): Promise<LoginResponse> {
     try {
       const { data: response } = await api.post<LoginResponse>(
@@ -256,14 +287,15 @@ class AuthService {
       localStorage.removeItem("auth_token");
       sessionStorage.removeItem("user");
       sessionStorage.removeItem("auth_token");
-      
+
       // Store new user data in localStorage
       localStorage.setItem("user", JSON.stringify(response.user));
       localStorage.setItem("auth_token", response.token);
 
       return response;
     } catch (error: Error | any) {
-      const errorMessage = error.response?.data?.message || "Failed to complete profile";
+      const errorMessage =
+        error.response?.data?.message || "Failed to complete profile";
       throw new Error(errorMessage);
     }
   }
@@ -273,28 +305,32 @@ class AuthService {
     try {
       const { data } = await api.get<{ available: boolean }>(
         `${this.baseUrl}/check-email-availability`,
-        { params: { email } }
+        { params: { email } },
       );
-      
+
       // 🔒 Security: Only log in development mode, and mask the email
       if (import.meta.env.DEV) {
-        const maskedEmail = email.substring(0, 3) + "***@" + email.split("@")[1];
-        console.log(`Email availability check for ${maskedEmail}:`, data.available ? "Available" : "Not available");
+        const maskedEmail =
+          email.substring(0, 3) + "***@" + email.split("@")[1];
+        console.log(
+          `Email availability check for ${maskedEmail}:`,
+          data.available ? "Available" : "Not available",
+        );
       }
-      
+
       return data;
     } catch (error: any) {
       if (import.meta.env.DEV) {
         console.error("Email availability check error:", error.message);
         console.error("Error status:", error.response?.status);
       }
-      
+
       // Only return false if we get a definitive response from the server
       // Otherwise, throw the error so the UI can handle it appropriately
       if (error.response?.status === 400 || error.response?.status === 409) {
         return { available: false };
       }
-      
+
       // For network errors, server errors, etc., throw so the UI shows an error state
       throw error;
     }

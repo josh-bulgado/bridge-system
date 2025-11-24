@@ -112,6 +112,24 @@ public class DocumentRequestService
         return populated.FirstOrDefault();
     }
 
+    // Get requests by user ID (for residents to view their own requests)
+    public async Task<List<DocumentRequestResponse>> GetRequestsByUserIdAsync(
+        string userId,
+        string? status = null,
+        int? page = null,
+        int? pageSize = null)
+    {
+        // Get user to find their residentId
+        var user = await _users.Find(u => u.Id == userId).FirstOrDefaultAsync();
+        if (user == null || string.IsNullOrEmpty(user.ResidentId))
+        {
+            throw new Exception("User not found or not linked to a resident profile");
+        }
+
+        // Use the existing GetAllRequestsAsync method with residentId filter
+        return await GetAllRequestsAsync(status, user.ResidentId, page, pageSize);
+    }
+
     // Create new document request
     public async Task<DocumentRequestResponse> CreateRequestAsync(CreateDocumentRequestRequest dto, string? createdById = null)
     {

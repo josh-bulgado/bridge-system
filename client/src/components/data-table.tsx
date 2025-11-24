@@ -1,6 +1,5 @@
-import { columns } from "@/features/resident/components/ResidentDataColumn";
 import { flexRender, type Table as TableType } from "@tanstack/react-table";
-import { Skeleton } from "@/components/ui/skeleton"; // Assuming ShadCN's skeleton component is located here
+import { Skeleton } from "@/components/ui/skeleton";
 
 import {
   Table,
@@ -13,11 +12,13 @@ import {
 
 interface DataTableProps<TData> {
   table: TableType<TData>;
-  isLoading: boolean; // Pass a prop to control loading state
+  isLoading: boolean;
+  columnCount?: number;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const DataTable = ({ table, isLoading }: DataTableProps<any>) => {
+const DataTable = ({ table, isLoading, columnCount }: DataTableProps<any>) => {
+  const effectiveColumnCount = columnCount || table.getAllColumns().length;
   return (
     <div className="overflow-hidden rounded-lg border">
       <div className="h-full overflow-auto">
@@ -51,7 +52,7 @@ const DataTable = ({ table, isLoading }: DataTableProps<any>) => {
               Array.from({ length: 5 }).map((_, rowIndex) => (
                 <TableRow key={rowIndex}>
                   {/* Create a skeleton loader for each column in the row */}
-                  {columns.map((_, columnIndex) => (
+                  {Array.from({ length: effectiveColumnCount }).map((_, columnIndex) => (
                     <TableCell key={columnIndex} className="h-16 px-4">
                       <Skeleton className="h-6 w-full" />
                     </TableCell>
@@ -78,7 +79,7 @@ const DataTable = ({ table, isLoading }: DataTableProps<any>) => {
             ) : (
               <TableRow>
                 <TableCell
-                  colSpan={columns.length + 1}
+                  colSpan={effectiveColumnCount}
                   className="h-24 text-center"
                 >
                   <div className="text-muted-foreground">No data found.</div>
