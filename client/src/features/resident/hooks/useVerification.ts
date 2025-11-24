@@ -32,28 +32,10 @@ export const useVerification = () => {
   const onSubmit = async (data: VerificationFormData) => {
     setIsSubmitting(true);
     try {
-      if (import.meta.env.DEV) {
-        console.log("=== FORM SUBMISSION DEBUG ===");
-        console.log("Raw form data:", data);
-        console.log("Form field values:", {
-        streetPurok: data.streetPurok,
-        houseNumberUnit: data.houseNumberUnit,
-        governmentIdFront: data.governmentIdFront || "MISSING",
-        governmentIdBack: data.governmentIdBack || "MISSING",
-        proofOfResidency: data.proofOfResidency || "MISSING",
-      });
-      
-      }
+      // Removed: Don't log form data with personal information
       
       // Validate that all required files are uploaded
       if (!data.governmentIdFront || !data.governmentIdBack || !data.proofOfResidency) {
-        if (import.meta.env.DEV) {
-          console.error("Missing file uploads:", {
-            governmentIdFront: !data.governmentIdFront,
-            governmentIdBack: !data.governmentIdBack,
-            proofOfResidency: !data.proofOfResidency,
-          });
-        }
         toast.error("Please upload all required documents before submitting.");
         return;
       }
@@ -75,28 +57,13 @@ export const useVerification = () => {
         ProofOfResidencyFileType: data.proofOfResidencyFileType,
       };
       
-      if (import.meta.env.DEV) {
-        console.log("Mapped submission data:", submissionData);
-      }
-      
+      // Removed: Don't log submission data
       const response = await verificationService.submitVerification(submissionData);
-
-      if (import.meta.env.DEV) {
-        console.log("✅ Verification submitted successfully:", response);
-      }
       toast.success("Verification submitted successfully!");
       setIsSubmitted(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        console.error("❌ Submission failed:", error);
-        console.error("Error details:", {
-        message: error.message,
-        response: error.response?.data,
-        status: error.response?.status,
-          statusText: error.response?.statusText,
-        });
-      }
+      // Removed: Don't log error details that may contain sensitive info
       
       const errorMessage =
         error.response?.data?.message || 

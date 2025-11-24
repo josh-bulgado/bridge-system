@@ -68,7 +68,7 @@ export function ResidentSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const { data: user } = useAuth();
-  console.log("ResidentSidebar user =", user);
+  // Removed: Don't log user data
 
   // Format user data for NavUser component
   const userName =

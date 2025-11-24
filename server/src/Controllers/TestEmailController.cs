@@ -20,12 +20,9 @@ namespace server.Controllers
       try
       {
         var otp = _emailService.GenerateOtp();
-        Console.WriteLine($"[TEST] Generated OTP: {otp}");
-        Console.WriteLine($"[TEST] Sending to: {request.Email}");
+        // Removed: Don't log OTP codes or email addresses
         
         var emailSent = await _emailService.SendPasswordResetEmailAsync(request.Email, otp);
-        
-        Console.WriteLine($"[TEST] Email sent status: {emailSent}");
         
         return Ok(new { 
           success = emailSent, 
@@ -35,8 +32,7 @@ namespace server.Controllers
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"[TEST] Exception: {ex.Message}");
-        Console.WriteLine($"[TEST] Stack Trace: {ex.StackTrace}");
+        // Removed: Don't log stack traces that may contain sensitive info
         return StatusCode(500, new { error = ex.Message });
       }
     }

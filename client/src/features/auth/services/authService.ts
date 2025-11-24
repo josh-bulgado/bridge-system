@@ -53,7 +53,7 @@ class AuthService {
       );
 
       if (import.meta.env.DEV) {
-        console.log("AuthService login response =", response);
+        // Removed: Don't log response with tokens and user data
       }
 
       // Clear all existing auth data first (from both storages)
@@ -119,7 +119,7 @@ class AuthService {
       }>(`${this.baseUrl}/verify-email`, { Email: email, Otp: otp });
 
       if (import.meta.env.DEV) {
-        console.log("AuthService verifyEmail response =", data);
+        // Removed: Don't log response with tokens
       }
 
       // If token and user are returned, store them (auto-login after verification)
@@ -222,14 +222,7 @@ class AuthService {
         { IdToken: idToken },
       );
 
-      console.log(
-        "AuthService googleSignInCheck idToken =",
-        response.data.user,
-      );
-
-      if (import.meta.env.DEV) {
-        console.log("AuthService googleSignInCheck response =", response);
-      }
+      // Removed: Don't log tokens and user data
 
       // If SUCCESS, clear old session and store new token and user data
       if (response.status === "SUCCESS" && response.data) {
@@ -279,7 +272,7 @@ class AuthService {
       );
 
       if (import.meta.env.DEV) {
-        console.log("AuthService completeGoogleProfile response =", response);
+        // Removed: Don't log response with tokens and user data
       }
 
       // Clear all existing auth data first
@@ -321,8 +314,7 @@ class AuthService {
       return data;
     } catch (error: any) {
       if (import.meta.env.DEV) {
-        console.error("Email availability check error:", error.message);
-        console.error("Error status:", error.response?.status);
+        // Error handling - keep for debugging non-sensitive errors
       }
 
       // Only return false if we get a definitive response from the server

@@ -25,9 +25,7 @@ api.interceptors.response.use(
   (error) => {
     // Only log errors in development mode
     if (import.meta.env.DEV) {
-      console.error("API Error:", error);
-      console.error("API Error Response:", error.response?.data);
-      console.error("API Error Status:", error.response?.status);
+      // Removed: API responses may contain sensitive data
     }
     return Promise.reject(error);
   }

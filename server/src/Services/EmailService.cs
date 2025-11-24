@@ -73,15 +73,14 @@ namespace server.Services
         if (!response.IsSuccessStatusCode)
         {
           var errorContent = await response.Content.ReadAsStringAsync();
-          Console.WriteLine($"Email sending failed. Status: {response.StatusCode}, Error: {errorContent}");
+          // Removed: Error content may contain sensitive info
         }
 
         return response.IsSuccessStatusCode;
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"Error sending email: {ex.Message}");
-        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        // Removed: Stack trace may contain sensitive info
         return false;
       }
     }
@@ -145,15 +144,14 @@ namespace server.Services
         if (!response.IsSuccessStatusCode)
         {
           var errorContent = await response.Content.ReadAsStringAsync();
-          Console.WriteLine($"Email sending failed. Status: {response.StatusCode}, Error: {errorContent}");
+          // Removed: Error content may contain sensitive info
         }
 
         return response.IsSuccessStatusCode;
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"Error sending email: {ex.Message}");
-        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        // Removed: Stack trace may contain sensitive info
         return false;
       }
     }
@@ -204,15 +202,14 @@ namespace server.Services
         if (!response.IsSuccessStatusCode)
         {
           var errorContent = await response.Content.ReadAsStringAsync();
-          Console.WriteLine($"Email sending failed. Status: {response.StatusCode}, Error: {errorContent}");
+          // Removed: Error content may contain sensitive info
         }
 
         return response.IsSuccessStatusCode;
       }
       catch (Exception ex)
       {
-        Console.WriteLine($"Error sending email: {ex.Message}");
-        Console.WriteLine($"Stack trace: {ex.StackTrace}");
+        // Removed: Stack trace may contain sensitive info
         return false;
       }
     }

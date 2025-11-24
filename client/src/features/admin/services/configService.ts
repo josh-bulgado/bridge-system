@@ -66,21 +66,13 @@ class BarangayConfigService {
         officeHours: response.officeHours,
       };
     } catch (error: any) {
-      console.log("=== API ERROR ===");
-      console.log("Error:", error);
-      console.log("Error response:", error?.response);
-      console.log("Error status:", error?.response?.status);
-      console.log("Error data:", error?.response?.data);
-      
       // If config doesn't exist (404), return null instead of throwing
       if (error?.response?.status === 404) {
-        console.log("No config found (404) - returning null");
         return null;
       }
       
       // For other errors, throw
       const errorMessage = error?.response?.data?.message || "Failed to fetch barangay config";
-      console.log("Throwing error:", errorMessage);
       throw new Error(errorMessage);
     }
   }

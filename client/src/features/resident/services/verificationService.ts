@@ -109,7 +109,7 @@ export const verificationService = {
 
       // 🔒 Security: Don't log sensitive information in production
       if (import.meta.env.DEV) {
-        console.log("✅ File uploaded successfully");
+        // File upload success - not logging file details
       }
 
       // Return sanitized data
@@ -141,22 +141,13 @@ export const verificationService = {
   submitVerification: async (
     data: VerificationSubmissionData,
   ): Promise<VerificationResponse> => {
-    if (import.meta.env.DEV) {
-      console.log("Submitting verification data:", data);
-      const token = localStorage.getItem("auth_token") || sessionStorage.getItem("auth_token");
-      console.log("Request headers:", {
-        "Content-Type": "application/json",
-        Authorization: token ? `Bearer ${token}` : "No token found",
-      });
-    }
+    // Removed: Don't log verification data or tokens
     const response = await api.post("/resident/verification", data, {
       headers: {
         "Content-Type": "application/json",
       },
     });
-    if (import.meta.env.DEV) {
-      console.log("Verification submission response:", response.data);
-    }
+    // Removed: Don't log response data
     return response.data;
   },
 
