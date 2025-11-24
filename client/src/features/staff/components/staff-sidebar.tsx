@@ -1,14 +1,15 @@
 import * as React from "react";
 import {
-  IconSettings,
-  IconHelp,
-  IconDashboard,
-  IconFileText,
-  IconCreditCard,
-  IconDownload,
-  IconChartBar,
-  IconInnerShadowTop,
-} from "@tabler/icons-react";
+  LayoutDashboard,
+  Users,
+  CreditCard,
+  Download,
+  BarChart3,
+  Settings,
+  HelpCircle,
+  Building2,
+  FileStack,
+} from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
 import { NavSecondary } from "@/components/nav-secondary";
@@ -22,7 +23,6 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { LayoutDashboard } from "lucide-react";
 
 const staffData = {
   user: {
@@ -37,36 +37,41 @@ const staffData = {
       icon: LayoutDashboard,
     },
     {
-      title: "All Requests",
-      url: "/staff/requests",
-      icon: IconFileText,
+      title: "Resident Management",
+      url: "/staff/resident-management",
+      icon: Users,
+    },
+    {
+      title: "Document Requests",
+      url: "/staff/doc-requests",
+      icon: FileStack,
     },
     {
       title: "Payment Verification",
       url: "/staff/payment-verification",
-      icon: IconCreditCard,
+      icon: CreditCard,
     },
     {
       title: "Document Generation",
       url: "/staff/document-generation",
-      icon: IconDownload,
+      icon: Download,
     },
     {
       title: "Reports",
       url: "/staff/reports",
-      icon: IconChartBar,
+      icon: BarChart3,
     },
   ],
   navSecondary: [
     {
       title: "Settings",
       url: "/staff/settings",
-      icon: IconSettings,
+      icon: Settings,
     },
     {
       title: "Get Help",
       url: "/staff/help",
-      icon: IconHelp,
+      icon: HelpCircle,
     },
   ],
 };
@@ -81,10 +86,10 @@ export function StaffSidebar({
           <SidebarMenuItem>
             <SidebarMenuButton
               asChild
-              className="data-[slot=sidebar-menu-button]:!p-1.5"
+              className="data-[slot=sidebar-menu-button]:p-1.5!"
             >
               <a href="/staff">
-                <IconInnerShadowTop size={5} />
+                <Building2 className="size-5" />
                 <span className="text-base font-semibold text-green-500">
                   Barangay Portal
                 </span>

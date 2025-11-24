@@ -66,10 +66,16 @@ namespace server.Controllers
       dto.ContactNumber = dto.ContactNumber.Trim();
       dto.Email = dto.Email.Trim();
 
-      // 1️⃣ Check if email already exists
-      var existingUser = await _userService.GetByEmailAsync(dto.Email);
+      // 1️⃣ Check if email already exists (including deleted accounts)
+      var existingUser = await _userService.GetByEmailIncludingDeletedAsync(dto.Email);
       if (existingUser != null)
+      {
+        if (existingUser.IsDeleted)
+        {
+          return BadRequest(new { message = "This email was previously registered. Please use a different email or contact support." });
+        }
         return BadRequest(new { message = "Email already registered." });
+      }
 
       // 2️⃣ Create Resident
       var resident = new Resident
@@ -95,6 +101,12 @@ namespace server.Controllers
       {
         Email = dto.Email,
         PasswordHash = BCrypt.Net.BCrypt.HashPassword(dto.Password),
+        FirstName = dto.FirstName,
+        MiddleName = dto.MiddleName,
+        LastName = dto.LastName,
+        Extension = dto.Extension,
+        DateOfBirth = DateTime.Parse(dto.DateOfBirth),
+        ContactNumber = dto.ContactNumber,
         Role = "resident",
         ResidentId = resident.Id,
         IsActive = true,
@@ -203,14 +215,14 @@ namespace server.Controllers
       }
 
       // 🔒 Security: Track failed validation attempts per IP
-      var failedAttempts = 0;
+      // var failedAttempts = 0;
       var failedKey = $"email_check_failed_{ipAddress}";
       
       // 🔒 Security: Add artificial delay to prevent timing attacks
       // This makes it harder for attackers to determine if an email exists based on response time
       var startTime = DateTime.UtcNow;
       
-      // Check if email already exists
+      // Check if email already exists (excluding deleted accounts for availability check)
       var existingUser = await _userService.GetByEmailAsync(email);
       
       // 🔒 Security: Ensure consistent response time (minimum 100ms, max 150ms for randomness)
@@ -251,6 +263,18 @@ namespace server.Controllers
       if (user == null)
         return Unauthorized(new { message = "Invalid email or password." });
 
+      // 🔒 Security: Check if account is deleted
+      if (user.IsDeleted)
+      {
+        return Unauthorized(new { message = "This account has been deleted. Please contact support if you believe this is an error." });
+      }
+
+      // 🔒 Security: Check if account is inactive
+      if (!user.IsActive)
+      {
+        return Unauthorized(new { message = "Your account has been deactivated. Please contact support." });
+      }
+
       // 2️⃣ Verify password
       bool isPasswordValid = BCrypt.Net.BCrypt.Verify(dto.Password, user.PasswordHash);
       if (!isPasswordValid)
@@ -270,10 +294,10 @@ namespace server.Controllers
           email = user.Email,
           role = user.Role,
           isEmailVerified = user.IsEmailVerified,
-          firstName = resident?.FirstName,
-          lastName = resident?.LastName,
-          middleName = resident?.MiddleName,
-          fullName = resident?.FullName
+          firstName = resident?.FirstName ?? user.FirstName,
+          lastName = resident?.LastName ?? user.LastName,
+          middleName = resident?.MiddleName ?? user.MiddleName,
+          fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
         };
       }
       else
@@ -283,7 +307,10 @@ namespace server.Controllers
           id = user.Id,
           email = user.Email,
           role = user.Role,
-          isEmailVerified = user.IsEmailVerified
+          isEmailVerified = user.IsEmailVerified,
+          firstName = user.FirstName,
+          lastName = user.LastName,
+          middleName = user.MiddleName
         };
       }
 
@@ -305,7 +332,54 @@ namespace server.Controllers
         return BadRequest(new { message = "Invalid or expired verification code." });
       }
 
-      return Ok(new { message = "Email verified successfully!" });
+      // Get the verified user
+      var user = await _userService.GetByEmailAsync(dto.Email);
+      if (user == null)
+      {
+        return BadRequest(new { message = "User not found." });
+      }
+
+      // Generate JWT Token
+      var token = _jwtService.GenerateToken(user);
+
+      // Get resident information if user is a resident
+      object userResponse;
+      if (user.Role == "resident" && !string.IsNullOrEmpty(user.ResidentId))
+      {
+        var resident = await _residentService.GetByIdAsync(user.ResidentId);
+        userResponse = new
+        {
+          id = user.Id,
+          email = user.Email,
+          role = user.Role,
+          isEmailVerified = user.IsEmailVerified,
+          firstName = resident?.FirstName ?? user.FirstName,
+          lastName = resident?.LastName ?? user.LastName,
+          middleName = resident?.MiddleName ?? user.MiddleName,
+          fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
+        };
+      }
+      else
+      {
+        userResponse = new
+        {
+          id = user.Id,
+          email = user.Email,
+          role = user.Role,
+          isEmailVerified = user.IsEmailVerified,
+          firstName = user.FirstName,
+          lastName = user.LastName,
+          middleName = user.MiddleName
+        };
+      }
+
+      // Return token and user info
+      return Ok(new
+      {
+        message = "Email verified successfully!",
+        token,
+        user = userResponse
+      });
     }
 
     [HttpPost("resend-otp")]
@@ -538,6 +612,12 @@ namespace server.Controllers
           return BadRequest(new { status = "ERROR", message = "This email is registered with a password. Please sign in using your email and password instead." });
         }
 
+        // Check if account is deleted
+        if (user.IsDeleted)
+        {
+          return BadRequest(new { status = "ERROR", message = "This account has been deleted. Please contact support if you believe this is an error." });
+        }
+
         // Check if account is inactive
         if (!user.IsActive)
         {
@@ -575,10 +655,10 @@ namespace server.Controllers
             email = user.Email,
             role = user.Role,
             isEmailVerified = user.IsEmailVerified,
-            firstName = resident?.FirstName,
-            lastName = resident?.LastName,
-            middleName = resident?.MiddleName,
-            fullName = resident?.FullName
+            firstName = resident?.FirstName ?? user.FirstName,
+            lastName = resident?.LastName ?? user.LastName,
+            middleName = resident?.MiddleName ?? user.MiddleName,
+            fullName = resident?.FullName ?? $"{user.FirstName} {user.MiddleName} {user.LastName}".Trim()
           };
         }
         else
@@ -588,7 +668,10 @@ namespace server.Controllers
             id = user.Id,
             email = user.Email,
             role = user.Role,
-            isEmailVerified = user.IsEmailVerified
+            isEmailVerified = user.IsEmailVerified,
+            firstName = user.FirstName,
+            lastName = user.LastName,
+            middleName = user.MiddleName
           };
         }
 
@@ -668,6 +751,12 @@ namespace server.Controllers
           Email = googleUser.Email,
           GoogleId = googleUser.GoogleId,
           AuthProvider = "google",
+          FirstName = dto.FirstName.Trim(),
+          MiddleName = dto.MiddleName?.Trim(),
+          LastName = dto.LastName.Trim(),
+          Extension = dto.Extension?.Trim(),
+          DateOfBirth = DateTime.Parse(dto.DateOfBirth.Trim()),
+          ContactNumber = dto.ContactNumber.Trim(),
           Role = "resident",
           ResidentId = resident.Id,
           IsActive = true,

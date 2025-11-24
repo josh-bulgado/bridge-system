@@ -54,7 +54,8 @@ namespace server.Services
             <p>Thank you for registering. Please verify your email address using the code below:</p>
             <div class='otp-code'>{otp}</div>
             <p>This code will expire in <strong>10 minutes</strong>.</p>
-            <p>If you didn't create an account with Bridge System, please ignore this email.</p>
+            <p><strong>⚠️ Please don't share this code with anyone.</strong></p>
+            <p style='margin-top: 30px;'>Thanks,<br/>The Bridge Team</p>
         </div>
         <div class='footer'>
             <p>&copy; 2025 Bridge System. All rights reserved.</p>

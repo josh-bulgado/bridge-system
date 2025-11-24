@@ -1,27 +1,18 @@
-import { Button } from "@/components/ui/button";
 import { CheckCircle } from "lucide-react";
 
-interface VerificationSuccessScreenProps {
-  onBackToDashboard: () => void;
-}
-
-export const VerificationSuccessScreen = ({
-  onBackToDashboard,
-}: VerificationSuccessScreenProps) => {
+export const VerificationSuccessScreen = () => {
   return (
-    <div className="flex h-svh flex-col justify-center space-y-6 px-4 lg:px-6">
-      <div className="mx-auto flex max-w-2xl">
-        <div className="space-y-4 py-8 text-center">
-          <CheckCircle className="mx-auto h-16 w-16 text-green-600" />
-          <h3 className="text-xl font-semibold text-green-800">
-            Verification Submitted!
-          </h3>
-          <p className="text-gray-600">
-            Your verification request has been submitted successfully. You
-            will receive a notification once your account is verified.
-          </p>
-          <Button onClick={onBackToDashboard}>Return to Dashboard</Button>
+    <div className="flex flex-col items-center justify-center py-8 px-6">
+      <div className="text-center space-y-3 max-w-md">
+        <div className="flex justify-center">
+          <CheckCircle className="h-16 w-16 text-green-600 dark:text-green-400" />
         </div>
+        <h2 className="text-xl font-semibold text-green-800 dark:text-green-200">
+          Verification Submitted!
+        </h2>
+        <p className="text-sm text-muted-foreground">
+          Your verification request has been submitted and is now under review by barangay staff. You can close this dialog and continue using the dashboard.
+        </p>
       </div>
     </div>
   );

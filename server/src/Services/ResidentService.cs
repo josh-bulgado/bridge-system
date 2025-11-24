@@ -59,7 +59,10 @@ namespace server.Services
 
         // Submit verification request
         public async Task<Resident?> SubmitVerificationAsync(string residentId, string streetPurok, string houseNumberUnit, 
-            string governmentIdFront, string governmentIdBack, string proofOfResidency)
+            string governmentIdType, string governmentIdFront, string governmentIdBack, 
+            string proofOfResidencyType, string proofOfResidency,
+            string? governmentIdFrontUrl = null, string? governmentIdBackUrl = null, string? proofOfResidencyUrl = null,
+            string? governmentIdFrontFileType = null, string? governmentIdBackFileType = null, string? proofOfResidencyFileType = null)
         {
             var resident = await GetByIdAsync(residentId);
             if (resident == null)
@@ -78,9 +81,17 @@ namespace server.Services
             // Update verification documents
             resident.VerificationDocuments = new VerificationDocuments
             {
+                GovernmentIdType = governmentIdType,
                 GovernmentIdFront = governmentIdFront,
+                GovernmentIdFrontUrl = governmentIdFrontUrl,
+                GovernmentIdFrontFileType = governmentIdFrontFileType,
                 GovernmentIdBack = governmentIdBack,
+                GovernmentIdBackUrl = governmentIdBackUrl,
+                GovernmentIdBackFileType = governmentIdBackFileType,
+                ProofOfResidencyType = proofOfResidencyType,
                 ProofOfResidency = proofOfResidency,
+                ProofOfResidencyUrl = proofOfResidencyUrl,
+                ProofOfResidencyFileType = proofOfResidencyFileType,
                 SubmittedAt = DateTime.UtcNow
             };
 
@@ -95,5 +106,60 @@ namespace server.Services
         // Get resident by user ID
         public async Task<Resident?> GetByUserIdAsync(string userId) =>
             await _residents.Find(x => x.Id == userId).FirstOrDefaultAsync();
+
+        // Approve resident verification
+        public async Task<Resident?> ApproveResidentAsync(string residentId, string approvedBy)
+        {
+            var resident = await GetByIdAsync(residentId);
+            if (resident == null)
+                return null;
+
+            resident.IsResidentVerified = true;
+            resident.ResidentVerificationStatus = "Approved";
+            resident.VerifiedBy = approvedBy;
+            resident.VerifiedAt = DateTime.UtcNow;
+            resident.LastUpdated = DateTime.UtcNow;
+
+            await UpdateAsync(residentId, resident);
+            return resident;
+        }
+
+        // Reject resident verification
+        public async Task<Resident?> RejectResidentAsync(string residentId, string rejectedBy)
+        {
+            var resident = await GetByIdAsync(residentId);
+            if (resident == null)
+                return null;
+
+            resident.IsResidentVerified = false;
+            resident.ResidentVerificationStatus = "Rejected";
+            resident.VerifiedBy = rejectedBy;
+            resident.VerifiedAt = DateTime.UtcNow;
+            resident.LastUpdated = DateTime.UtcNow;
+
+            await UpdateAsync(residentId, resident);
+            return resident;
+        }
+
+        // Get residents by verification status
+        public async Task<List<Resident>> GetByStatusAsync(string status)
+        {
+            var filter = Builders<Resident>.Filter.Eq(x => x.ResidentVerificationStatus, status);
+            return await _residents.Find(filter).ToListAsync();
+        }
+
+        // Get verified residents only
+        public async Task<List<Resident>> GetVerifiedResidentsAsync()
+        {
+            var filter = Builders<Resident>.Filter.Eq(x => x.IsResidentVerified, true);
+            return await _residents.Find(filter).ToListAsync();
+        }
+
+        // Get pending residents
+        public async Task<List<Resident>> GetPendingResidentsAsync()
+        {
+            var filter = Builders<Resident>.Filter.Eq(x => x.ResidentVerificationStatus, "Pending");
+            return await _residents.Find(filter).ToListAsync();
+        }
     }
 }

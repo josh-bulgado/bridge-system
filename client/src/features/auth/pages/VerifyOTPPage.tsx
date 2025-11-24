@@ -15,18 +15,16 @@ export const VerifyOTPPage = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const state = location.state as LocationState;
-  const email = state?.email || "agentbea12@gmail.com";
+  const email = state?.email;
 
-  // Redirect to email-confirmation if no email is provided
+  // Redirect to sign-in if no email is provided
   useEffect(() => {
-    if (!state?.email) {
-      navigate("/email-confirmation", {
-        state: {
-          message: "Please confirm your email to proceed with verification."
-        }
+    if (!email) {
+      navigate("/sign-in", {
+        replace: true
       });
     }
-  }, [state, navigate]);
+  }, [email, navigate]);
   
   return (
     <div className="flex h-svh w-svw flex-col items-center justify-center p-4 gap-6">

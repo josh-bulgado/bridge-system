@@ -28,77 +28,13 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 
-interface Staff {
-  id: string;
-  firstName: string;
-  lastName: string;
-  email: string;
-  contactNumber: string;
-  role: "staff" | "admin";
-  isActive: boolean;
-  isEmailVerified: boolean;
-  createdAt: string;
-  lastLoginAt: string | null;
-  createdBy: string;
-}
+import type { Staff } from "../types/staff";
 
 type StaffActionType = "activate" | "deactivate" | "view" | "edit" | "contact" | "resetPassword";
 
-// Sample data - replace with actual API call
-const staffMembers: Staff[] = [
-  {
-    id: "STAFF-001",
-    firstName: "Carmen",
-    lastName: "Reyes",
-    email: "carmen.reyes@barangay.gov.ph",
-    contactNumber: "+63 917 111 2222",
-    role: "staff",
-    isActive: true,
-    isEmailVerified: true,
-    createdAt: "2024-02-15",
-    lastLoginAt: "2024-03-23",
-    createdBy: "Admin",
-  },
-  {
-    id: "STAFF-002",
-    firstName: "Roberto",
-    lastName: "Santos",
-    email: "roberto.santos@barangay.gov.ph",
-    contactNumber: "+63 918 333 4444",
-    role: "admin",
-    isActive: true,
-    isEmailVerified: true,
-    createdAt: "2024-01-20",
-    lastLoginAt: "2024-03-24",
-    createdBy: "Super Admin",
-  },
-  {
-    id: "STAFF-003",
-    firstName: "Maria Elena",
-    lastName: "Cruz",
-    email: "maria.cruz@barangay.gov.ph",
-    contactNumber: "+63 919 555 6666",
-    role: "staff",
-    isActive: false,
-    isEmailVerified: true,
-    createdAt: "2024-03-01",
-    lastLoginAt: null,
-    createdBy: "Admin",
-  },
-  {
-    id: "STAFF-004",
-    firstName: "Jose",
-    lastName: "Martinez",
-    email: "jose.martinez@barangay.gov.ph",
-    contactNumber: "+63 920 777 8888",
-    role: "staff",
-    isActive: true,
-    isEmailVerified: false,
-    createdAt: "2024-03-20",
-    lastLoginAt: null,
-    createdBy: "Admin",
-  },
-];
+interface StaffListTableProps {
+  data: Staff[];
+}
 
 function getRoleBadge(role: Staff["role"]) {
   switch (role) {
@@ -170,7 +106,7 @@ function formatDate(dateString: string | null): string {
   });
 }
 
-export default function StaffListTable() {
+export default function StaffListTable({ data }: StaffListTableProps) {
   const [pendingAction, setPendingAction] = useState<{
     id: string;
     type: StaffActionType;
@@ -182,18 +118,18 @@ export default function StaffListTable() {
   const isStaffBusy = (staffId: string) => pendingAction?.id === staffId;
 
   const handleAction = (staff: Staff, actionType: StaffActionType) => {
-    setPendingAction({ id: staff.id, type: actionType });
+    setPendingAction({ id: staff.id!, type: actionType });
     setTimeout(() => {
       setPendingAction(null);
-      console.log(`Action "${actionType}" completed for staff:`, staff.firstName, staff.lastName);
+      console.log(`Action "${actionType}" completed for staff:`, staff.email);
     }, 1000);
   };
 
   const renderStaffRow = (staff: Staff) => {
-    const busy = isStaffBusy(staff.id);
-    const activatePending = isStaffActionPending("activate", staff.id);
-    const deactivatePending = isStaffActionPending("deactivate", staff.id);
-    const resetPasswordPending = isStaffActionPending("resetPassword", staff.id);
+    const busy = isStaffBusy(staff.id!);
+    const activatePending = isStaffActionPending("activate", staff.id!);
+    const deactivatePending = isStaffActionPending("deactivate", staff.id!);
+    const resetPasswordPending = isStaffActionPending("resetPassword", staff.id!);
 
     return (
       <TableRow key={staff.id} className="hover:bg-muted/50">
@@ -202,12 +138,12 @@ export default function StaffListTable() {
             <Tooltip>
               <TooltipTrigger asChild>
                 <span className="cursor-help">
-                  {staff.firstName} {staff.lastName}
+                  {staff.email.split('@')[0]}
                 </span>
               </TooltipTrigger>
               <TooltipContent>
                 <div className="text-sm">
-                  <p>Created by: {staff.createdBy}</p>
+                  <p>Auth Provider: {staff.authProvider}</p>
                   <p className="text-muted-foreground mt-1">
                     ID: {staff.id}
                   </p>
@@ -227,7 +163,7 @@ export default function StaffListTable() {
                 <div className="text-sm">
                   <p>Created: {formatDate(staff.createdAt)}</p>
                   <p className="text-muted-foreground mt-1">
-                    Last login: {staff.lastLoginAt ? formatDate(staff.lastLoginAt) : "Never"}
+                    Updated: {formatDate(staff.updatedAt)}
                   </p>
                 </div>
               </TooltipContent>
@@ -236,7 +172,7 @@ export default function StaffListTable() {
         </TableCell>
         
         <TableCell className="h-16 px-4 text-sm text-muted-foreground">
-          {staff.contactNumber}
+          {staff.authProvider === "google" ? "Google Auth" : "—"}
         </TableCell>
         
         <TableCell className="h-16 px-4">
@@ -411,13 +347,13 @@ export default function StaffListTable() {
         <TableHeader>
           <TableRow className="hover:bg-transparent border-b">
             <TableHead className="h-12 px-4 font-medium">
-              Full Name
+              Username
             </TableHead>
             <TableHead className="h-12 px-4 font-medium">
               Email
             </TableHead>
             <TableHead className="h-12 px-4 font-medium">
-              Contact
+              Auth Provider
             </TableHead>
             <TableHead className="h-12 px-4 font-medium w-[100px]">
               Role
@@ -436,7 +372,7 @@ export default function StaffListTable() {
             </TableHead>
           </TableRow>
         </TableHeader>
-        <TableBody>{staffMembers.map(renderStaffRow)}</TableBody>
+        <TableBody>{data.map(renderStaffRow)}</TableBody>
       </Table>
     </div>
   );

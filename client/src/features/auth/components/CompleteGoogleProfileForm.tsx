@@ -255,8 +255,19 @@ export function CompleteGoogleProfileForm() {
                   maxLength={10}
                   className="rounded-l-none"
                   onInput={(e) => {
-                    // Only allow numbers
-                    e.currentTarget.value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                    let value = e.currentTarget.value.replace(/[^0-9]/g, '');
+                    
+                    // Auto-detect and handle "09" format - remove leading 0
+                    if (value.startsWith("09")) {
+                      value = value.slice(1); // Remove the leading 0
+                    }
+                    
+                    // Limit to 10 digits (9XXXXXXXXX format)
+                    if (value.length > 10) {
+                      value = value.slice(0, 10);
+                    }
+                    
+                    e.currentTarget.value = value;
                   }}
                 />
               </div>

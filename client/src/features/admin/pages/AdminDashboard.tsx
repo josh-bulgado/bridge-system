@@ -5,9 +5,8 @@ const AdminDashboard = () => {
   return (
     <>
       <SectionCards />
-      <div className="px-4 lg:px-6">
-        <ChartAreaInteractive />
-      </div>
+
+      <ChartAreaInteractive />
       {/* <DataTable data={data} /> */}
     </>
   );

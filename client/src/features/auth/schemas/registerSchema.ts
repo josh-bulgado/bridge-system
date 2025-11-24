@@ -1,12 +1,36 @@
 // formSchema.ts
 import { z } from "zod";
 
+// Security: Name validation regex - only letters, spaces, hyphens, and apostrophes
+const nameRegex = /^[a-zA-Z\s'-]+$/;
+
 export const registerSchema = z
   .object({
-    firstName: z.string().min(1, "First name is required"),
-    middleName: z.string().optional().or(z.literal("")),
-    lastName: z.string().min(1, "Last name is required"),
-    extensionName: z.string().nullable(),
+    firstName: z
+      .string()
+      .min(1, "First name is required")
+      .min(2, "First name must be at least 2 characters")
+      .max(50, "First name must not exceed 50 characters")
+      .regex(nameRegex, "First name can only contain letters, spaces, hyphens, and apostrophes")
+      .refine((val) => val.trim().length > 0, "First name cannot be empty"),
+    middleName: z
+      .string()
+      .max(50, "Middle name must not exceed 50 characters")
+      .regex(nameRegex, "Middle name can only contain letters, spaces, hyphens, and apostrophes")
+      .optional()
+      .or(z.literal("")),
+    lastName: z
+      .string()
+      .min(1, "Last name is required")
+      .min(2, "Last name must be at least 2 characters")
+      .max(50, "Last name must not exceed 50 characters")
+      .regex(nameRegex, "Last name can only contain letters, spaces, hyphens, and apostrophes")
+      .refine((val) => val.trim().length > 0, "Last name cannot be empty"),
+    extensionName: z
+      .string()
+      .max(10, "Extension must not exceed 10 characters")
+      .regex(/^[a-zA-Z.\s]*$/, "Extension can only contain letters, dots, and spaces")
+      .nullable(),
     dateOfBirth: z
       .string()
       .min(1, "Date of birth is required")

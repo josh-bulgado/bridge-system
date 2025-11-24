@@ -25,7 +25,18 @@ namespace server.Services
 
     public async Task<User?> GetByEmailAsync(string email)
     {
+      // Don't return deleted users
+      return await _users.Find(u => u.Email == email && !u.IsDeleted).FirstOrDefaultAsync();
+    }
+
+    public async Task<User?> GetByEmailIncludingDeletedAsync(string email)
+    {
       return await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
+    }
+
+    public async Task<User?> GetByResidentIdAsync(string residentId)
+    {
+      return await _users.Find(u => u.ResidentId == residentId).FirstOrDefaultAsync();
     }
 
     public async Task UpdateAsync(string id, User user)
@@ -69,6 +80,20 @@ namespace server.Services
         Builders<User>.Filter.Lt(u => u.CreatedAt, endDate)
       );
       return await _users.Find(filter).ToListAsync();
+    }
+
+    public async Task<bool> SoftDeleteUserByEmail(string email)
+    {
+      var user = await _users.Find(u => u.Email == email).FirstOrDefaultAsync();
+      if (user == null) return false;
+
+      user.IsDeleted = true;
+      user.DeletedAt = DateTime.UtcNow;
+      user.IsActive = false;
+      user.UpdatedAt = DateTime.UtcNow;
+
+      await _users.ReplaceOneAsync(x => x.Id == user.Id, user);
+      return true;
     }
 
     public async Task<bool> DeleteUserByEmail(string email)

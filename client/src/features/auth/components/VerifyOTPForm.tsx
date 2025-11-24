@@ -25,9 +25,14 @@ interface OTPState {
 }
 
 export const VerifyOTPForm = ({
-  email = "agentbea12@gmail.com",
+  email,
 }: VerifyOTPFormProps) => {
   const navigate = useNavigate();
+  
+  // Guard: Redirect if no email provided
+  if (!email) {
+    return null;
+  }
   
   // State management
   const [otpState, setOtpState] = useState<OTPState>({
@@ -173,7 +178,7 @@ export const VerifyOTPForm = ({
 
     try {
       const enteredCode = otpState.code.join("");
-      await authService.verifyEmail(email, enteredCode);
+      const response = await authService.verifyEmail(email, enteredCode);
 
       // Success state
       setOtpState((prev) => ({
@@ -183,13 +188,12 @@ export const VerifyOTPForm = ({
         error: null,
       }));
 
-      // Get user info from storage to determine redirect
-      const userStr = localStorage.getItem("user") || sessionStorage.getItem("user");
-      const user = userStr ? JSON.parse(userStr) : null;
+      // Get user info from the response (automatically logged in after verification)
+      const user = response.user;
 
-      // If user is logged in, redirect to dashboard; otherwise redirect to sign-in
+      // Redirect to appropriate dashboard based on user role
       setTimeout(() => {
-        if (user) {
+        if (user && user.role) {
           // User is logged in - redirect to appropriate dashboard
           if (user.role === "admin") {
             navigate("/admin");
@@ -199,7 +203,7 @@ export const VerifyOTPForm = ({
             navigate("/resident");
           }
         } else {
-          // User is not logged in - redirect to sign-in page after verification
+          // Fallback: If somehow user data is not in response, redirect to sign-in
           navigate("/sign-in", {
             state: {
               message: "Email verified successfully! Please sign in to continue.",

@@ -2,30 +2,57 @@ import { Suspense, lazy } from "react";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { SignInPage } from "./features/auth/pages/SignInPage";
 import RegisterPage from "./features/auth/pages/RegisterPage";
-// AccountCreatedPage removed - users are redirected directly to email verification after registration
 import { EmailConfirmationPage } from "./features/auth/pages/EmailConfirmationPage";
 import VerifyOTPPage from "./features/auth/pages/VerifyOTPPage";
 import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import CompleteGoogleProfilePage from "./features/auth/pages/CompleteGoogleProfilePage";
-import ResidentLayout from "./features/resident/layout/ResidentLayout";
-import AdminLayout from "./features/admin/layout/AdminLayout";
-import StaffLayout from "./features/staff/layout/StaffLayout";
-import ResidentDashboard from "./features/resident/pages/ResidentDashboard";
-import AdminDashboard from "./features/admin/pages/AdminDashboard";
-import StaffDashboard from "./features/staff/pages/StaffDashboard";
-import { StatCardDemo } from "./features/staff/components/StatCardDemo";
-import { RequestCardDemo } from "./features/staff/components/RequestCardDemo";
-import { RequestCardVariantsDemo } from "./features/staff/components/RequestCardVariantsDemo";
-import PaymentVerification from "./features/staff/pages/PaymentVerification";
-import DocumentGeneration from "./features/staff/pages/DocumentGeneration";
-import StaffSidebarDemo from "./features/staff/pages/StaffSidebarDemo";
 import { ErrorBoundary } from "./components/ui/error-boundary";
-import VerificationPage from "./features/resident/pages/VerificationPage";
-import ResidentManagementPage from "./features/resident/pages/ResidentManagementPage";
-import StaffManagementPage from "./features/staff/pages/StaffManagementPage";
-import BarangayConfigPage from "./features/admin/pages/BarangayConfigPage";
 
+// Lazy load layouts and pages
+const ResidentLayout = lazy(
+  () => import("./features/resident/layout/ResidentLayout"),
+);
+const AdminLayout = lazy(() => import("./features/admin/layout/AdminLayout"));
+const StaffLayout = lazy(() => import("./features/staff/layout/StaffLayout"));
+
+// Lazy load individual pages
+const ResidentDashboard = lazy(
+  () => import("./features/resident/pages/ResidentDashboard"),
+);
+const AdminDashboard = lazy(
+  () => import("./features/admin/pages/AdminDashboard"),
+);
+const StaffDashboard = lazy(
+  () => import("./features/staff/pages/StaffDashboard"),
+);
+const VerificationPage = lazy(
+  () => import("./features/resident/pages/VerificationPage"),
+);
+const ResidentManagementPage = lazy(
+  () => import("./features/resident/pages/ResidentManagementPage"),
+);
+const StaffManagementPage = lazy(
+  () => import("./features/staff/pages/StaffManagementPage"),
+);
+const DocumentRequestPage = lazy(
+  () => import("./features/document/pages/DocumentRequestPage"),
+);
+const DocumentManagementPage = lazy(
+  () => import("./features/document/pages/DocumentManagementPage"),
+);
+const PaymentVerification = lazy(
+  () => import("./features/staff/pages/PaymentVerification"),
+);
+const DocumentGeneration = lazy(
+  () => import("./features/staff/pages/DocumentGeneration"),
+);
+
+const BarangayConfigPage = lazy(
+  () => import("./features/admin/pages/BarangayConfigPage"),
+);
+
+// Lazy load the landing page
 const LandingPage = lazy(() => import("./features/landing/pages/LandingPage"));
 
 function App() {
@@ -49,7 +76,6 @@ function App() {
             <Route path="/" element={<LandingPage />} />
             <Route path="/sign-in" element={<SignInPage />} />
             <Route path="/register" element={<RegisterPage />} />
-            {/* AccountCreatedPage route removed - users go directly to email verification */}
             <Route
               path="/email-confirmation"
               element={<EmailConfirmationPage />}
@@ -57,27 +83,45 @@ function App() {
             <Route path="/verify-otp" element={<VerifyOTPPage />} />
             <Route path="/forgot-password" element={<ForgotPasswordPage />} />
             <Route path="/reset-password" element={<ResetPasswordPage />} />
-            <Route path="/auth/complete-google-profile" element={<CompleteGoogleProfilePage />} />
+            <Route
+              path="/auth/complete-google-profile"
+              element={<CompleteGoogleProfilePage />}
+            />
 
             {/* Resident Routes */}
             <Route path="/resident" element={<ResidentLayout />}>
               <Route index element={<ResidentDashboard />} />
               <Route path="verify" element={<VerificationPage />} />
-              {/* Add more resident routes here */}
+              <Route path="verification" element={<VerificationPage />} />
             </Route>
 
             {/* Admin Routes */}
             <Route path="/admin" element={<AdminLayout />}>
               <Route index element={<AdminDashboard />} />
-              <Route path="residents" element={<ResidentManagementPage />} />
-              <Route path="staff" element={<StaffManagementPage />} />
+              <Route
+                path="resident-management"
+                element={<ResidentManagementPage />}
+              />
+              <Route
+                path="staff-management"
+                element={<StaffManagementPage />}
+              />
+              <Route path="doc-requests" element={<DocumentRequestPage />} />
+              <Route
+                path="config/document"
+                element={<DocumentManagementPage />}
+              />
               <Route path="config/barangay" element={<BarangayConfigPage />} />
-              {/* Add more admin routes here */}
             </Route>
 
             {/* Staff Routes */}
             <Route path="/staff" element={<StaffLayout />}>
               <Route index element={<StaffDashboard />} />
+              <Route
+                path="resident-management"
+                element={<ResidentManagementPage />}
+              />
+              <Route path="doc-requests" element={<DocumentRequestPage />} />
               <Route
                 path="payment-verification"
                 element={<PaymentVerification />}
@@ -86,14 +130,6 @@ function App() {
                 path="document-generation"
                 element={<DocumentGeneration />}
               />
-              <Route path="demo" element={<StatCardDemo />} />
-              <Route path="request-demo" element={<RequestCardDemo />} />
-              <Route
-                path="variants-demo"
-                element={<RequestCardVariantsDemo />}
-              />
-              <Route path="sidebar-demo" element={<StaffSidebarDemo />} />
-              {/* Add more staff routes here */}
             </Route>
           </Routes>
         </Suspense>

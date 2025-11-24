@@ -1,4 +1,4 @@
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { authService, type LoginRequest } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
@@ -6,10 +6,14 @@ import { AxiosError } from "axios";
 
 export function useSignIn() {
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
   return useMutation({
     mutationFn: (data: LoginRequest) => authService.login(data),
     onSuccess: (data) => {
+      // Clear React Query cache before navigating
+      queryClient.clear();
+      
       // Check if email is verified
       if (!data.user.isEmailVerified) {
         toast.warning("Please verify your email to continue.");
@@ -25,13 +29,13 @@ export function useSignIn() {
       // Redirect by role
       switch (data.user.role) {
         case "admin":
-          navigate("/admin");
+          navigate("/admin", { replace: true });
           break;
         case "staff":
-          navigate("/staff");
+          navigate("/staff", { replace: true });
           break;
         default:
-          navigate("/resident");
+          navigate("/resident", { replace: true });
           break;
       }
     },

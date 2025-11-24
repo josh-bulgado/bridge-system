@@ -21,8 +21,10 @@ export const useVerification = () => {
     defaultValues: {
       streetPurok: "",
       houseNumberUnit: "",
+      governmentIdType: "",
       governmentIdFront: "",
       governmentIdBack: "",
+      proofOfResidencyType: "",
       proofOfResidency: "",
     },
   });
@@ -60,9 +62,17 @@ export const useVerification = () => {
       const submissionData = {
         StreetPurok: data.streetPurok,
         HouseNumberUnit: data.houseNumberUnit,
+        GovernmentIdType: data.governmentIdType,
         GovernmentIdFront: data.governmentIdFront,
+        GovernmentIdFrontUrl: data.governmentIdFrontUrl,
+        GovernmentIdFrontFileType: data.governmentIdFrontFileType,
         GovernmentIdBack: data.governmentIdBack,
+        GovernmentIdBackUrl: data.governmentIdBackUrl,
+        GovernmentIdBackFileType: data.governmentIdBackFileType,
+        ProofOfResidencyType: data.proofOfResidencyType,
         ProofOfResidency: data.proofOfResidency,
+        ProofOfResidencyUrl: data.proofOfResidencyUrl,
+        ProofOfResidencyFileType: data.proofOfResidencyFileType,
       };
       
       if (import.meta.env.DEV) {

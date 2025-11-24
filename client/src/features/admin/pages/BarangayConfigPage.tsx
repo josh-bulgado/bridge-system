@@ -63,7 +63,7 @@ const BarangayConfigPage: React.FC = () => {
   const watchedAddress = watch("address");
 
   return (
-    <div className="mx-auto max-w-4xl px-4 lg:w-2xl lg:px-6">
+    <div className="mx-auto max-w-4xl lg:w-2xl">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">
