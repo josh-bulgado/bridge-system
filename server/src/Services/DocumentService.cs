@@ -1,15 +1,18 @@
 using MongoDB.Driver;
 using server.Models;
+using Server.Models;
 
 namespace server.Services
 {
     public class DocumentService
     {
         private readonly IMongoCollection<Document> _documents;
+        private readonly DocumentTemplateService _templateService;
 
-        public DocumentService(MongoDBContext context)
+        public DocumentService(MongoDBContext context, DocumentTemplateService templateService)
         {
             _documents = context.GetCollection<Document>("documents");
+            _templateService = templateService;
         }
 
         // Get all documents
@@ -21,7 +24,7 @@ namespace server.Services
             await _documents.Find(x => x.Id == id).FirstOrDefaultAsync();
 
         // Create new document
-        public async Task<Document> CreateAsync(Document document)
+        public async Task<Document> CreateAsync(Document document, string? userId = null)
         {
             document.CreatedAt = DateTime.UtcNow;
             document.UpdatedAt = DateTime.UtcNow;
@@ -29,6 +32,17 @@ namespace server.Services
             document.TotalRequests = 0;
 
             await _documents.InsertOneAsync(document);
+
+            // Create DocumentTemplate record
+            var template = new DocumentTemplate
+            {
+                DocumentType = document.Name,
+                TemplateName = $"{document.Name} Template",
+                TemplateUrl = document.TemplateUrl,
+            };
+
+            await _templateService.CreateTemplateAsync(template, userId);
+
             return document;
         }
 
@@ -87,6 +101,7 @@ namespace server.Services
                 Requirements = new List<string>(originalDocument.Requirements),
                 Status = originalDocument.Status,
                 ProcessingTime = originalDocument.ProcessingTime,
+                TemplateUrl = originalDocument.TemplateUrl,
                 TotalRequests = 0,
                 CreatedAt = DateTime.UtcNow,
                 UpdatedAt = DateTime.UtcNow,

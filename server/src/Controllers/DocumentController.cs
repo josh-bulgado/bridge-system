@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using server.Models;
 using server.Services;
 using server.DTOs.Documents;
+using System.Security.Claims;
 
 namespace server.Controllers
 {
@@ -34,6 +35,7 @@ namespace server.Controllers
                     Requirements = doc.Requirements,
                     Status = doc.Status,
                     ProcessingTime = doc.ProcessingTime,
+                    TemplateUrl = doc.TemplateUrl,
                     TotalRequests = doc.TotalRequests,
                     LastModified = doc.LastModified,
                     CreatedAt = doc.CreatedAt,
@@ -70,6 +72,7 @@ namespace server.Controllers
                     Requirements = document.Requirements,
                     Status = document.Status,
                     ProcessingTime = document.ProcessingTime,
+                    TemplateUrl = document.TemplateUrl,
                     TotalRequests = document.TotalRequests,
                     LastModified = document.LastModified,
                     CreatedAt = document.CreatedAt,
@@ -93,16 +96,20 @@ namespace server.Controllers
         {
             try
             {
+                // Get user ID from JWT token
+                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
                 var document = new Document
                 {
                     Name = request.Name,
                     Price = request.Price,
                     Requirements = request.Requirements,
                     Status = request.Status,
-                    ProcessingTime = request.ProcessingTime
+                    ProcessingTime = request.ProcessingTime,
+                    TemplateUrl = request.TemplateUrl
                 };
 
-                var createdDocument = await _documentService.CreateAsync(document);
+                var createdDocument = await _documentService.CreateAsync(document, userId);
 
                 var response = new DocumentResponse
                 {
@@ -112,6 +119,7 @@ namespace server.Controllers
                     Requirements = createdDocument.Requirements,
                     Status = createdDocument.Status,
                     ProcessingTime = createdDocument.ProcessingTime,
+                    TemplateUrl = createdDocument.TemplateUrl,
                     TotalRequests = createdDocument.TotalRequests,
                     LastModified = createdDocument.LastModified,
                     CreatedAt = createdDocument.CreatedAt,
@@ -147,6 +155,7 @@ namespace server.Controllers
                 if (request.ProcessingTime != null) existingDocument.ProcessingTime = request.ProcessingTime;
                 if (request.Status != null) existingDocument.Status = request.Status;
                 if (request.Requirements != null) existingDocument.Requirements = request.Requirements;
+                if (request.TemplateUrl != null) existingDocument.TemplateUrl = request.TemplateUrl;
 
                 var updatedDocument = await _documentService.UpdateAsync(id, existingDocument);
                 if (updatedDocument == null)
@@ -162,6 +171,7 @@ namespace server.Controllers
                     Requirements = updatedDocument.Requirements,
                     Status = updatedDocument.Status,
                     ProcessingTime = updatedDocument.ProcessingTime,
+                    TemplateUrl = updatedDocument.TemplateUrl,
                     TotalRequests = updatedDocument.TotalRequests,
                     LastModified = updatedDocument.LastModified,
                     CreatedAt = updatedDocument.CreatedAt,
@@ -222,6 +232,7 @@ namespace server.Controllers
                     Requirements = document.Requirements,
                     Status = document.Status,
                     ProcessingTime = document.ProcessingTime,
+                    TemplateUrl = document.TemplateUrl,
                     TotalRequests = document.TotalRequests,
                     LastModified = document.LastModified,
                     CreatedAt = document.CreatedAt,
@@ -255,6 +266,7 @@ namespace server.Controllers
                     Requirements = duplicatedDocument.Requirements,
                     Status = duplicatedDocument.Status,
                     ProcessingTime = duplicatedDocument.ProcessingTime,
+                    TemplateUrl = duplicatedDocument.TemplateUrl,
                     TotalRequests = duplicatedDocument.TotalRequests,
                     LastModified = duplicatedDocument.LastModified,
                     CreatedAt = duplicatedDocument.CreatedAt,
@@ -286,6 +298,7 @@ namespace server.Controllers
                     Requirements = doc.Requirements,
                     Status = doc.Status,
                     ProcessingTime = doc.ProcessingTime,
+                    TemplateUrl = doc.TemplateUrl,
                     TotalRequests = doc.TotalRequests,
                     LastModified = doc.LastModified,
                     CreatedAt = doc.CreatedAt,
@@ -322,6 +335,7 @@ namespace server.Controllers
                     Requirements = doc.Requirements,
                     Status = doc.Status,
                     ProcessingTime = doc.ProcessingTime,
+                    TemplateUrl = doc.TemplateUrl,
                     TotalRequests = doc.TotalRequests,
                     LastModified = doc.LastModified,
                     CreatedAt = doc.CreatedAt,
