@@ -1,4 +1,6 @@
 export { useVerification } from "./useVerification";
+export { useVerificationStatus } from "./useVerificationStatus";
+export { useResidentStats } from "./useResidentStats";
 export { useFileUpload } from "./useFileUpload";
 export { useChangePassword } from "./useChangePassword";
 export { useUpdatePersonalInfo } from "./useUpdatePersonalInfo";
