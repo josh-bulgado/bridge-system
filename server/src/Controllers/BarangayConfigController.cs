@@ -80,14 +80,9 @@ namespace server.Controllers
                     return NotFound(new { message = "Barangay configuration not found." });
                 }
 
-                // Get user ID from JWT token (if authenticated)
-                var userId = User.FindFirst(ClaimTypes.NameIdentifier)?.Value;
-
                 var config = MapToModel(request);
                 config.Id = id;
                 config.CreatedAt = existingConfig.CreatedAt;
-                config.CreatedBy = existingConfig.CreatedBy;
-                config.UpdatedBy = userId;
 
                 var updatedConfig = await _barangayConfigService.UpdateConfigAsync(id, config);
 
@@ -118,6 +113,8 @@ namespace server.Controllers
         {
             return new BarangayConfig
             {
+                BarangayCaptain = request.BarangayCaptain,
+                LogoUrl = request.LogoUrl,
                 Address = new BarangayAddress
                 {
                     RegionCode = request.Address.RegionCode,
@@ -143,6 +140,8 @@ namespace server.Controllers
             return new BarangayConfigResponse
             {
                 Id = config.Id ?? string.Empty,
+                BarangayCaptain = config.BarangayCaptain,
+                LogoUrl = config.LogoUrl,
                 Address = new AddressResponse
                 {
                     RegionCode = config.Address.RegionCode,

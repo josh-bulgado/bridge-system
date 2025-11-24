@@ -4,6 +4,14 @@ namespace server.DTOs.BarangayConfig
 {
     public class BarangayConfigRequest
     {
+        [Required(ErrorMessage = "Barangay Captain name is required")]
+        [MinLength(2, ErrorMessage = "Captain name must be at least 2 characters")]
+        public required string BarangayCaptain { get; set; }
+
+        [Required(ErrorMessage = "Barangay logo is required")]
+        [Url(ErrorMessage = "Invalid logo URL")]
+        public required string LogoUrl { get; set; }
+
         [Required]
         public required AddressDto Address { get; set; }
 

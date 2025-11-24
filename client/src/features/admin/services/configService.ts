@@ -3,6 +3,8 @@ import type { BarangayConfigFormData } from "../schemas/barangayConfigSchema";
 
 export interface BarangayConfigResponse {
   id: string;
+  barangayCaptain: string;
+  logoUrl: string;
   address: {
     regionCode: string;
     regionName: string;
@@ -33,12 +35,20 @@ class BarangayConfigService {
   // Get current barangay configuration
   async getBarangayConfig(): Promise<BarangayConfigFormData | null> {
     try {
+      console.log("=== FETCHING BARANGAY CONFIG ===");
+      console.log("API URL:", `${this.baseUrl}`);
+      
       const { data: response } = await api.get<BarangayConfigResponse>(
         `${this.baseUrl}`,
       );
 
+      console.log("API Response:", response);
+      console.log("Response type:", typeof response);
+
       // Transform backend response to frontend format
       return {
+        barangayCaptain: response.barangayCaptain,
+        logoUrl: response.logoUrl,
         address: {
           regionCode: response.address.regionCode,
           regionName: response.address.regionName,
@@ -56,7 +66,21 @@ class BarangayConfigService {
         officeHours: response.officeHours,
       };
     } catch (error: any) {
+      console.log("=== API ERROR ===");
+      console.log("Error:", error);
+      console.log("Error response:", error?.response);
+      console.log("Error status:", error?.response?.status);
+      console.log("Error data:", error?.response?.data);
+      
+      // If config doesn't exist (404), return null instead of throwing
+      if (error?.response?.status === 404) {
+        console.log("No config found (404) - returning null");
+        return null;
+      }
+      
+      // For other errors, throw
       const errorMessage = error?.response?.data?.message || "Failed to fetch barangay config";
+      console.log("Throwing error:", errorMessage);
       throw new Error(errorMessage);
     }
   }
@@ -67,6 +91,8 @@ class BarangayConfigService {
   ): Promise<BarangayConfigFormData> {
     try {
       const requestBody = {
+        barangayCaptain: config.barangayCaptain,
+        logoUrl: config.logoUrl,
         address: {
           regionCode: config.address.regionCode,
           regionName: config.address.regionName,

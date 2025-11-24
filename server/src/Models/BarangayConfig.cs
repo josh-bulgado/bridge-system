@@ -11,6 +11,14 @@ namespace server.Models
         [BsonRepresentation(BsonType.ObjectId)]
         public string? Id { get; set; }
 
+        [BsonElement("barangayCaptain")]
+        [Required]
+        public required string BarangayCaptain { get; set; }
+
+        [BsonElement("logoUrl")]
+        [Required]
+        public required string LogoUrl { get; set; }
+
         [BsonElement("address")]
         [Required]
         public required BarangayAddress Address { get; set; }
@@ -28,14 +36,6 @@ namespace server.Models
 
         [BsonElement("updatedAt")]
         public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
-
-        [BsonElement("createdBy")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? CreatedBy { get; set; }
-
-        [BsonElement("updatedBy")]
-        [BsonRepresentation(BsonType.ObjectId)]
-        public string? UpdatedBy { get; set; }
     }
 
     [BsonIgnoreExtraElements]

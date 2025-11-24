@@ -51,17 +51,12 @@ namespace server.Services
                 // Update existing config
                 config.Id = existingConfig.Id;
                 config.CreatedAt = existingConfig.CreatedAt;
-                config.CreatedBy = existingConfig.CreatedBy;
-                config.UpdatedBy = userId;
 
                 return await UpdateConfigAsync(existingConfig.Id!, config);
             }
             else
             {
                 // Create new config
-                config.CreatedBy = userId;
-                config.UpdatedBy = userId;
-
                 return await CreateConfigAsync(config);
             }
         }
