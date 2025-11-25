@@ -78,7 +78,7 @@ namespace server.Services
 
         return response.IsSuccessStatusCode;
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         // Removed: Stack trace may contain sensitive info
         return false;
@@ -149,7 +149,7 @@ namespace server.Services
 
         return response.IsSuccessStatusCode;
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         // Removed: Stack trace may contain sensitive info
         return false;
@@ -207,7 +207,7 @@ namespace server.Services
 
         return response.IsSuccessStatusCode;
       }
-      catch (Exception ex)
+      catch (Exception)
       {
         // Removed: Stack trace may contain sensitive info
         return false;

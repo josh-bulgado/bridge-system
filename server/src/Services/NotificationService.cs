@@ -37,8 +37,8 @@ public class NotificationService : INotificationService
         ILogger<NotificationService> logger)
     {
         _hubContext = hubContext;
-        _notifications = dbContext.Notifications;
-        _users = dbContext.Users;
+        _notifications = dbContext.GetCollection<Notification>("notifications");
+        _users = dbContext.GetCollection<User>("users");
         _logger = logger;
     }
 
