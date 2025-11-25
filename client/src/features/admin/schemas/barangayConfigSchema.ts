@@ -34,6 +34,18 @@ export const barangayConfigSchema = z.object({
     email: z.email("Please enter a valid email address"),
   }),
   officeHours: z.string().min(1, "Office hours are required"),
+  // GCash Payment Information (Optional)
+  gcashNumber: z
+    .string()
+    .regex(/^(09|\+639)\d{9}$/, "Please enter a valid GCash number")
+    .optional()
+    .or(z.literal("")),
+  gcashAccountName: z.string().optional().or(z.literal("")),
+  gcashQrCodeUrl: z
+    .string()
+    .url("Invalid QR code URL")
+    .optional()
+    .or(z.literal("")),
 });
 
 // Contact information validation schema

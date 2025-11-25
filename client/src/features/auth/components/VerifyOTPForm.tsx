@@ -309,20 +309,23 @@ export const VerifyOTPForm = ({
 
   return (
     <>
-      <div className="flex w-full max-w-md flex-col gap-6 rounded-lg border bg-card p-6 shadow-sm">
+      <div className="flex w-full max-w-md flex-col rounded-lg border bg-card p-8 shadow-lg">
         {/* Header */}
-        <div className="flex flex-col space-y-1.5 text-center">
-          <h2 className="text-2xl font-semibold leading-none tracking-tight">
+        <div className="flex flex-col gap-3 text-center mb-10">
+          <h2 className="text-2xl font-bold tracking-tight">
             Verify Your Email
           </h2>
+          <p className="text-sm text-muted-foreground leading-relaxed">
+            Enter the 6-digit code sent to your email
+          </p>
         </div>
 
         {/* Success Animation */}
         {otpState.success && (
-          <div className="animate-fade-in-scale flex flex-col items-center gap-4 py-4">
-            <div className="rounded-full bg-primary/10 p-3">
+          <div className="animate-fade-in-scale flex flex-col items-center gap-4 py-8">
+            <div className="rounded-full bg-primary/10 p-4">
               <svg
-                className="h-10 w-10 text-primary"
+                className="h-12 w-12 text-primary"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -331,7 +334,7 @@ export const VerifyOTPForm = ({
                 <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
               </svg>
             </div>
-            <div className="flex flex-col items-center gap-1 text-center">
+            <div className="flex flex-col items-center gap-2 text-center">
               <p className="text-lg font-semibold">
                 Email verified successfully!
               </p>
@@ -345,9 +348,9 @@ export const VerifyOTPForm = ({
         {/* OTP Input Boxes */}
         {!otpState.success && (
           <>
-            <div className="space-y-3">
+            <div className="mb-8">
               {/* Single row of 6 inputs */}
-              <div className="flex justify-center gap-2">
+              <div className="flex justify-center gap-3">
                 {[0, 1, 2, 3, 4, 5].map((index) => (
                   <input
                     key={index}
@@ -359,7 +362,7 @@ export const VerifyOTPForm = ({
                     onChange={(e) => handleInputChange(index, e.target.value)}
                     onKeyDown={(e) => handleKeyDown(index, e)}
                     onPaste={index === 0 ? handlePaste : undefined}
-                    className={`h-12 w-12 rounded-md border bg-background text-center text-xl font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${getInputBorderColor(index)}`}
+                    className={`h-14 w-14 rounded-lg border-2 bg-background text-center text-2xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:scale-105 disabled:cursor-not-allowed disabled:opacity-50 ${getInputBorderColor(index)}`}
                     disabled={otpState.isVerifying || otpState.success}
                     aria-label={`Digit ${index + 1}`}
                   />
@@ -368,7 +371,7 @@ export const VerifyOTPForm = ({
             </div>
 
             {/* Timer */}
-            <div className="flex items-center justify-center gap-2 rounded-md bg-muted px-3 py-2">
+            <div className="flex items-center justify-center gap-2.5 rounded-lg bg-muted px-4 py-3 mb-6">
               <svg
                 className="h-4 w-4 text-muted-foreground"
                 fill="none"
@@ -382,7 +385,7 @@ export const VerifyOTPForm = ({
               <p className="text-sm text-muted-foreground">
                 Code expires in{" "}
                 <span
-                  className={`font-mono font-semibold ${otpState.timeRemaining < 60 ? "text-destructive" : "text-foreground"}`}
+                  className={`font-mono font-bold ${otpState.timeRemaining < 60 ? "text-destructive" : "text-foreground"}`}
                 >
                   {formatTime(otpState.timeRemaining)}
                 </span>
@@ -390,8 +393,8 @@ export const VerifyOTPForm = ({
             </div>
 
             {isCodeExpired && (
-              <div className="rounded-md border border-destructive/50 bg-destructive/10 p-3">
-                <p className="text-sm text-destructive text-center">
+              <div className="rounded-lg border border-destructive/50 bg-destructive/10 p-3.5 mb-6">
+                <p className="text-sm text-destructive text-center font-medium">
                   Code expired. Please request a new one.
                 </p>
               </div>
@@ -400,7 +403,7 @@ export const VerifyOTPForm = ({
             {/* Error Message */}
             {otpState.error && !isCodeExpired && (
               <div
-                className={`rounded-md border p-3 ${
+                className={`rounded-lg border p-3.5 mb-6 ${
                   otpState.error.includes("✅")
                     ? "border-primary/50 bg-primary/10"
                     : "border-destructive/50 bg-destructive/10"
@@ -408,7 +411,7 @@ export const VerifyOTPForm = ({
                 aria-live="polite"
               >
                 <p
-                  className={`text-sm text-center ${
+                  className={`text-sm text-center font-medium ${
                     otpState.error.includes("✅")
                       ? "text-primary"
                       : "text-destructive"
@@ -419,7 +422,7 @@ export const VerifyOTPForm = ({
                 {otpState.attempts > 0 &&
                   otpState.attempts < 5 &&
                   !otpState.error.includes("✅") && (
-                    <p className="mt-1 text-xs text-center text-muted-foreground">
+                    <p className="mt-2 text-xs text-center text-muted-foreground">
                       {5 - otpState.attempts} {5 - otpState.attempts === 1 ? "attempt" : "attempts"} remaining
                     </p>
                   )}
@@ -435,7 +438,7 @@ export const VerifyOTPForm = ({
                 isCodeExpired ||
                 otpState.attempts >= 5
               }
-              className="inline-flex h-10 w-full items-center justify-center gap-2 whitespace-nowrap rounded-md bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
             >
               {otpState.isVerifying ? (
                 <>
@@ -467,13 +470,13 @@ export const VerifyOTPForm = ({
             </button>
 
             {/* Resend Code */}
-            <div className="flex flex-col items-center gap-2">
+            <div className="flex flex-col items-center gap-2 pt-8 pb-6">
               <p className="text-sm text-muted-foreground">Didn't receive the code?</p>
               <button
                 type="button"
                 onClick={handleResendCode}
                 disabled={otpState.resendCooldown > 0 || otpState.isResending}
-                className="inline-flex items-center justify-center text-sm font-medium text-primary underline-offset-4 hover:underline disabled:pointer-events-none disabled:opacity-50"
+                className="inline-flex items-center justify-center text-sm font-semibold text-primary underline-offset-4 hover:underline disabled:pointer-events-none disabled:opacity-50 transition-colors"
               >
                 {otpState.isResending
                   ? "Sending..."
@@ -484,12 +487,15 @@ export const VerifyOTPForm = ({
             </div>
 
             {/* Back Link */}
-            <div className="text-center border-t pt-4">
+            <div className="text-center border-t pt-6">
               <Link
                 to="/sign-in"
-                className="text-sm text-muted-foreground hover:text-foreground transition-colors"
+                className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
               >
-                ← Back to Sign In
+                <svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" strokeWidth="2">
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+                </svg>
+                Back to Sign In
               </Link>
             </div>
           </>

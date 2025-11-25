@@ -43,7 +43,13 @@ public class DocumentRequest
     public decimal Amount { get; set; }
 
     [BsonElement("paymentProof")]
-    public string? PaymentProof { get; set; } // Cloudinary URL for online payments
+    public string? PaymentProof { get; set; } // Cloudinary URL for online payments (GCash screenshot)
+
+    [BsonElement("paymentReferenceNumber")]
+    public string? PaymentReferenceNumber { get; set; } // GCash reference number for online payments
+
+    [BsonElement("supportingDocuments")]
+    public List<string>? SupportingDocuments { get; set; } // List of Cloudinary URLs for supporting documents
 
     [BsonElement("paymentVerifiedBy")]
     [BsonRepresentation(BsonType.ObjectId)]

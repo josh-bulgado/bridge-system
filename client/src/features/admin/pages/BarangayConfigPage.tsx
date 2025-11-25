@@ -36,6 +36,11 @@ const BarangayConfigPage: React.FC = () => {
   const { data: existingConfig, isLoading: isLoadingConfig } = useFetchBarangayConfig();
   const saveMutation = useSaveBarangayConfig();
   const { logoPreview, isUploading, handleLogoUpload } = useUploadBarangayLogo();
+  const { 
+    logoPreview: qrCodePreview, 
+    isUploading: isUploadingQr, 
+    handleLogoUpload: handleQrCodeUpload 
+  } = useUploadBarangayLogo();
 
   // Form
   const form = useForm<BarangayConfigFormData>({
@@ -58,6 +63,9 @@ const BarangayConfigPage: React.FC = () => {
         email: "",
       },
       officeHours: "",
+      gcashNumber: "",
+      gcashAccountName: "",
+      gcashQrCodeUrl: "",
     },
   });
 
@@ -77,6 +85,7 @@ const BarangayConfigPage: React.FC = () => {
   // Watch form values
   const watchedAddress = watch("address");
   const watchedLogoUrl = watch("logoUrl");
+  const watchedQrCodeUrl = watch("gcashQrCodeUrl");
 
   // Load regions on mount
   useEffect(() => {
@@ -268,6 +277,32 @@ const BarangayConfigPage: React.FC = () => {
     e.target.value = "";
   };
 
+  // Handle QR code file selection
+  const handleQrCodeSelect = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    await handleQrCodeUpload(file, async (url) => {
+      setValue("gcashQrCodeUrl", url, {
+        shouldValidate: true,
+        shouldDirty: true,
+        shouldTouch: true,
+      });
+      await trigger("gcashQrCodeUrl");
+    });
+
+    e.target.value = "";
+  };
+
+  // Handle QR code removal
+  const handleQrCodeRemove = () => {
+    setValue("gcashQrCodeUrl", "", {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
+
   // Handle form submission
   const onSubmit = async (data: BarangayConfigFormData) => {
     // Clean the barangay name before saving (remove Bgy, Brgy, Barangay prefixes)
@@ -297,6 +332,7 @@ const BarangayConfigPage: React.FC = () => {
   };
 
   const displayLogo = logoPreview || watchedLogoUrl;
+  const displayQrCode = qrCodePreview || watchedQrCodeUrl;
 
   if (isLoadingConfig) {
     return (
@@ -364,6 +400,10 @@ const BarangayConfigPage: React.FC = () => {
           isLoadingBarangays={isLoadingBarangays}
           onAddressSelect={handleAddressSelect}
           onLogoSelect={handleLogoSelect}
+          displayQrCode={displayQrCode}
+          isUploadingQr={isUploadingQr}
+          onQrCodeSelect={handleQrCodeSelect}
+          onQrCodeRemove={handleQrCodeRemove}
           onCancel={handleCancelEdit}
         />
       )}

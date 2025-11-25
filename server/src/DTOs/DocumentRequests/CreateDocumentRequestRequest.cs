@@ -21,8 +21,15 @@ public class CreateDocumentRequestRequest
     [RegularExpression("^(online|walkin)$", ErrorMessage = "Payment method must be either 'online' or 'walkin'")]
     public string PaymentMethod { get; set; } = "online";
 
-    // For online payments - Cloudinary URL of payment proof
+    // For online payments - Cloudinary URL of payment proof (GCash screenshot)
     public string? PaymentProof { get; set; }
+
+    // For online payments - GCash reference number (numbers only)
+    [RegularExpression(@"^\d+$", ErrorMessage = "Reference number must contain only numbers")]
+    public string? PaymentReferenceNumber { get; set; }
+
+    // Supporting documents (e.g., valid IDs, requirements)
+    public List<string>? SupportingDocuments { get; set; }
 
     // Optional: Staff/Admin creating on behalf of resident
     public string? CreatedBy { get; set; }

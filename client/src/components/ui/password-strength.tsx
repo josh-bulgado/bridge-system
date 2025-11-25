@@ -14,13 +14,13 @@ export const PasswordStrength = ({ password, className }: PasswordStrengthProps)
   
   return (
     <div className={cn(
-      "space-y-2 animate-in slide-in-from-top-2 fade-in duration-300 ease-out",
+      "space-y-3 animate-in slide-in-from-top-2 fade-in duration-300 ease-out",
       className
     )}>
       <div className="flex items-center justify-between">
-        <span className="text-xs text-muted-foreground">Password strength</span>
+        <span className="text-xs font-medium text-muted-foreground">Password strength</span>
         <span className={cn(
-          "text-xs font-medium transition-colors duration-200 ease-in-out",
+          "text-xs font-semibold transition-colors duration-200 ease-in-out",
           config.textColor
         )}>
           {config.label}
@@ -35,7 +35,7 @@ export const PasswordStrength = ({ password, className }: PasswordStrengthProps)
           )}
         />
       </div>
-      <div className="space-y-1">
+      <div className="space-y-2 pt-1">
         <PasswordRequirement
           met={password.length >= 8}
           text="At least 8 characters"

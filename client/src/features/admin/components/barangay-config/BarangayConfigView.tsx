@@ -1,6 +1,7 @@
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import {
   Building2,
   MapPin,
@@ -9,6 +10,9 @@ import {
   User,
   ImageIcon,
   Mail,
+  Wallet,
+  Copy,
+  CheckCircle2,
 } from "lucide-react";
 import type { BarangayConfigFormData } from "../../schemas/barangayConfigSchema";
 
@@ -19,6 +23,20 @@ interface BarangayConfigViewProps {
 export const BarangayConfigView: React.FC<BarangayConfigViewProps> = ({
   config,
 }) => {
+  const [copiedNumber, setCopiedNumber] = React.useState(false);
+
+  // Check if GCash is configured (all fields must be filled)
+  const isGCashConfigured = 
+    config.gcashQrCodeUrl && 
+    config.gcashNumber && 
+    config.gcashAccountName;
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    setCopiedNumber(true);
+    setTimeout(() => setCopiedNumber(false), 2000);
+  };
+
   return (
     <div className="space-y-6">
       {/* Basic Information Preview - Compact */}
@@ -116,6 +134,83 @@ export const BarangayConfigView: React.FC<BarangayConfigViewProps> = ({
           </div>
         </CardContent>
       </Card>
+
+      {/* GCash Payment Configuration - Only show if configured */}
+      {isGCashConfigured && (
+        <Card>
+          <CardHeader>
+            <CardTitle className="flex items-center gap-2">
+              <Wallet className="h-5 w-5 text-blue-600" />
+              GCash Payment Configuration
+              <CheckCircle2 className="h-5 w-5 text-green-500 ml-auto" />
+            </CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {/* QR Code Display */}
+              <div className="space-y-3">
+                <h4 className="text-sm font-medium text-muted-foreground">
+                  GCash QR Code
+                </h4>
+                <div className="flex justify-center md:justify-start">
+                  <div className="rounded-lg border-2 border-primary/20 p-3 bg-white w-fit">
+                    <img
+                      src={config.gcashQrCodeUrl}
+                      alt="GCash QR Code"
+                      className="h-40 w-40 object-contain"
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Account Details */}
+              <div className="space-y-4">
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">
+                    GCash Number
+                  </h4>
+                  <div className="flex items-center gap-2">
+                    <div className="flex-1 rounded-lg border bg-muted p-3">
+                      <p className="text-lg font-bold font-mono">
+                        {config.gcashNumber}
+                      </p>
+                    </div>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={() => copyToClipboard(config.gcashNumber!)}
+                      className="shrink-0"
+                    >
+                      {copiedNumber ? (
+                        <CheckCircle2 className="h-4 w-4 text-green-500" />
+                      ) : (
+                        <Copy className="h-4 w-4" />
+                      )}
+                    </Button>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <h4 className="text-sm font-medium text-muted-foreground">
+                    Account Name
+                  </h4>
+                  <div className="rounded-lg border bg-muted p-3">
+                    <p className="text-base font-bold">
+                      {config.gcashAccountName}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="rounded-lg bg-blue-50 border border-blue-200 p-3 mt-4">
+                  <p className="text-xs text-blue-900">
+                    <strong>Status:</strong> GCash payment is enabled. Residents can pay online using this QR code and account details.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
     </div>
   );
 };

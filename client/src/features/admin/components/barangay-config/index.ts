@@ -5,3 +5,4 @@ export { CaptainSection } from "./CaptainSection";
 export { AddressSection } from "./AddressSection";
 export { ContactSection } from "./ContactSection";
 export { OfficeHoursSection } from "./OfficeHoursSection";
+export { GCashSection } from "./GCashSection";

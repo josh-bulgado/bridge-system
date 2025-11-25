@@ -71,23 +71,36 @@ export function useEmailAvailability(email: string): UseEmailAvailabilityResult 
         // Debounce the API call
         debounceTimer.current = setTimeout(async () => {
             try {
+                // 🐛 DEBUG: Start timing
+                const startTime = performance.now();
+                console.log(`[EMAIL CHECK] Starting check for: ${email}`);
+                
                 // 🔒 Security: Sanitize email before sending
                 const sanitizedEmail = email.trim().toLowerCase();
                 
-                // Set a timeout for the API call (10 seconds)
+                // Set a timeout for the API call (30 seconds)
                 const timeoutPromise = new Promise((_, reject) => {
-                    setTimeout(() => reject(new Error('Request timeout')), 10000);
+                    setTimeout(() => {
+                        console.log(`[EMAIL CHECK] ⏱️ Request timed out after 30 seconds`);
+                        reject(new Error('Request timeout'));
+                    }, 30000);
                 });
                 
                 const apiPromise = authService.checkEmailAvailability(sanitizedEmail);
                 
                 const result = await Promise.race([apiPromise, timeoutPromise]) as { available: boolean };
                 
+                // 🐛 DEBUG: End timing
+                const endTime = performance.now();
+                const duration = (endTime - startTime).toFixed(2);
+                console.log(`[EMAIL CHECK] ✅ Completed in ${duration}ms | Available: ${result.available}`);
+                
                 setIsAvailable(result.available);
                 setError(null);
                 setIsChecking(false);
             } catch (err: any) {
-                // Silent error logging - no console output for security
+                // 🐛 DEBUG: Log error
+                console.log(`[EMAIL CHECK] ❌ Error occurred:`, err.message);
                 
                 // Distinguish between network errors and server errors
                 if (err.message === 'Request timeout') {

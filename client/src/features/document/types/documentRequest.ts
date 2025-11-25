@@ -39,6 +39,8 @@ export interface DocumentRequest {
   paymentMethod: PaymentMethod;
   amount: number;
   paymentProof?: string;
+  paymentReferenceNumber?: string;
+  supportingDocuments?: string[];
   paymentVerifiedBy?: string;
   paymentVerifiedByName?: string;
   paymentVerifiedAt?: string;
@@ -74,6 +76,8 @@ export interface CreateDocumentRequestRequest {
   additionalDetails?: string;
   paymentMethod: PaymentMethod;
   paymentProof?: string;
+  paymentReferenceNumber?: string;
+  supportingDocuments?: string[];
   createdBy?: string;
 }
 

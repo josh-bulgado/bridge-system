@@ -133,15 +133,17 @@ namespace server.Controllers
     [HttpGet("check-email-availability")]
     public async Task<IActionResult> CheckEmailAvailability([FromQuery] string email)
     {
+      // 🐛 DEBUG: Track request timing
+      var requestStartTime = DateTime.UtcNow;
+      Console.WriteLine($"[EMAIL CHECK] 📥 Request received at {requestStartTime:HH:mm:ss.fff}");
+      
       // 🔒 Security: Get client IP address
       var ipAddress = _rateLimiter.GetClientIp(HttpContext);
       
       // 🔒 Security: Check if IP is blocked due to repeated violations
       if (_rateLimiter.IsIpBlocked(ipAddress))
       {
-        #if DEBUG
-        Console.WriteLine($"[SECURITY] Blocked IP attempted access: {ipAddress}");
-        #endif
+        Console.WriteLine($"[EMAIL CHECK] 🚫 Blocked IP: {ipAddress}");
         return StatusCode(403, new { available = false, message = "Access temporarily blocked due to suspicious activity." });
       }
       
@@ -150,10 +152,7 @@ namespace server.Controllers
       if (_rateLimiter.IsRateLimited($"email_check_{ipAddress}", 10, TimeSpan.FromMinutes(1)))
       {
         var remaining = _rateLimiter.GetRemainingRequests($"email_check_{ipAddress}", 10);
-        
-        #if DEBUG
-        Console.WriteLine($"[SECURITY] Rate limit exceeded for IP: {ipAddress}");
-        #endif
+        Console.WriteLine($"[EMAIL CHECK] ⚠️ Rate limit exceeded for IP: {ipAddress}");
         
         return StatusCode(429, new { available = false, message = "Too many requests. Please try again later." });
       }
@@ -161,8 +160,11 @@ namespace server.Controllers
       // 🔒 Security: Validate email parameter
       if (string.IsNullOrWhiteSpace(email))
       {
+        Console.WriteLine($"[EMAIL CHECK] ❌ Empty email parameter");
         return BadRequest(new { available = false, message = "Email is required." });
       }
+      
+      Console.WriteLine($"[EMAIL CHECK] 🔍 Validating email: {email.Substring(0, Math.Min(5, email.Length))}***");
 
       // 🔒 Security: Advanced email validation to prevent injection attacks
       email = email.Trim().ToLower();
@@ -221,36 +223,55 @@ namespace server.Controllers
       // 🔒 Security: Add artificial delay to prevent timing attacks
       // This makes it harder for attackers to determine if an email exists based on response time
       var startTime = DateTime.UtcNow;
+      Console.WriteLine($"[EMAIL CHECK] 🔎 Querying database...");
       
       // Check if email already exists (excluding deleted accounts for availability check)
-      var existingUser = await _userService.GetByEmailAsync(email);
+      User? existingUser = null;
+      double dbQueryTime = 0;
+      try
+      {
+        existingUser = await _userService.GetByEmailAsync(email);
+        
+        dbQueryTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
+        Console.WriteLine($"[EMAIL CHECK] 📊 Database query completed in {dbQueryTime:F2}ms | Found: {existingUser != null}");
+      }
+      catch (Exception ex)
+      {
+        dbQueryTime = (DateTime.UtcNow - startTime).TotalMilliseconds;
+        Console.WriteLine($"[EMAIL CHECK] ❌ Database query FAILED after {dbQueryTime:F2}ms");
+        Console.WriteLine($"[EMAIL CHECK] ❌ Error: {ex.Message}");
+        Console.WriteLine($"[EMAIL CHECK] ❌ Type: {ex.GetType().Name}");
+        
+        // Return a generic error instead of exposing database issues
+        return StatusCode(503, new { available = false, message = "Service temporarily unavailable. Please try again later." });
+      }
       
-      // 🔒 Security: Ensure consistent response time (minimum 100ms, max 150ms for randomness)
+      // 🔒 Security: Ensure consistent response time (minimum 50ms, max 80ms for randomness)
       var elapsed = (DateTime.UtcNow - startTime).TotalMilliseconds;
-      var minDelay = 100;
-      var randomDelay = new Random().Next(0, 50); // Add 0-50ms random delay
+      var minDelay = 50;
+      var randomDelay = new Random().Next(0, 30); // Add 0-30ms random delay
       var totalMinDelay = minDelay + randomDelay;
       
       if (elapsed < totalMinDelay)
       {
-        await Task.Delay(totalMinDelay - (int)elapsed);
+        var delayNeeded = totalMinDelay - (int)elapsed;
+        Console.WriteLine($"[EMAIL CHECK] ⏱️ Adding {delayNeeded}ms artificial delay for security");
+        await Task.Delay(delayNeeded);
       }
       
-      // 🔒 Security: Log suspicious activity in development mode
-      #if DEBUG
-      Console.WriteLine($"[SECURITY] Email availability check from IP: {ipAddress} for email: {email.Substring(0, Math.Min(3, email.Length))}*** | Available: {existingUser == null}");
-      #endif
+      // 🐛 DEBUG: Calculate total request time
+      var totalRequestTime = (DateTime.UtcNow - requestStartTime).TotalMilliseconds;
+      Console.WriteLine($"[EMAIL CHECK] ✅ Request completed in {totalRequestTime:F2}ms | Available: {existingUser == null}");
+      Console.WriteLine($"[EMAIL CHECK] 📤 Sending response at {DateTime.UtcNow:HH:mm:ss.fff}");
       
       // 🔒 Security: Add cache headers to prevent response caching
       Response.Headers["Cache-Control"] = "no-store, no-cache, must-revalidate";
       Response.Headers["Pragma"] = "no-cache";
       Response.Headers["Expires"] = "0";
       
-      // 🔒 Security: Add rate limit information to response headers (for debugging)
-      #if DEBUG
-      Response.Headers["X-Rate-Limit-Remaining"] = "10";
-      Response.Headers["X-Rate-Limit-Window"] = "60";
-      #endif
+      // 🐛 DEBUG: Add timing information to response headers
+      Response.Headers["X-Request-Time-Ms"] = totalRequestTime.ToString("F2");
+      Response.Headers["X-DB-Query-Time-Ms"] = dbQueryTime.ToString("F2");
       
       return Ok(new { available = existingUser == null });
     }

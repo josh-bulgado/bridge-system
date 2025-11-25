@@ -20,6 +20,9 @@ export interface BarangayConfigResponse {
     email: string;
   };
   officeHours: string;
+  gcashNumber?: string;
+  gcashAccountName?: string;
+  gcashQrCodeUrl?: string;
   createdAt: string;
   updatedAt: string;
 }
@@ -64,6 +67,9 @@ class BarangayConfigService {
           email: response.contact.email,
         },
         officeHours: response.officeHours,
+        gcashNumber: response.gcashNumber || "",
+        gcashAccountName: response.gcashAccountName || "",
+        gcashQrCodeUrl: response.gcashQrCodeUrl || "",
       };
     } catch (error: any) {
       // If config doesn't exist (404), return null instead of throwing
@@ -100,17 +106,32 @@ class BarangayConfigService {
           email: config.contact.email,
         },
         officeHours: config.officeHours,
+        gcashNumber: config.gcashNumber || "",
+        gcashAccountName: config.gcashAccountName || "",
+        gcashQrCodeUrl: config.gcashQrCodeUrl || "",
       };
+
+      console.log("=== SAVING BARANGAY CONFIG ===");
+      console.log("Request body:", JSON.stringify(requestBody, null, 2));
 
       const { data: response } = await api.post<BarangayConfigFormData>(
         `${this.baseUrl}`,
         requestBody,
       );
 
+      console.log("Save response:", response);
       return response;
     } catch (error: any) {
-      const errorMessage = error?.response?.data?.message || "Failed to save barangay config";
-      throw new Error(errorMessage);
+      console.error("=== SAVE CONFIG ERROR ===");
+      console.error("Status:", error?.response?.status);
+      console.error("Error data:", error?.response?.data);
+      console.error("Full error:", error);
+      
+      const errorMessage = error?.response?.data?.message || 
+                          error?.response?.data?.title ||
+                          error?.response?.data?.errors ||
+                          "Failed to save barangay config";
+      throw new Error(typeof errorMessage === 'string' ? errorMessage : JSON.stringify(errorMessage));
     }
   }
 

@@ -31,22 +31,22 @@ const StepPersonalInfo = () => {
         </p>
       </div>
 
-      <div className="space-y-4">
-        {/* Name Fields */}
+      <div className="space-y-6">
+        {/* Name Fields Row 1 */}
         <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
           <FormField
             control={control}
             name="firstName"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel className="flex items-center gap-1 h-5">
+                <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
                   First Name
                   <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Juan" className="h-10" autoFocus />
                 </FormControl>
-                <div className="h-5 text-sm">
+                <div className="min-h-[20px] text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -58,9 +58,9 @@ const StepPersonalInfo = () => {
             name="middleName"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel className="flex items-center gap-1 h-5">
+                <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
                   Middle Name
-                  <Badge variant="secondary" className="text-xs">
+                  <Badge variant="secondary" className="text-[10px] px-1.5 py-0 h-4 font-normal">
                     Optional
                   </Badge>
                 </FormLabel>
@@ -72,7 +72,7 @@ const StepPersonalInfo = () => {
                     onInput={(e) => {
                       // Only allow letters and spaces, capitalize first letter
                       let value = e.currentTarget.value.replace(
-                        /[^a-zA-Z\s]/g,
+                        /[^a-zA-Z\\s]/g,
                         "",
                       );
                       value =
@@ -83,7 +83,7 @@ const StepPersonalInfo = () => {
                     }}
                   />
                 </FormControl>
-                <div className="h-5 text-sm">
+                <div className="min-h-[20px] text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -91,20 +91,21 @@ const StepPersonalInfo = () => {
           />
         </div>
 
-        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-2">
+        {/* Name Fields Row 2 */}
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[1fr_120px]">
           <FormField
             control={control}
             name="lastName"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel className="flex items-center gap-1 h-5">
+                <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
                   Last Name
                   <span className="text-red-500">*</span>
                 </FormLabel>
                 <FormControl>
                   <Input {...field} placeholder="Dela Cruz" className="h-10" />
                 </FormControl>
-                <div className="h-5 text-sm">
+                <div className="min-h-[20px] text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -116,7 +117,7 @@ const StepPersonalInfo = () => {
             name="extensionName"
             render={({ field }) => (
               <FormItem className="space-y-2">
-                <FormLabel className="flex items-center gap-1 h-5">
+                <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
                   Extension
                 </FormLabel>
                 <Select
@@ -140,7 +141,7 @@ const StepPersonalInfo = () => {
                     <SelectItem value="iv">IV</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className="h-5 text-sm">
+                <div className="min-h-[20px] text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -154,7 +155,7 @@ const StepPersonalInfo = () => {
           name="dateOfBirth"
           render={({ field }) => (
             <FormItem className="space-y-2">
-              <FormLabel className="flex items-center gap-1 h-5">
+              <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
                 Date of Birth
                 <span className="text-red-500">*</span>
               </FormLabel>
@@ -166,7 +167,7 @@ const StepPersonalInfo = () => {
                   }}
                 />
               </FormControl>
-              <div className="h-5 text-sm">
+              <div className="min-h-[20px] text-sm">
                 <FormMessage />
               </div>
             </FormItem>

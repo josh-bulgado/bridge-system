@@ -22,6 +22,8 @@ public class DocumentRequestResponse
     public string PaymentMethod { get; set; } = string.Empty;
     public decimal Amount { get; set; }
     public string? PaymentProof { get; set; }
+    public string? PaymentReferenceNumber { get; set; }
+    public List<string>? SupportingDocuments { get; set; }
     public string? PaymentVerifiedBy { get; set; }
     public string? PaymentVerifiedByName { get; set; }
     public DateTime? PaymentVerifiedAt { get; set; }

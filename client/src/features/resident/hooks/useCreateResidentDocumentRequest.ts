@@ -12,9 +12,7 @@ export const useCreateResidentDocumentRequest = () => {
     onSuccess: (data) => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["myDocumentRequests"] });
-      toast.success("Document request submitted successfully!", {
-        description: `Tracking Number: ${data.trackingNumber}`,
-      });
+      // Toast removed - Thank You dialog will show instead
     },
     onError: (error: any) => {
       toast.error("Failed to submit document request", {

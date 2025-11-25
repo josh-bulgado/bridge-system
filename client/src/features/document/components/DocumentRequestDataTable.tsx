@@ -127,10 +127,10 @@ export function DocumentRequestDataTable<TData, TValue>({
       {/* Search and Filters */}
       <div className="flex items-center gap-4">
         <Input
-          placeholder="Search requests..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
+          placeholder="Search by resident name or email..."
+          value={(table.getColumn("residentName")?.getFilterValue() as string) ?? ""}
           onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
+            table.getColumn("residentName")?.setFilterValue(event.target.value)
           }
           className="max-w-sm"
         />

@@ -63,26 +63,26 @@ const StepContactInfo_New = () => {
         </p>
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-6">
         {/* Email Field */}
         <FormField
           control={control}
           name="email"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
+            <FormItem className="space-y-2">
+              <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
                 Email Address
                 <span className="text-red-500">*</span>
                 {isChecking && (
-                  <Badge variant="secondary" className="flex items-center gap-1">
-                    <Loader2 className="h-3 w-3 animate-spin" />
+                  <Badge variant="secondary" className="ml-auto text-[10px] px-2 py-0.5 h-5 font-normal">
+                    <Loader2 className="mr-1 h-3 w-3 animate-spin" />
                     Checking...
                   </Badge>
                 )}
                 {!isChecking && email && isValidEmail(email) && isAvailable === true && (
                   <Badge
                     variant="secondary"
-                    className="border-green-200 bg-green-50 text-green-600"
+                    className="ml-auto border-green-200 bg-green-50 text-green-600 text-[10px] px-2 py-0.5 h-5 font-normal"
                   >
                     <Check className="mr-1 h-3 w-3" />
                     Available
@@ -91,7 +91,7 @@ const StepContactInfo_New = () => {
                 {!isChecking && email && isValidEmail(email) && isAvailable === false && (
                   <Badge
                     variant="secondary"
-                    className="border-red-200 bg-red-50 text-red-600"
+                    className="ml-auto border-red-200 bg-red-50 text-red-600 text-[10px] px-2 py-0.5 h-5 font-normal"
                   >
                     <XCircle className="mr-1 h-3 w-3" />
                     Already Registered
@@ -131,31 +131,33 @@ const StepContactInfo_New = () => {
                 </div>
               </FormControl>
               {emailFocused && !email && (
-                <Alert>
+                <Alert className="mt-2">
                   <Info className="h-4 w-4" />
-                  <AlertDescription>
+                  <AlertDescription className="text-xs">
                     Enter a valid email address for account verification and
                     important notifications
                   </AlertDescription>
                 </Alert>
               )}
               {!isChecking && email && isValidEmail(email) && isAvailable === false && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="mt-2">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+                  <AlertDescription className="text-xs">
                     This email is already registered. Please use a different email or try signing in.
                   </AlertDescription>
                 </Alert>
               )}
               {availabilityError && email && isValidEmail(email) && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="mt-2">
                   <AlertCircle className="h-4 w-4" />
-                  <AlertDescription>
+                  <AlertDescription className="text-xs">
                     {availabilityError}
                   </AlertDescription>
                 </Alert>
               )}
-              <FormMessage />
+              <div className="min-h-[20px]">
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />
@@ -165,22 +167,22 @@ const StepContactInfo_New = () => {
           control={control}
           name="contactNumber"
           render={({ field }) => (
-            <FormItem>
-              <FormLabel className="flex items-center gap-2">
+            <FormItem className="space-y-2">
+              <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
                 Phone Number
                 <span className="text-red-500">*</span>
                 <Tooltip>
-                  <TooltipTrigger>
-                    <Info className="text-muted-foreground h-4 w-4" />
+                  <TooltipTrigger type="button">
+                    <Info className="text-muted-foreground h-3.5 w-3.5" />
                   </TooltipTrigger>
                   <TooltipContent>
-                    <p>Used for resident directory and emergency contact</p>
+                    <p className="text-xs">Used for resident directory and emergency contact</p>
                   </TooltipContent>
                 </Tooltip>
                 {contactNumber && isValidPhone(contactNumber) && (
                   <Badge
                     variant="secondary"
-                    className="border-green-200 bg-green-50 text-green-600"
+                    className="ml-auto border-green-200 bg-green-50 text-green-600 text-[10px] px-2 py-0.5 h-5 font-normal"
                   >
                     <Check className="mr-1 h-3 w-3" />
                     Valid
@@ -188,12 +190,12 @@ const StepContactInfo_New = () => {
                 )}
               </FormLabel>
               <FormControl>
-                <div className="flex items-center">
-                  <div className="flex items-center justify-center px-3 py-2 border border-r-0 rounded-l-md bg-muted text-muted-foreground border-input h-10">
+                <div className="flex items-stretch">
+                  <div className="flex items-center justify-center gap-2 px-3 border border-r-0 rounded-l-md bg-muted text-muted-foreground border-input h-10">
                     <svg
                       xmlns="http://www.w3.org/2000/svg"
                       viewBox="0 0 900 600"
-                      className="mr-2 h-4 w-6"
+                      className="h-4 w-6 shrink-0"
                       aria-hidden="true"
                     >
                       <rect width="900" height="600" fill="#0038a8" />
@@ -255,14 +257,16 @@ const StepContactInfo_New = () => {
                 </div>
               </FormControl>
               {phoneFocused && !contactNumber && (
-                <Alert>
+                <Alert className="mt-2">
                   <Info className="h-4 w-4" />
-                  <AlertDescription>
+                  <AlertDescription className="text-xs">
                     Enter your Philippine mobile number (e.g., 9123456789)
                   </AlertDescription>
                 </Alert>
               )}
-              <FormMessage />
+              <div className="min-h-[20px]">
+                <FormMessage />
+              </div>
             </FormItem>
           )}
         />
