@@ -83,21 +83,6 @@ export const RegistrationForm = () => {
       // Check if email is available (not already registered)
       const emailIsAvailable = emailAvailable === true;
       
-      // Debug logging in development
-      if (import.meta.env.DEV) {
-        console.log('Step 2 Validation:', {
-          contactNumber: fields[0] || 'Empty',
-          email: fields[1] || 'Empty',
-          phoneValid: phoneValid ? '✓ Valid' : '✗ Invalid',
-          emailAvailable: emailIsAvailable ? '✓ Available' : '✗ Not available',
-          contactNumberError: errors.contactNumber?.message || 'No error',
-          emailError: errors.email?.message || 'No error',
-          allFilled: allFilled ? '✓' : '✗',
-          hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
-          isValid: (allFilled && !hasErrors && phoneValid && emailIsAvailable) ? '✓ Valid' : '✗ Invalid'
-        });
-      }
-      
       return allFilled && !hasErrors && phoneValid && emailIsAvailable;
     }
     

@@ -301,22 +301,8 @@ class AuthService {
         { params: { email } },
       );
 
-      // 🔒 Security: Only log in development mode, and mask the email
-      if (import.meta.env.DEV) {
-        const maskedEmail =
-          email.substring(0, 3) + "***@" + email.split("@")[1];
-        console.log(
-          `Email availability check for ${maskedEmail}:`,
-          data.available ? "Available" : "Not available",
-        );
-      }
-
       return data;
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        // Error handling - keep for debugging non-sensitive errors
-      }
-
       // Only return false if we get a definitive response from the server
       // Otherwise, throw the error so the UI can handle it appropriately
       if (error.response?.status === 400 || error.response?.status === 409) {
