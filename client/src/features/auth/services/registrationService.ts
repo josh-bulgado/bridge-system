@@ -11,6 +11,7 @@ export const registrationApi = {
       dateOfBirth: data.dateOfBirth,
       email: data.email,
       contactNumber: data.contactNumber,
+      civilStatus: data.civilStatus,
       password: data.password,
       website: data.website, // Honeypot field
     };

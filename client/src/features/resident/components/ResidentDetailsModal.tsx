@@ -22,62 +22,10 @@ import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePreloadResidentDocuments } from "../hooks/usePreloadResidentDocuments";
-
-interface VerificationHistoryItem {
-  governmentIdType?: string;
-  governmentIdFront?: string;
-  governmentIdFrontUrl?: string;
-  governmentIdFrontFileType?: string;
-  governmentIdBack?: string;
-  governmentIdBackUrl?: string;
-  governmentIdBackFileType?: string;
-  proofOfResidencyType?: string;
-  proofOfResidency?: string;
-  proofOfResidencyUrl?: string;
-  proofOfResidencyFileType?: string;
-  streetPurok?: string;
-  houseNumberUnit?: string;
-  submittedAt: string;
-  status?: string;
-  reviewedBy?: string;
-  reviewedAt?: string;
-  rejectionReason?: string;
-}
-
-interface Resident {
-  id: string;
-  fullName: string;
-  email: string;
-  contactNumber: string;
-  localAddress: string;
-  civilStatus?: string;
-  verificationStatus: "Not Submitted" | "Pending" | "Approved" | "Rejected" | "Under Review";
-  isEmailVerified: boolean;
-  isDeleted: boolean;
-  deletedAt?: string | null;
-  registrationDate: string;
-  verifiedDate: string | null;
-  hasDocuments: boolean;
-  // Current verification documents
-  governmentIdType?: string;
-  governmentIdFront?: string;
-  governmentIdFrontUrl?: string;
-  governmentIdFrontFileType?: string;
-  governmentIdBack?: string;
-  governmentIdBackUrl?: string;
-  governmentIdBackFileType?: string;
-  proofOfResidencyType?: string;
-  proofOfResidency?: string;
-  proofOfResidencyUrl?: string;
-  proofOfResidencyFileType?: string;
-  streetPurok?: string;
-  houseNumberUnit?: string;
-  // Verification history
-  verificationHistory?: VerificationHistoryItem[];
-}
+import { ResidentListItem } from "../../resident/services/residentService";
 
 interface ResidentDetailsModalProps {
-  resident: Resident | null;
+  resident: ResidentListItem | null;
   isOpen: boolean;
   onClose: () => void;
   onRefresh?: () => void;
@@ -95,7 +43,7 @@ function formatDate(dateString: string | null): string {
   });
 }
 
-function getVerificationStatusBadge(status: Resident["verificationStatus"]) {
+function getVerificationStatusBadge(status: ResidentListItem["verificationStatus"]) {
   switch (status) {
     case "Not Submitted":
       return (
@@ -296,13 +244,26 @@ export default function ResidentDetailsModal({
           </div>
         </div>
 
-        {/* Two Column Layout - Show proof panel only for Current Submission */}
-        <div className={cn(
-          "flex overflow-hidden",
-          canApproveReject ? "max-h-[calc(90vh-200px)]" : "max-h-[calc(90vh-140px)]"
-        )}>
-          {/* Left Column - Resident Details */}
-          <ScrollArea className="w-1/2 border-r">
+        {/* Tabs for Current Submission and History */}
+        <Tabs defaultValue="current" className="flex flex-col overflow-hidden">
+          {/* Tabs List */}
+          {hasHistory && (
+            <div className="border-b px-6 py-2 bg-muted/20">
+              <TabsList className="grid w-[400px] grid-cols-2">
+                <TabsTrigger value="current">Current Submission</TabsTrigger>
+                <TabsTrigger value="history">Submission History</TabsTrigger>
+              </TabsList>
+            </div>
+          )}
+
+          {/* Current Submission Tab */}
+          <TabsContent value="current" className="flex-1 m-0 overflow-hidden">
+            <div className={cn(
+              "flex overflow-hidden",
+              canApproveReject ? "max-h-[calc(90vh-200px)]" : "max-h-[calc(90vh-140px)]"
+            )}>
+              {/* Left Column - Resident Details */}
+              <ScrollArea className="w-1/2 border-r">
             <div className="space-y-4 px-6 py-4">
               {/* Personal Information */}
               <div>
@@ -315,8 +276,8 @@ export default function ResidentDetailsModal({
                     <p className="text-sm mt-0.5 font-medium">{displayResident.fullName}</p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground text-xs">Civil Status</Label>
-                    <p className="text-sm mt-0.5">{displayResident.civilStatus || "—"}</p>
+                    <Label className="text-muted-foreground text-xs">Marital Status</Label>
+                    <p className="text-sm mt-0.5">{displayResident.maritalStatus || "—"}</p>
                   </div>
                   <div>
                     <Label className="text-muted-foreground text-xs">Email</Label>
@@ -407,10 +368,9 @@ export default function ResidentDetailsModal({
                       </div>
                     </div>
                   </ScrollArea>
-                </div>
 
-                {/* Right side - Proof of Residency for Current Submission */}
-                <div className="w-1/2 flex flex-col bg-muted/20 overflow-hidden">
+                  {/* Right side - Proof of Residency for Current Submission */}
+                  <div className="w-1/2 flex flex-col bg-muted/20 overflow-hidden">
                   <div className="border-b px-6 py-3 bg-muted/30 flex items-center justify-between flex-shrink-0">
                     <div className="flex items-center gap-2">
                       <Label className="text-sm font-semibold">Proof of Residency</Label>
@@ -455,9 +415,11 @@ export default function ResidentDetailsModal({
                     )}
                   </div>
                 </div>
-              </TabsContent>
+              </div>
+            </TabsContent>
 
-              <TabsContent value="history" className="flex-1 m-0">
+            {/* History Tab */}
+            <TabsContent value="history" className="flex-1 m-0 overflow-hidden">
                 <ScrollArea className="h-full">
                   <div className="px-6 py-4 space-y-2">
                     {displayResident.verificationHistory && displayResident.verificationHistory.length > 0 ? (
@@ -498,9 +460,8 @@ export default function ResidentDetailsModal({
                     )}
                   </div>
                 </ScrollArea>
-              </TabsContent>
-          </Tabs>
-        </div>
+            </TabsContent>
+        </Tabs>
 
         {/* Action Buttons Footer */}
         {canApproveReject && (
