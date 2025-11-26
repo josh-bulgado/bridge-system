@@ -38,6 +38,9 @@ const ResidentDocumentRequestPage = lazy(
 const CreateDocumentRequestPage = lazy(
   () => import("./features/resident/pages/CreateDocumentRequestPage"),
 );
+const DocumentRequestDetailPage = lazy(
+  () => import("./features/resident/pages/DocumentRequestDetailPage"),
+);
 const StaffManagementPage = lazy(
   () => import("./features/staff/pages/StaffManagementPage"),
 );
@@ -104,8 +107,12 @@ function App() {
                 element={<ResidentDocumentRequestPage />}
               />
               <Route
-                path="requests/new"
+                path="new-requests"
                 element={<CreateDocumentRequestPage />}
+              />
+              <Route
+                path="requests/:id"
+                element={<DocumentRequestDetailPage />}
               />
             </Route>
 

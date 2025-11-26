@@ -3,6 +3,7 @@ import type { DocumentRequest } from "@/features/document/types/documentRequest"
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconEye } from "@tabler/icons-react";
+import { Link } from "react-router-dom";
 
 function formatCurrency(amount: number): string {
   return new Intl.NumberFormat("en-PH", {
@@ -80,7 +81,7 @@ export const columns: ColumnDef<DocumentRequest>[] = [
     accessorKey: "purpose",
     header: "Purpose",
     cell: ({ row }) => (
-      <div className="max-w-[200px] truncate text-sm text-muted-foreground">
+      <div className="max-w-[200px] truncate text-sm text-muted-foreground capitalize">
         {row.original.purpose}
       </div>
     ),
@@ -124,8 +125,14 @@ export const columns: ColumnDef<DocumentRequest>[] = [
     id: "actions",
     header: "Actions",
     cell: ({ row }) => (
-      <Button variant="ghost" size="sm">
-        <IconEye className="h-4 w-4" />
+      <Button 
+        variant="ghost" 
+        size="sm"
+        asChild
+      >
+        <Link to={`/resident/requests/${row.original.id}`}>
+          <IconEye className="h-4 w-4" />
+        </Link>
       </Button>
     ),
   },

@@ -1,11 +1,9 @@
 import {
   LayoutDashboard,
-  HelpCircle,
-  FileText,
   Search,
-  Users,
   FilePlus,
-  ListChecks,
+  ClipboardList,
+  MessageSquare,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
@@ -32,30 +30,20 @@ const navMainItems = [
   {
     title: "My Requests",
     url: "/resident/requests",
-    icon: ListChecks,
+    icon: ClipboardList,
   },
   {
-    title: "Request Document",
-    url: "/resident/requests/new",
+    title: "New Request",
+    url: "/resident/new-requests",
     icon: FilePlus,
-  },
-  {
-    title: "Community",
-    url: "/resident/community",
-    icon: Users,
-  },
-  {
-    title: "Reports",
-    url: "/resident/reports",
-    icon: FileText,
   },
 ];
 
 const navSecondaryItems = [
   {
-    title: "Get Help",
+    title: "Help & Support",
     url: "/resident/help",
-    icon: HelpCircle,
+    icon: MessageSquare,
   },
   {
     title: "Search",

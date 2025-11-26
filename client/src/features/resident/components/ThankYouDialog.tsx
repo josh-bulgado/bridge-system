@@ -14,6 +14,8 @@ interface ThankYouDialogProps {
   onOpenChange: (open: boolean) => void;
   trackingNumber?: string;
   paymentMethod?: "online" | "walkin";
+  onSubmitAnother?: () => void;
+  requestId?: string;
 }
 
 export function ThankYouDialog({
@@ -21,17 +23,25 @@ export function ThankYouDialog({
   onOpenChange,
   trackingNumber,
   paymentMethod,
+  onSubmitAnother,
+  requestId,
 }: ThankYouDialogProps) {
   const navigate = useNavigate();
 
-  const handleViewRequests = () => {
+  const handleTrackRequests = () => {
     onOpenChange(false);
-    navigate("/resident/document-requests");
+    // Navigate directly to the detail page of the just-submitted request
+    if (requestId) {
+      navigate(`/resident/requests/${requestId}`);
+    } else {
+      // Fallback to list page if no requestId
+      navigate("/resident/requests");
+    }
   };
 
-  const handleClose = () => {
+  const handleSubmitAnother = () => {
     onOpenChange(false);
-    navigate("/resident/dashboard");
+    onSubmitAnother?.();
   };
 
   return (
@@ -75,19 +85,19 @@ export function ThankYouDialog({
           </div>
         </div>
 
-        <div className="flex flex-col sm:flex-row gap-2">
+        <div className="flex flex-col-reverse sm:flex-row gap-2">
           <Button
             variant="outline"
             className="flex-1"
-            onClick={handleClose}
+            onClick={handleSubmitAnother}
           >
-            Back to Dashboard
+            Submit Another
           </Button>
           <Button
             className="flex-1"
-            onClick={handleViewRequests}
+            onClick={handleTrackRequests}
           >
-            View My Requests
+            Track My Requests
           </Button>
         </div>
       </DialogContent>

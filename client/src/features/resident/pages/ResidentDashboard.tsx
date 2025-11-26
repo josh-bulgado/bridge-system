@@ -16,14 +16,16 @@ import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useVerificationStatus } from "../hooks/useVerificationStatus";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { Clock, CheckCircle, XCircle, X } from "lucide-react";
-import { useFetchDocumentRequests } from "@/features/document/hooks/useFetchDocumentRequests";
+import { useFetchMyDocumentRequests } from "../hooks/useFetchMyDocumentRequests";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
+import { useNavigate } from "react-router-dom";
 
 const ResidentDashboard = () => {
   const { data: user } = useAuth();
   const queryClient = useQueryClient();
+  const navigate = useNavigate();
 
   // Fetch verification status using cached hook
   const { data: verificationData, isLoading: isLoadingStatus } =
@@ -55,9 +57,7 @@ const ResidentDashboard = () => {
 
   // Fetch real document requests for the logged-in resident
   const { data: documentRequests, isLoading: isLoadingRequests } =
-    useFetchDocumentRequests({
-      residentId: user?.id,
-    });
+    useFetchMyDocumentRequests();
 
   // Transform API data to RequestData format and get recent 5 requests
   const recentRequests: RequestData[] = useMemo(() => {
@@ -139,19 +139,22 @@ const ResidentDashboard = () => {
   };
 
   const handleNewRequest = () => {
-    // TODO: Navigate to new request form
+    navigate("/resident/requests/new");
   };
 
   const handleViewAllRequests = () => {
-    // TODO: Navigate to all requests page
+    navigate("/resident/requests");
   };
 
   const handlePickupSchedule = () => {
-    // TODO: Navigate to pickup schedule
+    // Filter requests that are ready_for_generation or completed
+    navigate("/resident/requests");
+    // TODO: In future, add pickup schedule page or filter
   };
 
   const handleRequestClick = (request: RequestData) => {
-    // TODO: Navigate to request details
+    // Navigate to request details page using React Router (no full page reload!)
+    navigate(`/resident/requests/${request.id}`);
   };
 
   // Get the user's first name for the greeting

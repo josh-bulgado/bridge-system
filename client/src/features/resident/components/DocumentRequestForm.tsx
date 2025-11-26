@@ -19,12 +19,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
-import { useFetchAvailableDocuments, useFetchGCashConfig, useCreateResidentDocumentRequest } from "../hooks";
+import {
+  useFetchAvailableDocuments,
+  useFetchGCashConfig,
+  useCreateResidentDocumentRequest,
+} from "../hooks";
 import { GCashPaymentDialog } from "./GCashPaymentDialog";
 import { ThankYouDialog } from "./ThankYouDialog";
 import { MultiFileUploadZone } from "./MultiFileUploadZone";
@@ -35,23 +38,28 @@ import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { toast } from "sonner";
 
-const formSchema = z.object({
-  documentId: z.string().min(1, "Please select a document type"),
-  purpose: z.string().min(1, "Please select a purpose"),
-  customPurpose: z.string().optional(),
-  additionalDetails: z.string().optional(),
-  paymentMethod: z.enum(["online", "walkin"]).optional(),
-  paymentProof: z.string().optional(),
-  supportingDocuments: z.array(z.string()).optional(),
-}).refine((data) => {
-  if (data.purpose === "other" && !data.customPurpose) {
-    return false;
-  }
-  return true;
-}, {
-  message: "Please specify your purpose",
-  path: ["customPurpose"],
-});
+const formSchema = z
+  .object({
+    documentId: z.string().min(1, "Please select a document type"),
+    purpose: z.string().min(1, "Please select a purpose"),
+    customPurpose: z.string().optional(),
+    additionalDetails: z.string().optional(),
+    paymentMethod: z.enum(["online", "walkin"]).optional(),
+    paymentProof: z.string().optional(),
+    supportingDocuments: z.array(z.string()).optional(),
+  })
+  .refine(
+    (data) => {
+      if (data.purpose === "other" && !data.customPurpose) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Please specify your purpose",
+      path: ["customPurpose"],
+    },
+  );
 
 type FormValues = z.infer<typeof formSchema>;
 
@@ -66,17 +74,22 @@ export function DocumentRequestForm({
 }: DocumentRequestFormProps) {
   const navigate = useNavigate();
   const { data: user } = useAuth();
-  const { data: documents = [], isLoading: loadingDocuments } = useFetchAvailableDocuments();
+  const { data: documents = [], isLoading: loadingDocuments } =
+    useFetchAvailableDocuments();
   const { data: gcashConfig } = useFetchGCashConfig();
-  const { mutate: createRequest, isPending } = useCreateResidentDocumentRequest();
+  const { mutate: createRequest, isPending } =
+    useCreateResidentDocumentRequest();
   console.log("Available documents:", user);
-  
+
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("");
   const [showCustomPurpose, setShowCustomPurpose] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showThankYouDialog, setShowThankYouDialog] = useState(false);
-  const [submittedTrackingNumber, setSubmittedTrackingNumber] = useState<string>("");
-  const [submittedPaymentMethod, setSubmittedPaymentMethod] = useState<"online" | "walkin">("walkin");
+  const [submittedTrackingNumber, setSubmittedTrackingNumber] =
+    useState<string>("");
+  const [submittedPaymentMethod, setSubmittedPaymentMethod] = useState<
+    "online" | "walkin"
+  >("walkin");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -98,9 +111,15 @@ export function DocumentRequestForm({
 
   // Get selected document to check if it's free
   const selectedDocument = documents.find((d: Document) => d.id === documentId);
-  const isFreeDocument = selectedDocument ? selectedDocument.price === 0 : false;
-  const hasRequirements = selectedDocument ? selectedDocument.requirements.length > 0 : false;
-  const needsSupportingDocs = hasRequirements && (!supportingDocuments || supportingDocuments.length === 0);
+  const isFreeDocument = selectedDocument
+    ? selectedDocument.price === 0
+    : false;
+  const hasRequirements = selectedDocument
+    ? selectedDocument.requirements.length > 0
+    : false;
+  const needsSupportingDocs =
+    hasRequirements &&
+    (!supportingDocuments || supportingDocuments.length === 0);
 
   // Update parent when document selection changes
   useEffect(() => {
@@ -122,16 +141,21 @@ export function DocumentRequestForm({
   const handleFormSubmit = (values: FormValues) => {
     if (!user?.residentId) {
       toast.error("No resident ID found", {
-        description: "Please make sure your profile is linked to a resident account.",
+        description:
+          "Please make sure your profile is linked to a resident account.",
       });
       return;
     }
 
     // Validate supporting documents if document has requirements
     if (selectedDocument && selectedDocument.requirements.length > 0) {
-      if (!values.supportingDocuments || values.supportingDocuments.length === 0) {
+      if (
+        !values.supportingDocuments ||
+        values.supportingDocuments.length === 0
+      ) {
         toast.error("Supporting documents required", {
-          description: "Please upload the required supporting documents before submitting.",
+          description:
+            "Please upload the required supporting documents before submitting.",
         });
         form.setError("supportingDocuments", {
           type: "manual",
@@ -151,13 +175,22 @@ export function DocumentRequestForm({
     submitRequest(values);
   };
 
-  const submitRequest = (values: FormValues, referenceNumber?: string, receiptUrl?: string) => {
+  const [submittedRequestId, setSubmittedRequestId] = useState<string>("");
+
+  const submitRequest = (
+    values: FormValues,
+    referenceNumber?: string,
+    receiptUrl?: string,
+  ) => {
     if (!user?.residentId) return;
 
-    const finalPurpose = values.purpose === "other" ? values.customPurpose! : values.purpose;
+    const finalPurpose =
+      values.purpose === "other" ? values.customPurpose! : values.purpose;
 
     // For free documents, default to walkin payment method
-    const paymentMethod = isFreeDocument ? "walkin" : (values.paymentMethod || "walkin");
+    const paymentMethod = isFreeDocument
+      ? "walkin"
+      : values.paymentMethod || "walkin";
 
     createRequest(
       {
@@ -174,14 +207,39 @@ export function DocumentRequestForm({
         onSuccess: (data) => {
           setShowPaymentDialog(false);
           setSubmittedTrackingNumber(data.trackingNumber);
+          setSubmittedRequestId(data.id);
           setSubmittedPaymentMethod(paymentMethod);
           setShowThankYouDialog(true);
         },
-      }
+      },
     );
   };
 
-  const handleConfirmPayment = (referenceNumber: string, receiptUrl: string) => {
+  const handleSubmitAnother = () => {
+    // Reset form to default values
+    form.reset({
+      documentId: "",
+      purpose: "",
+      customPurpose: "",
+      additionalDetails: "",
+      paymentMethod: "walkin",
+      paymentProof: "",
+      supportingDocuments: [],
+    });
+    
+    // Reset local state
+    setSelectedDocumentId("");
+    setShowCustomPurpose(false);
+    
+    // Notify parent components
+    onDocumentSelect(null);
+    onPaymentMethodChange("walkin");
+  };
+
+  const handleConfirmPayment = (
+    referenceNumber: string,
+    receiptUrl: string,
+  ) => {
     const values = form.getValues();
     // Store the receipt URL in the form
     form.setValue("paymentProof", receiptUrl);
@@ -191,235 +249,252 @@ export function DocumentRequestForm({
   return (
     <>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
-        {/* Document Type Selection */}
-        <FormField
-          control={form.control}
-          name="documentId"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Document Type *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select document type" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {loadingDocuments ? (
-                    <SelectItem value="loading" disabled>
-                      Loading documents...
-                    </SelectItem>
-                  ) : documents.length === 0 ? (
-                    <SelectItem value="none" disabled>
-                      No documents available
-                    </SelectItem>
-                  ) : (
-                    documents.map((doc: Document) => (
-                      <SelectItem key={doc.id} value={doc.id}>
-                        {doc.name} - {doc.price === 0 ? "FREE" : `₱${doc.price}`}
-                      </SelectItem>
-                    ))
-                  )}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Select the type of document you want to request
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Only show remaining fields if a document is selected */}
-        {selectedDocument && (
-          <>
-            <Separator />
-
-            {/* Purpose Selection */}
-            <FormField
-          control={form.control}
-          name="purpose"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Purpose *</FormLabel>
-              <Select onValueChange={field.onChange} defaultValue={field.value}>
-                <FormControl>
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select purpose" />
-                  </SelectTrigger>
-                </FormControl>
-                <SelectContent>
-                  {PURPOSE_OPTIONS.map((option) => (
-                    <SelectItem key={option.value} value={option.value}>
-                      {option.label}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-              <FormDescription>
-                Why do you need this document?
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* Custom Purpose (shown when "other" is selected) */}
-        {showCustomPurpose && (
+        <form
+          onSubmit={form.handleSubmit(handleFormSubmit)}
+          className="space-y-6"
+        >
+          {/* Document Type Selection */}
           <FormField
             control={form.control}
-            name="customPurpose"
+            name="documentId"
             render={({ field }) => (
               <FormItem>
-                <FormLabel>Please specify *</FormLabel>
-                <FormControl>
-                  <Textarea
-                    placeholder="Enter your specific purpose..."
-                    {...field}
-                  />
-                </FormControl>
+                <FormLabel>Document Type *</FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  defaultValue={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select document type" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    {loadingDocuments ? (
+                      <SelectItem value="loading" disabled>
+                        Loading documents...
+                      </SelectItem>
+                    ) : documents.length === 0 ? (
+                      <SelectItem value="none" disabled>
+                        No documents available
+                      </SelectItem>
+                    ) : (
+                      documents.map((doc: Document) => (
+                        <SelectItem key={doc.id} value={doc.id}>
+                          {doc.name} -{" "}
+                          {doc.price === 0 ? "FREE" : `₱${doc.price}`}
+                        </SelectItem>
+                      ))
+                    )}
+                  </SelectContent>
+                </Select>
+                <FormDescription>
+                  Select the type of document you want to request
+                </FormDescription>
                 <FormMessage />
               </FormItem>
             )}
           />
-        )}
 
-        {/* Additional Details */}
-        <FormField
-          control={form.control}
-          name="additionalDetails"
-          render={({ field }) => (
-            <FormItem>
-              <FormLabel>Additional Details (Optional)</FormLabel>
-              <FormControl>
-                <Textarea
-                  placeholder="Any additional information..."
-                  {...field}
-                />
-              </FormControl>
-              <FormDescription>
-                Provide any additional information that may be helpful
-              </FormDescription>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+          {/* Only show remaining fields if a document is selected */}
+          {selectedDocument && (
+            <>
+              <Separator />
 
-        {/* Supporting Documents - Only show if document has requirements */}
-        {selectedDocument && selectedDocument.requirements.length > 0 && (
-          <>
-            <Separator />
-
-            <FormField
-              control={form.control}
-              name="supportingDocuments"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Supporting Documents *</FormLabel>
-                  <FormControl>
-                    <MultiFileUploadZone
-                      onUploadComplete={(urls) => field.onChange(urls)}
-                      maxFiles={5}
-                      maxSize={10 * 1024 * 1024} // 10MB
-                    />
-                  </FormControl>
-                  <FormDescription>
-                    Upload the required documents listed in the order summary (Images only: PNG, JPG, JPEG - max 5 files, 10MB each)
-                  </FormDescription>
-                  <FormMessage />
-                </FormItem>
-              )}
-            />
-          </>
-        )}
-
-        {!isFreeDocument && (
-          <>
-            <Separator />
-
-            {/* Payment Method */}
-            <FormField
-              control={form.control}
-              name="paymentMethod"
-              render={({ field }) => (
-                <FormItem className="space-y-3">
-                  <FormLabel>Payment Method *</FormLabel>
-                  <FormControl>
-                    <RadioGroup
+              {/* Purpose Selection */}
+              <FormField
+                control={form.control}
+                name="purpose"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Purpose *</FormLabel>
+                    <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex flex-col space-y-1"
                     >
-                      <div className="flex items-center space-x-3 space-y-0">
-                        <RadioGroupItem value="online" />
-                        <Label className="font-normal">
-                          GCash (Pay Now)
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-3 space-y-0">
-                        <RadioGroupItem value="walkin" />
-                        <Label className="font-normal">
-                          Cash on Pickup (Pay at Barangay Hall)
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </FormControl>
-                  <FormMessage />
-                </FormItem>
+                      <FormControl>
+                        <SelectTrigger>
+                          <SelectValue placeholder="Select purpose" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        {PURPOSE_OPTIONS.map((option) => (
+                          <SelectItem key={option.value} value={option.value}>
+                            {option.label}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormDescription>
+                      Why do you need this document?
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Custom Purpose (shown when "other" is selected) */}
+              {showCustomPurpose && (
+                <FormField
+                  control={form.control}
+                  name="customPurpose"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Please specify *</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Enter your specific purpose..."
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
               )}
-            />
 
+              {/* Additional Details */}
+              <FormField
+                control={form.control}
+                name="additionalDetails"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Additional Details (Optional)</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        placeholder="Any additional information..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormDescription>
+                      Provide any additional information that may be helpful
+                    </FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
 
-            <Separator />
-          </>
-        )}
-          </>
-        )}
+              {/* Supporting Documents - Only show if document has requirements */}
+              {selectedDocument && selectedDocument.requirements.length > 0 && (
+                <>
+                  <Separator />
 
-        {/* Submit Button */}
-        <div className="flex justify-end gap-4">
-          <Button
-            type="button"
-            variant="outline"
-            onClick={() => navigate("/resident/requests")}
-            disabled={isPending}
-          >
-            Cancel
-          </Button>
-          <Button 
-            type="submit" 
-            disabled={
-              isPending || 
-              !selectedDocument || 
-              !form.watch("purpose") ||
-              needsSupportingDocs
-            }
-          >
-            {isPending && <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />}
-            {!isFreeDocument && paymentMethod === "online" ? "Pay Now" : "Submit Request"}
-          </Button>
-        </div>
-      </form>
-    </Form>
+                  <FormField
+                    control={form.control}
+                    name="supportingDocuments"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Supporting Documents *</FormLabel>
+                        <FormControl>
+                          <MultiFileUploadZone
+                            onUploadComplete={(urls) => field.onChange(urls)}
+                            maxFiles={5}
+                            maxSize={10 * 1024 * 1024} // 10MB
+                          />
+                        </FormControl>
+                        <FormDescription>
+                          Upload the required documents listed in the order
+                          summary (Images only: PNG, JPG, JPEG - max 5 files,
+                          10MB each)
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
 
-    {/* GCash Payment Dialog */}
-    <GCashPaymentDialog
-      open={showPaymentDialog}
-      onOpenChange={setShowPaymentDialog}
-      gcashConfig={gcashConfig}
-      documentPrice={selectedDocument?.price || 0}
-      onConfirmPayment={handleConfirmPayment}
-      isPending={isPending}
-    />
+              {!isFreeDocument && (
+                <>
+                  <Separator />
 
-    {/* Thank You Dialog */}
-    <ThankYouDialog
-      open={showThankYouDialog}
-      onOpenChange={setShowThankYouDialog}
-      trackingNumber={submittedTrackingNumber}
-      paymentMethod={submittedPaymentMethod}
-    />
+                  {/* Payment Method */}
+                  <FormField
+                    control={form.control}
+                    name="paymentMethod"
+                    render={({ field }) => (
+                      <FormItem className="space-y-3">
+                        <FormLabel>Payment Method *</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            defaultValue={field.value}
+                            className="flex flex-col space-y-1"
+                          >
+                            <div className="flex items-center space-y-0 space-x-3">
+                              <RadioGroupItem value="online" id="online" />
+                              <Label className="font-normal" htmlFor="online">
+                                GCash (Pay Now)
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-y-0 space-x-3">
+                              <RadioGroupItem value="walkin" id="walkin" />
+                              <Label className="font-normal" htmlFor="walkin">
+                                Cash on Pickup (Pay at Barangay Hall)
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                  <Separator />
+                </>
+              )}
+            </>
+          )}
+
+          {/* Submit Button */}
+          <div className="flex justify-end gap-4">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => navigate("/resident/requests")}
+              disabled={isPending}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="submit"
+              disabled={
+                isPending ||
+                !selectedDocument ||
+                !form.watch("purpose") ||
+                needsSupportingDocs
+              }
+            >
+              {isPending && (
+                <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
+              )}
+              {!isFreeDocument && paymentMethod === "online"
+                ? "Pay Now"
+                : "Submit Request"}
+            </Button>
+          </div>
+        </form>
+      </Form>
+
+      {/* GCash Payment Dialog */}
+      <GCashPaymentDialog
+        open={showPaymentDialog}
+        onOpenChange={setShowPaymentDialog}
+        gcashConfig={gcashConfig}
+        documentPrice={selectedDocument?.price || 0}
+        onConfirmPayment={handleConfirmPayment}
+        isPending={isPending}
+      />
+
+      {/* Thank You Dialog */}
+      <ThankYouDialog
+        open={showThankYouDialog}
+        onOpenChange={setShowThankYouDialog}
+        trackingNumber={submittedTrackingNumber}
+        paymentMethod={submittedPaymentMethod}
+        onSubmitAnother={handleSubmitAnother}
+        requestId={submittedRequestId}
+      />
     </>
   );
 }

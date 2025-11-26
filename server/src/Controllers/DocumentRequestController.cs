@@ -12,10 +12,12 @@ namespace server.Controllers;
 public class DocumentRequestController : ControllerBase
 {
     private readonly DocumentRequestService _documentRequestService;
+    private readonly UserService _userService;
 
-    public DocumentRequestController(DocumentRequestService documentRequestService)
+    public DocumentRequestController(DocumentRequestService documentRequestService, UserService userService)
     {
         _documentRequestService = documentRequestService;
+        _userService = userService;
     }
 
     // Helper to get current user ID from JWT
@@ -72,9 +74,18 @@ public class DocumentRequestController : ControllerBase
             if (!IsStaffOrAdmin())
             {
                 var userId = GetCurrentUserId();
-                // TODO: Get user's residentId and check if it matches request.ResidentId
-                // For now, allow staff/admin only
-                return Forbid();
+                // Get the user to find their residentId
+                var user = await _userService.GetByIdAsync(userId);
+                if (user == null || string.IsNullOrEmpty(user.ResidentId))
+                {
+                    return Forbid();
+                }
+                
+                // Check if the request belongs to this resident
+                if (request.ResidentId != user.ResidentId)
+                {
+                    return Forbid();
+                }
             }
 
             return Ok(request);
@@ -282,6 +293,56 @@ public class DocumentRequestController : ControllerBase
 
             var userId = GetCurrentUserId();
             var result = await _documentRequestService.UpdateStatusAsync(id, userId, request);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Cancel document request (Resident only - can cancel their own pending requests)
+    /// </summary>
+    [HttpPut("{id}/cancel")]
+    [Authorize(Roles = "resident")]
+    public async Task<ActionResult<DocumentRequestResponse>> CancelRequest(string id)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var request = await _documentRequestService.GetRequestByIdAsync(id);
+            
+            if (request == null)
+            {
+                return NotFound(new { message = "Document request not found" });
+            }
+
+            // Get the user to find their residentId
+            var user = await _userService.GetByIdAsync(userId);
+            if (user == null || string.IsNullOrEmpty(user.ResidentId))
+            {
+                return Forbid();
+            }
+
+            // Check if request belongs to this resident
+            if (request.ResidentId != user.ResidentId)
+            {
+                return Forbid();
+            }
+
+            // Only allow cancellation for pending or payment_pending status
+            if (request.Status != "pending" && request.Status != "payment_pending")
+            {
+                return BadRequest(new { message = "Cannot cancel request in current status. Only 'pending' or 'payment_pending' requests can be cancelled." });
+            }
+
+            var result = await _documentRequestService.UpdateStatusAsync(id, userId, new UpdateStatusRequest 
+            { 
+                Status = "cancelled",
+                Notes = "Cancelled by resident"
+            });
+            
             return Ok(result);
         }
         catch (Exception ex)
