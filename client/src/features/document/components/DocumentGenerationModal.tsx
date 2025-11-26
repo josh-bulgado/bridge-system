@@ -205,6 +205,12 @@ export function DocumentGenerationModal({
                     <SelectItem value="Separated">Separated</SelectItem>
                   </SelectContent>
                 </Select>
+                {editedData.CIVIL_STATUS && (
+                  <p className="text-xs text-muted-foreground flex items-center gap-1">
+                    <span className="inline-block w-1 h-1 rounded-full bg-blue-500"></span>
+                    Changes will be saved to resident profile
+                  </p>
+                )}
               </div>
 
               {/* Address Information */}
@@ -296,6 +302,10 @@ export function DocumentGenerationModal({
                 <strong>Note:</strong> Review all information carefully. Fields marked with{" "}
                 <span className="text-red-500">*</span> are required. Grayed out fields are
                 auto-filled from system configuration.
+              </p>
+              <p className="text-sm text-blue-800 dark:text-blue-300 mt-2">
+                <strong>Important:</strong> Civil status will be saved to the resident's profile
+                for future use. You can update it if needed.
               </p>
             </div>
           </div>

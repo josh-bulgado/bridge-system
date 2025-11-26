@@ -125,6 +125,8 @@ namespace server.Services
                 throw new Exception("Barangay configuration not found");
 
             // Download template from Cloudinary
+            _logger.LogInformation("Using template URL: {TemplateUrl} for document type: {DocumentType}", 
+                document.TemplateUrl, document.Name);
             var templatePath = await DownloadTemplateAsync(document.TemplateUrl);
 
             try
@@ -172,6 +174,56 @@ namespace server.Services
                 if (!uploadResult.success || string.IsNullOrEmpty(uploadResult.url))
                 {
                     throw new Exception($"Failed to upload document: {uploadResult.error}");
+                }
+
+                // Update resident civil status if provided and different
+                var residentCollection = _context.GetCollection<Resident>("residents");
+                var resident = await residentCollection
+                    .Find(r => r.Id == documentRequest.ResidentId)
+                    .FirstOrDefaultAsync();
+
+                _logger.LogInformation("DEBUG: Resident found: {Found}, ResidentId: {ResidentId}", 
+                    resident != null, documentRequest.ResidentId);
+                
+                if (resident != null)
+                {
+                    _logger.LogInformation("DEBUG: Current civil status: {Current}, Data contains CIVIL_STATUS: {Contains}", 
+                        resident.CivilStatus ?? "NULL", data.ContainsKey("CIVIL_STATUS"));
+                    
+                    if (data.ContainsKey("CIVIL_STATUS"))
+                    {
+                        var newCivilStatus = data["CIVIL_STATUS"];
+                        _logger.LogInformation("DEBUG: New civil status from data: {New}, Is empty: {IsEmpty}, Are different: {Different}", 
+                            newCivilStatus ?? "NULL", 
+                            string.IsNullOrEmpty(newCivilStatus),
+                            resident.CivilStatus != newCivilStatus);
+                        
+                        if (!string.IsNullOrEmpty(newCivilStatus) && resident.CivilStatus != newCivilStatus)
+                        {
+                            var oldStatus = resident.CivilStatus;
+                            resident.CivilStatus = newCivilStatus;
+                            
+                            var updateResult = await residentCollection.ReplaceOneAsync(
+                                r => r.Id == resident.Id,
+                                resident
+                            );
+                            
+                            _logger.LogInformation("Updated resident {ResidentId} civil status from '{Old}' to '{New}'. ModifiedCount: {Count}", 
+                                resident.Id, oldStatus ?? "NULL", newCivilStatus, updateResult.ModifiedCount);
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Skipping civil status update - either empty or same value");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("CIVIL_STATUS key not found in data dictionary");
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Resident not found for ResidentId: {ResidentId}", documentRequest.ResidentId);
                 }
 
                 // Update document request

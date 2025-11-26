@@ -14,6 +14,7 @@ namespace server.DTOs.Residents
         public DateTime RegistrationDate { get; set; }
         public DateTime? VerifiedDate { get; set; }
         public bool HasDocuments { get; set; }
+        public string? CivilStatus { get; set; }
         
         // Verification documents
         public string? GovernmentIdType { get; set; }
