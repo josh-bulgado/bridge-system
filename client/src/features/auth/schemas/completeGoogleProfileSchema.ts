@@ -34,6 +34,14 @@ export const completeGoogleProfileSchema = z.object({
     .min(10, "Phone number must be exactly 10 digits")
     .max(10, "Phone number must be exactly 10 digits")
     .regex(/^9[0-9]{9}$/, "Phone number must start with 9 and be 10 digits long"),
+  civilStatus: z
+    .string()
+    .min(1, "Civil status is required")
+    .refine(
+      (val) => ["Single", "Married", "Widowed", "Divorced", "Separated"].includes(val),
+      "Please select a valid civil status"
+    )
+    .optional(),
 });
 
 export type CompleteGoogleProfileFormData = z.infer<typeof completeGoogleProfileSchema>;

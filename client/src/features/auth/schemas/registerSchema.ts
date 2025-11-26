@@ -44,6 +44,13 @@ export const registerSchema = z
         // Must be exactly 10 digits (9XXXXXXXXX format, since +63 prefix is already provided)
         return /^9[0-9]{9}$/.test(digitsOnly);
       }, "Please enter a valid 10-digit mobile number starting with 9 (e.g., 9123456789)"),
+    civilStatus: z
+      .string()
+      .min(1, "Civil status is required")
+      .refine(
+        (val) => ["Single", "Married", "Widowed", "Divorced", "Separated"].includes(val),
+        "Please select a valid civil status"
+      ),
     email: z.email("Please enter a valid email address"),
     password: z
       .string()
