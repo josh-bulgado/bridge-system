@@ -22,7 +22,7 @@ import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
 import { usePreloadResidentDocuments } from "../hooks/usePreloadResidentDocuments";
-import { ResidentListItem } from "../../resident/services/residentService";
+import { type ResidentListItem } from "../services/residentService";
 
 interface ResidentDetailsModalProps {
   resident: ResidentListItem | null;
