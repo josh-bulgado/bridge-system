@@ -25,3 +25,16 @@ export { VerificationDialog } from "./VerificationDialog";
 export { ThankYouDialog } from "./ThankYouDialog";
 export { GCashPaymentDialog } from "./GCashPaymentDialog";
 export { DocumentRequestForm } from "./DocumentRequestForm";
+
+// Enhanced redesigned components
+export { DashboardHeader } from "./DashboardHeader";
+export { VerificationStatusCard } from "./VerificationStatusCard";
+export { EnhancedStatsGrid } from "./EnhancedStatsGrid";
+export { VerificationProgressStepper } from "./VerificationProgressStepper";
+export { EnhancedOfficeInfoCard } from "./EnhancedOfficeInfoCard";
+export { EnhancedAvailableDocuments } from "./EnhancedAvailableDocuments";
+export { EnhancedQuickActions } from "./EnhancedQuickActions";
+export { EnhancedRecentRequests } from "./EnhancedRecentRequests";
+export { OfficeInfoWidget } from "./OfficeInfoWidget";
+export { DashboardFooter } from "./DashboardFooter";
+export { OfficeInfoBanner } from "./OfficeInfoBanner";

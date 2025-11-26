@@ -49,6 +49,7 @@ export function ResidentActionsCell({ resident }: ResidentActionsCellProps) {
 
   const handleRefresh = () => {
     queryClient.invalidateQueries({ queryKey: ["residents"] });
+    queryClient.invalidateQueries({ queryKey: ["resident"] });
   };
 
   const handleViewDetails = () => {

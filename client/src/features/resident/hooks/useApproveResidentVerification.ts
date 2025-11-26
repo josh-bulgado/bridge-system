@@ -1,6 +1,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { approveResident } from "../services/residentService";
 import { toast } from "sonner";
+import { CACHE_INVALIDATION, QUERY_KEYS } from "@/lib/cache-config";
 
 export const useApproveResidentVerification = () => {
   const queryClient = useQueryClient();
@@ -9,8 +10,9 @@ export const useApproveResidentVerification = () => {
     mutationFn: (residentId: string) => approveResident(residentId),
     onSuccess: (data, residentId) => {
       // Invalidate and refetch residents list
-      queryClient.invalidateQueries({ queryKey: ["residents"] });
-      queryClient.invalidateQueries({ queryKey: ["resident", residentId] });
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.residents() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.residentDetail(residentId) });
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.stats() });
       
       toast.success("Resident verification approved successfully!");
     },

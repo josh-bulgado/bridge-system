@@ -11,8 +11,8 @@ export const useRejectResidentVerification = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: ({ residentId }: RejectResidentParams) => 
-      rejectResident(residentId),
+    mutationFn: ({ residentId, reason }: RejectResidentParams) => 
+      rejectResident(residentId, reason),
     onSuccess: (data, { residentId }) => {
       // Invalidate and refetch residents list
       queryClient.invalidateQueries({ queryKey: ["residents"] });

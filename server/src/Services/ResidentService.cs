@@ -68,6 +68,44 @@ namespace server.Services
             if (resident == null)
                 return null;
 
+            // Initialize verification history list if null
+            if (resident.VerificationHistory == null)
+            {
+                resident.VerificationHistory = new List<VerificationHistoryEntry>();
+            }
+
+            // If there's an existing verification submission, only archive it to history if it hasn't been archived yet
+            // (i.e., only archive if the status is NOT "Rejected" since rejection already archives it)
+            if (resident.VerificationDocuments != null && 
+                resident.VerificationDocuments.SubmittedAt != null && 
+                resident.ResidentVerificationStatus != "Rejected")
+            {
+                var historyEntry = new VerificationHistoryEntry
+                {
+                    GovernmentIdType = resident.VerificationDocuments.GovernmentIdType,
+                    GovernmentIdFront = resident.VerificationDocuments.GovernmentIdFront,
+                    GovernmentIdFrontUrl = resident.VerificationDocuments.GovernmentIdFrontUrl,
+                    GovernmentIdFrontFileType = resident.VerificationDocuments.GovernmentIdFrontFileType,
+                    GovernmentIdBack = resident.VerificationDocuments.GovernmentIdBack,
+                    GovernmentIdBackUrl = resident.VerificationDocuments.GovernmentIdBackUrl,
+                    GovernmentIdBackFileType = resident.VerificationDocuments.GovernmentIdBackFileType,
+                    ProofOfResidencyType = resident.VerificationDocuments.ProofOfResidencyType,
+                    ProofOfResidency = resident.VerificationDocuments.ProofOfResidency,
+                    ProofOfResidencyUrl = resident.VerificationDocuments.ProofOfResidencyUrl,
+                    ProofOfResidencyFileType = resident.VerificationDocuments.ProofOfResidencyFileType,
+                    StreetPurok = resident.Address?.StreetPurok,
+                    HouseNumberUnit = resident.Address?.HouseNumberUnit,
+                    SubmittedAt = resident.VerificationDocuments.SubmittedAt.Value,
+                    Status = resident.ResidentVerificationStatus,
+                    ReviewedBy = resident.VerifiedBy,
+                    ReviewedAt = resident.VerifiedAt,
+                    RejectionReason = resident.RejectionReason // Include rejection reason in history
+                };
+
+                // Add to history
+                resident.VerificationHistory.Add(historyEntry);
+            }
+
             // Initialize address if null
             if (resident.Address == null)
             {
@@ -78,7 +116,7 @@ namespace server.Services
             resident.Address.StreetPurok = streetPurok;
             resident.Address.HouseNumberUnit = houseNumberUnit;
 
-            // Update verification documents
+            // Update verification documents with new submission
             resident.VerificationDocuments = new VerificationDocuments
             {
                 GovernmentIdType = governmentIdType,
@@ -95,8 +133,10 @@ namespace server.Services
                 SubmittedAt = DateTime.UtcNow
             };
 
-            // Update verification status
+            // Update verification status to Pending for new submission
             resident.ResidentVerificationStatus = "Pending";
+            // Clear rejection reason when resubmitting
+            resident.RejectionReason = null;
             resident.LastUpdated = DateTime.UtcNow;
 
             await UpdateAsync(residentId, resident);
@@ -125,16 +165,52 @@ namespace server.Services
         }
 
         // Reject resident verification
-        public async Task<Resident?> RejectResidentAsync(string residentId, string rejectedBy)
+        public async Task<Resident?> RejectResidentAsync(string residentId, string rejectedBy, string? rejectionReason = null)
         {
             var resident = await GetByIdAsync(residentId);
             if (resident == null)
                 return null;
 
+            // Initialize verification history list if null
+            if (resident.VerificationHistory == null)
+            {
+                resident.VerificationHistory = new List<VerificationHistoryEntry>();
+            }
+
+            // Archive the current submission to history when rejecting
+            if (resident.VerificationDocuments != null && resident.VerificationDocuments.SubmittedAt != null)
+            {
+                var historyEntry = new VerificationHistoryEntry
+                {
+                    GovernmentIdType = resident.VerificationDocuments.GovernmentIdType,
+                    GovernmentIdFront = resident.VerificationDocuments.GovernmentIdFront,
+                    GovernmentIdFrontUrl = resident.VerificationDocuments.GovernmentIdFrontUrl,
+                    GovernmentIdFrontFileType = resident.VerificationDocuments.GovernmentIdFrontFileType,
+                    GovernmentIdBack = resident.VerificationDocuments.GovernmentIdBack,
+                    GovernmentIdBackUrl = resident.VerificationDocuments.GovernmentIdBackUrl,
+                    GovernmentIdBackFileType = resident.VerificationDocuments.GovernmentIdBackFileType,
+                    ProofOfResidencyType = resident.VerificationDocuments.ProofOfResidencyType,
+                    ProofOfResidency = resident.VerificationDocuments.ProofOfResidency,
+                    ProofOfResidencyUrl = resident.VerificationDocuments.ProofOfResidencyUrl,
+                    ProofOfResidencyFileType = resident.VerificationDocuments.ProofOfResidencyFileType,
+                    StreetPurok = resident.Address?.StreetPurok,
+                    HouseNumberUnit = resident.Address?.HouseNumberUnit,
+                    SubmittedAt = resident.VerificationDocuments.SubmittedAt.Value,
+                    Status = "Rejected", // Mark this entry as rejected
+                    ReviewedBy = rejectedBy,
+                    ReviewedAt = DateTime.UtcNow,
+                    RejectionReason = rejectionReason // Store rejection reason in history
+                };
+
+                // Add to history
+                resident.VerificationHistory.Add(historyEntry);
+            }
+
             resident.IsResidentVerified = false;
             resident.ResidentVerificationStatus = "Rejected";
             resident.VerifiedBy = rejectedBy;
             resident.VerifiedAt = DateTime.UtcNow;
+            resident.RejectionReason = rejectionReason;
             resident.LastUpdated = DateTime.UtcNow;
 
             await UpdateAsync(residentId, resident);

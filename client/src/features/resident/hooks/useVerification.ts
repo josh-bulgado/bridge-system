@@ -29,6 +29,11 @@ export const useVerification = () => {
     },
   });
 
+  const resetForm = () => {
+    setIsSubmitted(false);
+    form.reset();
+  };
+
   const onSubmit = async (data: VerificationFormData) => {
     setIsSubmitting(true);
     try {
@@ -86,5 +91,6 @@ export const useVerification = () => {
     isSubmitting,
     onSubmit,
     handleBackToDashboard,
+    resetForm,
   };
 };

@@ -1,6 +1,27 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "@/lib/api";
 
+export interface VerificationHistoryItem {
+  governmentIdType?: string;
+  governmentIdFront?: string;
+  governmentIdFrontUrl?: string;
+  governmentIdFrontFileType?: string;
+  governmentIdBack?: string;
+  governmentIdBackUrl?: string;
+  governmentIdBackFileType?: string;
+  proofOfResidencyType?: string;
+  proofOfResidency?: string;
+  proofOfResidencyUrl?: string;
+  proofOfResidencyFileType?: string;
+  streetPurok?: string;
+  houseNumberUnit?: string;
+  submittedAt: string;
+  status?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
+}
+
 export interface ResidentListItem {
   id: string;
   fullName: string;
@@ -15,12 +36,22 @@ export interface ResidentListItem {
   registrationDate: string;
   verifiedDate: string | null;
   hasDocuments: boolean;
-  // Verification documents
+  // Current verification documents
+  governmentIdType?: string;
   governmentIdFront?: string;
+  governmentIdFrontUrl?: string;
+  governmentIdFrontFileType?: string;
   governmentIdBack?: string;
+  governmentIdBackUrl?: string;
+  governmentIdBackFileType?: string;
+  proofOfResidencyType?: string;
   proofOfResidency?: string;
+  proofOfResidencyUrl?: string;
+  proofOfResidencyFileType?: string;
   streetPurok?: string;
   houseNumberUnit?: string;
+  // Verification history
+  verificationHistory?: VerificationHistoryItem[];
 }
 
 export interface UpdateResidentRequest {
@@ -79,8 +110,8 @@ export const approveResident = async (id: string): Promise<any> => {
 /**
  * Reject resident verification
  */
-export const rejectResident = async (id: string): Promise<any> => {
-  const response = await api.post(`/resident/${id}/reject`);
+export const rejectResident = async (id: string, reason?: string): Promise<any> => {
+  const response = await api.post(`/resident/${id}/reject`, { rejectionReason: reason });
   return response.data;
 };
 

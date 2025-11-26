@@ -10,9 +10,10 @@ import {
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
-import { UserCheck, UserX, ExternalLink } from "lucide-react";
+import { UserCheck, UserX, ExternalLink, History, Clock } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useApproveResidentVerification, useRejectResidentVerification } from "../hooks";
 import { useFetchResidentById } from "../../staff/hooks";
 import { RejectVerificationDialog } from "./RejectVerificationDialog";
@@ -20,6 +21,28 @@ import { DocumentViewer } from "@/components/ui/document-viewer";
 import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
 import { cn } from "@/lib/utils";
 import { useQueryClient } from "@tanstack/react-query";
+import { usePreloadResidentDocuments } from "../hooks/usePreloadResidentDocuments";
+
+interface VerificationHistoryItem {
+  governmentIdType?: string;
+  governmentIdFront?: string;
+  governmentIdFrontUrl?: string;
+  governmentIdFrontFileType?: string;
+  governmentIdBack?: string;
+  governmentIdBackUrl?: string;
+  governmentIdBackFileType?: string;
+  proofOfResidencyType?: string;
+  proofOfResidency?: string;
+  proofOfResidencyUrl?: string;
+  proofOfResidencyFileType?: string;
+  streetPurok?: string;
+  houseNumberUnit?: string;
+  submittedAt: string;
+  status?: string;
+  reviewedBy?: string;
+  reviewedAt?: string;
+  rejectionReason?: string;
+}
 
 interface Resident {
   id: string;
@@ -35,7 +58,7 @@ interface Resident {
   registrationDate: string;
   verifiedDate: string | null;
   hasDocuments: boolean;
-  // Verification documents
+  // Current verification documents
   governmentIdType?: string;
   governmentIdFront?: string;
   governmentIdFrontUrl?: string;
@@ -49,6 +72,8 @@ interface Resident {
   proofOfResidencyFileType?: string;
   streetPurok?: string;
   houseNumberUnit?: string;
+  // Verification history
+  verificationHistory?: VerificationHistoryItem[];
 }
 
 interface ResidentDetailsModalProps {
@@ -192,6 +217,7 @@ export default function ResidentDetailsModal({
   userRole,
 }: ResidentDetailsModalProps) {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const [selectedHistoryIndex, setSelectedHistoryIndex] = useState<number | null>(null);
   const queryClient = useQueryClient();
   const approveResidentMutation = useApproveResidentVerification();
   const rejectResidentMutation = useRejectResidentVerification();
@@ -201,6 +227,9 @@ export default function ResidentDetailsModal({
   
   // Use fresh data if available, otherwise use prop data
   const displayResident = (isOpen && freshResidentData) ? freshResidentData : resident;
+  
+  // Preload verification documents for instant display
+  usePreloadResidentDocuments(displayResident, isOpen);
   
   // Refetch when modal opens
   useEffect(() => {
@@ -246,6 +275,9 @@ export default function ResidentDetailsModal({
   const isApproving = approveResidentMutation.isPending;
   const isRejecting = rejectResidentMutation.isPending;
 
+  // Check if there's verification history
+  const hasHistory = displayResident.verificationHistory && displayResident.verificationHistory.length > 0;
+
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="max-h-[90vh] max-w-7xl p-0">
@@ -264,7 +296,7 @@ export default function ResidentDetailsModal({
           </div>
         </div>
 
-        {/* Two Column Layout */}
+        {/* Two Column Layout - Show proof panel only for Current Submission */}
         <div className={cn(
           "flex overflow-hidden",
           canApproveReject ? "max-h-[calc(90vh-200px)]" : "max-h-[calc(90vh-140px)]"
@@ -320,109 +352,154 @@ export default function ResidentDetailsModal({
                 </div>
               </div>
 
-              <Separator className="my-3" />
+                    <Separator className="my-3" />
 
-              {/* Timeline Info */}
-              <div className="grid grid-cols-2 gap-3 text-sm">
-                <div>
-                  <Label className="text-muted-foreground text-xs">Registered</Label>
-                  <p className="text-sm mt-0.5">{formatDate(displayResident.registrationDate)}</p>
+                    {/* Timeline Info */}
+                    <div className="grid grid-cols-2 gap-3 text-sm">
+                      <div>
+                        <Label className="text-muted-foreground text-xs">Registered</Label>
+                        <p className="text-sm mt-0.5">{formatDate(displayResident.registrationDate)}</p>
+                      </div>
+                      {displayResident.verifiedDate && (
+                        <div>
+                          <Label className="text-muted-foreground text-xs">
+                            {displayResident.verificationStatus === "Approved" ? "Approved" : 
+                             displayResident.verificationStatus === "Rejected" ? "Rejected" : "Verified"}
+                          </Label>
+                          <p className="text-sm mt-0.5">{formatDate(displayResident.verifiedDate)}</p>
+                        </div>
+                      )}
+                    </div>
+
+                    <Separator className="my-3" />
+
+                    {/* Verification Documents */}
+                    <div>
+                      <Label className="text-sm font-medium mb-3 block">
+                        Government ID Documents
+                      </Label>
+                      {displayResident.hasDocuments ? (
+                        <div className="space-y-3">
+                          {displayResident.governmentIdFront && (
+                            <DocumentViewer
+                              title={`${formatGovernmentIdType(displayResident.governmentIdType)} (Front)`}
+                              url={displayResident.governmentIdFrontUrl}
+                              publicId={displayResident.governmentIdFront}
+                              fileType={displayResident.governmentIdFrontFileType}
+                              showDownload={userRole === "admin"}
+                              residentId={displayResident.id}
+                            />
+                          )}
+                          {displayResident.governmentIdBack && (
+                            <DocumentViewer
+                              title={`${formatGovernmentIdType(displayResident.governmentIdType)} (Back)`}
+                              url={displayResident.governmentIdBackUrl}
+                              publicId={displayResident.governmentIdBack}
+                              fileType={displayResident.governmentIdBackFileType}
+                              showDownload={userRole === "admin"}
+                              residentId={displayResident.id}
+                            />
+                          )}
+                        </div>
+                      ) : (
+                        <p className="text-muted-foreground text-sm">No documents submitted yet.</p>
+                      )}
+                      </div>
+                    </div>
+                  </ScrollArea>
                 </div>
-                {displayResident.verifiedDate && (
-                  <div>
-                    <Label className="text-muted-foreground text-xs">
-                      {displayResident.verificationStatus === "Approved" ? "Approved" : 
-                       displayResident.verificationStatus === "Rejected" ? "Rejected" : "Verified"}
-                    </Label>
-                    <p className="text-sm mt-0.5">{formatDate(displayResident.verifiedDate)}</p>
-                  </div>
-                )}
-              </div>
 
-              <Separator className="my-3" />
-
-              {/* Verification Documents */}
-              <div>
-                <Label className="text-sm font-medium mb-3 block">
-                  Government ID Documents
-                </Label>
-                {displayResident.hasDocuments ? (
-                  <div className="space-y-3">
-                    {displayResident.governmentIdFront && (
-                      <DocumentViewer
-                        title={`${formatGovernmentIdType(displayResident.governmentIdType)} (Front)`}
-                        url={displayResident.governmentIdFrontUrl}
-                        publicId={displayResident.governmentIdFront}
-                        fileType={displayResident.governmentIdFrontFileType}
-                        showDownload={userRole === "admin"}
-                        residentId={displayResident.id}
-                      />
+                {/* Right side - Proof of Residency for Current Submission */}
+                <div className="w-1/2 flex flex-col bg-muted/20 overflow-hidden">
+                  <div className="border-b px-6 py-3 bg-muted/30 flex items-center justify-between flex-shrink-0">
+                    <div className="flex items-center gap-2">
+                      <Label className="text-sm font-semibold">Proof of Residency</Label>
+                      {displayResident.proofOfResidencyType && (
+                        <span className="text-xs text-muted-foreground">
+                          {formatProofOfResidencyType(displayResident.proofOfResidencyType)}
+                        </span>
+                      )}
+                    </div>
+                    {displayResident.proofOfResidency && (
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        className="h-8 text-xs"
+                        onClick={() => {
+                          if (displayResident.proofOfResidencyUrl) {
+                            window.open(displayResident.proofOfResidencyUrl, '_blank', 'noopener,noreferrer');
+                          }
+                        }}
+                      >
+                        <ExternalLink className="h-3 w-3 mr-1.5" />
+                        Open in New Tab
+                      </Button>
                     )}
-                    {displayResident.governmentIdBack && (
-                      <DocumentViewer
-                        title={`${formatGovernmentIdType(displayResident.governmentIdType)} (Back)`}
-                        url={displayResident.governmentIdBackUrl}
-                        publicId={displayResident.governmentIdBack}
-                        fileType={displayResident.governmentIdBackFileType}
-                        showDownload={userRole === "admin"}
-                        residentId={displayResident.id}
-                      />
+                  </div>
+                  <div className="flex-1 min-h-0 overflow-auto">
+                    {displayResident.proofOfResidency ? (
+                      <div className="h-full">
+                        <InlineDocumentViewer
+                          title={formatProofOfResidencyType(displayResident.proofOfResidencyType)}
+                          url={displayResident.proofOfResidencyUrl}
+                          publicId={displayResident.proofOfResidency}
+                          fileType={displayResident.proofOfResidencyFileType}
+                          showDownload={userRole === "admin"}
+                          residentId={displayResident.id}
+                        />
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center h-full">
+                        <p className="text-muted-foreground text-sm">No proof of residency submitted yet.</p>
+                      </div>
                     )}
                   </div>
-                ) : (
-                  <p className="text-muted-foreground text-sm">No documents submitted yet.</p>
-                )}
-              </div>
-            </div>
-          </ScrollArea>
+                </div>
+              </TabsContent>
 
-          {/* Right Column - Proof of Residency */}
-          <div className="w-1/2 flex flex-col bg-muted/20 overflow-hidden">
-            <div className="border-b px-6 py-3 bg-muted/30 flex items-center justify-between flex-shrink-0">
-              <div className="flex items-center gap-2">
-                <Label className="text-sm font-semibold">Proof of Residency</Label>
-                {displayResident.proofOfResidencyType && (
-                  <span className="text-xs text-muted-foreground">
-                    {formatProofOfResidencyType(displayResident.proofOfResidencyType)}
-                  </span>
-                )}
-              </div>
-              {displayResident.proofOfResidency && (
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="h-8 text-xs"
-                  onClick={() => {
-                    // Open the document in new tab
-                    if (displayResident.proofOfResidencyUrl) {
-                      window.open(displayResident.proofOfResidencyUrl, '_blank', 'noopener,noreferrer');
-                    }
-                  }}
-                >
-                  <ExternalLink className="h-3 w-3 mr-1.5" />
-                  Open in New Tab
-                </Button>
-              )}
-            </div>
-            <div className="flex-1 min-h-0 overflow-auto">
-              {displayResident.proofOfResidency ? (
-                <div className="h-full">
-                  <InlineDocumentViewer
-                    title={formatProofOfResidencyType(displayResident.proofOfResidencyType)}
-                    url={displayResident.proofOfResidencyUrl}
-                    publicId={displayResident.proofOfResidency}
-                    fileType={displayResident.proofOfResidencyFileType}
-                    showDownload={userRole === "admin"}
-                    residentId={displayResident.id}
-                  />
-                </div>
-              ) : (
-                <div className="flex items-center justify-center h-full">
-                  <p className="text-muted-foreground text-sm">No proof of residency submitted yet.</p>
-                </div>
-              )}
-            </div>
-          </div>
+              <TabsContent value="history" className="flex-1 m-0">
+                <ScrollArea className="h-full">
+                  <div className="px-6 py-4 space-y-2">
+                    {displayResident.verificationHistory && displayResident.verificationHistory.length > 0 ? (
+                      displayResident.verificationHistory.map((entry, index) => (
+                        <button
+                          key={index}
+                          onClick={() => setSelectedHistoryIndex(index)}
+                          className="w-full border rounded-lg p-4 hover:bg-muted/50 transition-colors text-left"
+                        >
+                          <div className="flex items-center justify-between">
+                            <div className="flex items-center gap-3">
+                              <Clock className="h-4 w-4 text-muted-foreground" />
+                              <div>
+                                <p className="text-sm font-medium">
+                                  Submission #{displayResident.verificationHistory!.length - index}
+                                </p>
+                                <p className="text-xs text-muted-foreground">
+                                  Submitted: {formatDate(entry.submittedAt)}
+                                </p>
+                                {entry.reviewedAt && (
+                                  <p className="text-xs text-muted-foreground">
+                                    Reviewed: {formatDate(entry.reviewedAt)}
+                                  </p>
+                                )}
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2">
+                              {getVerificationStatusBadge(entry.status as any)}
+                              <ExternalLink className="h-4 w-4 text-muted-foreground" />
+                            </div>
+                          </div>
+                        </button>
+                      ))
+                    ) : (
+                      <p className="text-sm text-muted-foreground text-center py-8">
+                        No previous submissions
+                      </p>
+                    )}
+                  </div>
+                </ScrollArea>
+              </TabsContent>
+          </Tabs>
         </div>
 
         {/* Action Buttons Footer */}
@@ -459,6 +536,165 @@ export default function ResidentDetailsModal({
         residentName={displayResident.fullName}
         isLoading={isRejecting}
       />
+
+      {/* History Details Dialog */}
+      {selectedHistoryIndex !== null && displayResident.verificationHistory && (
+        <Dialog open={selectedHistoryIndex !== null} onOpenChange={() => setSelectedHistoryIndex(null)}>
+          <DialogContent className="max-h-[90vh] max-w-7xl p-0">
+            {(() => {
+              const entry = displayResident.verificationHistory![selectedHistoryIndex];
+              const submissionNumber = displayResident.verificationHistory!.length - selectedHistoryIndex;
+              
+              return (
+                <>
+                  {/* Header */}
+                  <div className="border-b bg-muted/30 px-6 py-4">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-1">
+                        <DialogTitle className="text-xl font-semibold">
+                          Submission #{submissionNumber}
+                        </DialogTitle>
+                        <DialogDescription className="mt-1 text-sm">
+                          {displayResident.fullName} • Submitted: {formatDate(entry.submittedAt)}
+                          {entry.reviewedAt && ` • Reviewed: ${formatDate(entry.reviewedAt)}`}
+                        </DialogDescription>
+                      </div>
+                      <div className="flex items-center pr-10">
+                        {getVerificationStatusBadge(entry.status as any)}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Two Column Layout */}
+                  <div className="flex overflow-hidden max-h-[calc(90vh-140px)]">
+                    {/* Left Column - Details */}
+                    <div className="w-1/2 border-r flex flex-col overflow-hidden">
+                      <ScrollArea className="h-full">
+                        <div className="space-y-4 px-6 py-4 pb-8">
+                          {/* Rejection Reason */}
+                          {entry.status === "Rejected" && entry.rejectionReason && (
+                            <>
+                              <div className="rounded-md bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 p-3">
+                                <p className="text-xs font-medium text-red-900 dark:text-red-200 mb-1">
+                                  Rejection Reason:
+                                </p>
+                                <p className="text-sm text-red-800 dark:text-red-300">
+                                  {entry.rejectionReason}
+                                </p>
+                              </div>
+                              <Separator className="my-3" />
+                            </>
+                          )}
+
+                          {/* Address Info */}
+                          <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                            <div>
+                              <Label className="text-muted-foreground text-xs">House/Unit</Label>
+                              <p className="text-sm mt-0.5">{entry.houseNumberUnit || "—"}</p>
+                            </div>
+                            <div>
+                              <Label className="text-muted-foreground text-xs">Street/Purok</Label>
+                              <p className="text-sm mt-0.5">{entry.streetPurok || "—"}</p>
+                            </div>
+                          </div>
+
+                          <Separator className="my-3" />
+
+                          {/* Government ID Documents */}
+                          <div>
+                            <Label className="text-sm font-medium mb-3 block">
+                              Government ID Documents
+                            </Label>
+                            <div className="text-sm mb-3">
+                              <Label className="text-muted-foreground text-xs">ID Type</Label>
+                              <p className="text-sm mt-0.5">{formatGovernmentIdType(entry.governmentIdType)}</p>
+                            </div>
+                            <div className="space-y-3">
+                              {entry.governmentIdFront && (
+                                <DocumentViewer
+                                  title={`${formatGovernmentIdType(entry.governmentIdType)} (Front)`}
+                                  url={entry.governmentIdFrontUrl}
+                                  publicId={entry.governmentIdFront}
+                                  fileType={entry.governmentIdFrontFileType}
+                                  showDownload={userRole === "admin"}
+                                  residentId={displayResident.id}
+                                />
+                              )}
+                              {entry.governmentIdBack && (
+                                <DocumentViewer
+                                  title={`${formatGovernmentIdType(entry.governmentIdType)} (Back)`}
+                                  url={entry.governmentIdBackUrl}
+                                  publicId={entry.governmentIdBack}
+                                  fileType={entry.governmentIdBackFileType}
+                                  showDownload={userRole === "admin"}
+                                  residentId={displayResident.id}
+                                />
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                      </ScrollArea>
+                    </div>
+
+                    {/* Right Column - Proof of Residency */}
+                    <div className="w-1/2 flex flex-col bg-muted/20 overflow-hidden">
+                      <div className="border-b px-6 py-3 bg-muted/30 flex items-center justify-between flex-shrink-0">
+                        <div className="flex items-center gap-2">
+                          <Label className="text-sm font-semibold">Proof of Residency</Label>
+                          {entry.proofOfResidencyType && (
+                            <span className="text-xs text-muted-foreground">
+                              {formatProofOfResidencyType(entry.proofOfResidencyType)}
+                            </span>
+                          )}
+                        </div>
+                        {entry.proofOfResidency && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs"
+                            onClick={() => {
+                              if (entry.proofOfResidencyUrl) {
+                                window.open(entry.proofOfResidencyUrl, '_blank', 'noopener,noreferrer');
+                              }
+                            }}
+                          >
+                            <ExternalLink className="h-3 w-3 mr-1.5" />
+                            Open in New Tab
+                          </Button>
+                        )}
+                      </div>
+                      <div className="flex-1 min-h-0 overflow-auto">
+                        {entry.proofOfResidency ? (
+                          <div className="h-full">
+                            {console.log('History Proof of Residency:', {
+                              publicId: entry.proofOfResidency,
+                              url: entry.proofOfResidencyUrl,
+                              fileType: entry.proofOfResidencyFileType,
+                              residentId: displayResident.id
+                            })}
+                            <InlineDocumentViewer
+                              title={formatProofOfResidencyType(entry.proofOfResidencyType)}
+                              url={entry.proofOfResidencyUrl}
+                              publicId={entry.proofOfResidency}
+                              fileType={entry.proofOfResidencyFileType}
+                              showDownload={userRole === "admin"}
+                              residentId={displayResident.id}
+                            />
+                          </div>
+                        ) : (
+                          <div className="flex items-center justify-center h-full">
+                            <p className="text-muted-foreground text-sm">No proof of residency submitted.</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              );
+            })()}
+          </DialogContent>
+        </Dialog>
+      )}
     </Dialog>
   );
 }

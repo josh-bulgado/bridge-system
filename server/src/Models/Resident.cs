@@ -91,6 +91,10 @@ namespace server.Models
         [BsonElement("verifiedAt")]
         public DateTime? VerifiedAt { get; set; }
 
+        [BsonElement("rejectionReason")]
+        [BsonIgnoreIfNull]
+        public string? RejectionReason { get; set; }
+
         [BsonElement("lastUpdated")]
         public DateTime LastUpdated { get; set; } = DateTime.UtcNow;
 
@@ -103,6 +107,11 @@ namespace server.Models
         [BsonElement("verificationDocuments")]
         [BsonIgnoreIfNull]
         public VerificationDocuments? VerificationDocuments { get; set; }
+
+        // Verification History - stores all previous submissions
+        [BsonElement("verificationHistory")]
+        [BsonIgnoreIfNull]
+        public List<VerificationHistoryEntry>? VerificationHistory { get; set; }
 
 
     }
@@ -187,5 +196,78 @@ namespace server.Models
         [BsonElement("submittedAt")]
         [BsonIgnoreIfDefault]
         public DateTime? SubmittedAt { get; set; }
+    }
+
+    [BsonIgnoreExtraElements]
+    public class VerificationHistoryEntry
+    {
+        [BsonElement("governmentIdType")]
+        public string? GovernmentIdType { get; set; }
+
+        [BsonElement("governmentIdFront")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdFront { get; set; }
+
+        [BsonElement("governmentIdFrontUrl")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdFrontUrl { get; set; }
+
+        [BsonElement("governmentIdFrontFileType")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdFrontFileType { get; set; }
+
+        [BsonElement("governmentIdBack")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdBack { get; set; }
+
+        [BsonElement("governmentIdBackUrl")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdBackUrl { get; set; }
+
+        [BsonElement("governmentIdBackFileType")]
+        [BsonIgnoreIfNull]
+        public string? GovernmentIdBackFileType { get; set; }
+
+        [BsonElement("proofOfResidencyType")]
+        public string? ProofOfResidencyType { get; set; }
+
+        [BsonElement("proofOfResidency")]
+        [BsonIgnoreIfNull]
+        public string? ProofOfResidency { get; set; }
+
+        [BsonElement("proofOfResidencyUrl")]
+        [BsonIgnoreIfNull]
+        public string? ProofOfResidencyUrl { get; set; }
+
+        [BsonElement("proofOfResidencyFileType")]
+        [BsonIgnoreIfNull]
+        public string? ProofOfResidencyFileType { get; set; }
+
+        [BsonElement("streetPurok")]
+        [BsonIgnoreIfNull]
+        public string? StreetPurok { get; set; }
+
+        [BsonElement("houseNumberUnit")]
+        [BsonIgnoreIfNull]
+        public string? HouseNumberUnit { get; set; }
+
+        [BsonElement("submittedAt")]
+        public DateTime SubmittedAt { get; set; }
+
+        [BsonElement("status")]
+        public string? Status { get; set; } // "Pending", "Approved", "Rejected"
+
+        [BsonElement("reviewedBy")]
+        [BsonRepresentation(BsonType.ObjectId)]
+        [BsonIgnoreIfNull]
+        public string? ReviewedBy { get; set; }
+
+        [BsonElement("reviewedAt")]
+        [BsonIgnoreIfNull]
+        public DateTime? ReviewedAt { get; set; }
+
+        [BsonElement("rejectionReason")]
+        [BsonIgnoreIfNull]
+        public string? RejectionReason { get; set; }
     }
 }

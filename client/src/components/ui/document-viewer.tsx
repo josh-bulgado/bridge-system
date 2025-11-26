@@ -119,7 +119,7 @@ export function DocumentViewer({
         setIsLoadingSignedUrl(true);
         
         const response = await api.get(
-          `/resident/${residentId}/document-url?publicId=${encodeURIComponent(publicId)}`
+          `resident/${residentId}/document-url?publicId=${encodeURIComponent(publicId)}`
         );
         
         if (response.data?.url) {

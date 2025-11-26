@@ -158,6 +158,7 @@ export const verificationService = {
     isVerified: boolean;
     status: string;
     submittedAt?: string;
+    rejectionReason?: string;
   }> => {
     const response = await api.get("/resident/verification/status");
     return response.data;
