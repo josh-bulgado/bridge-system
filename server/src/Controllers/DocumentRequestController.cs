@@ -13,11 +13,16 @@ public class DocumentRequestController : ControllerBase
 {
     private readonly DocumentRequestService _documentRequestService;
     private readonly UserService _userService;
+    private readonly DocumentGenerationService _documentGenerationService;
 
-    public DocumentRequestController(DocumentRequestService documentRequestService, UserService userService)
+    public DocumentRequestController(
+        DocumentRequestService documentRequestService, 
+        UserService userService,
+        DocumentGenerationService documentGenerationService)
     {
         _documentRequestService = documentRequestService;
         _userService = userService;
+        _documentGenerationService = documentGenerationService;
     }
 
     // Helper to get current user ID from JWT
@@ -344,6 +349,99 @@ public class DocumentRequestController : ControllerBase
             });
             
             return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Generate preview data for document generation (Staff/Admin only)
+    /// </summary>
+    [HttpPost("{id}/generate-preview")]
+    [Authorize(Roles = "staff,admin")]
+    public async Task<ActionResult<GeneratePreviewResponse>> GeneratePreview(string id)
+    {
+        try
+        {
+            var request = await _documentRequestService.GetRequestByIdAsync(id);
+            if (request == null)
+            {
+                return NotFound(new { message = "Document request not found" });
+            }
+
+            // Check if request is in a state that allows generation
+            if (request.Status != "approved" && request.Status != "payment_verified" && request.Status != "processing")
+            {
+                return BadRequest(new { message = "Request must be in 'approved', 'payment_verified', or 'processing' status to generate document" });
+            }
+
+            var previewData = await _documentGenerationService.GeneratePreviewDataAsync(id);
+
+            return Ok(new GeneratePreviewResponse
+            {
+                PreviewData = previewData,
+                DocumentRequestId = request.Id,
+                ResidentName = request.ResidentName,
+                DocumentType = request.DocumentType
+            });
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Generate document from template with provided data (Staff/Admin only)
+    /// </summary>
+    [HttpPost("{id}/generate-document")]
+    [Authorize(Roles = "staff,admin")]
+    public async Task<ActionResult<GenerateDocumentResponse>> GenerateDocument(
+        string id,
+        [FromBody] GenerateDocumentRequest request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var documentRequest = await _documentRequestService.GetRequestByIdAsync(id);
+            if (documentRequest == null)
+            {
+                return NotFound(new { message = "Document request not found" });
+            }
+
+            // Check if request is in a state that allows generation
+            if (documentRequest.Status != "approved" && documentRequest.Status != "payment_verified" && documentRequest.Status != "processing")
+            {
+                return BadRequest(new { message = "Request must be in 'approved', 'payment_verified', or 'processing' status to generate document" });
+            }
+
+            var userId = GetCurrentUserId();
+
+            // Update status to processing
+            if (documentRequest.Status != "processing")
+            {
+                await _documentRequestService.UpdateStatusAsync(id, userId, new UpdateStatusRequest
+                {
+                    Status = "processing",
+                    Notes = "Document generation started"
+                });
+            }
+
+            // Generate the document
+            var documentUrl = await _documentGenerationService.GenerateDocumentAsync(id, request.Data, userId);
+
+            return Ok(new GenerateDocumentResponse
+            {
+                DocumentUrl = documentUrl,
+                TrackingNumber = documentRequest.TrackingNumber,
+                Message = "Document generated successfully"
+            });
         }
         catch (Exception ex)
         {

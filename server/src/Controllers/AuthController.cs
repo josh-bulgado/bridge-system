@@ -86,6 +86,7 @@ namespace server.Controllers
         Extension = dto.Extension,
         DateOfBirth = dto.DateOfBirth,
         ContactNumber = dto.ContactNumber,
+        CivilStatus = dto.CivilStatus,
         IsResidentVerified = false,
         ResidentVerificationStatus = "Pending",
       };
@@ -817,6 +818,7 @@ namespace server.Controllers
           Extension = dto.Extension?.Trim(),
           DateOfBirth = dto.DateOfBirth.Trim(),
           ContactNumber = dto.ContactNumber.Trim(),
+          CivilStatus = dto.CivilStatus?.Trim(),
           IsResidentVerified = false,
           ResidentVerificationStatus = "Pending",
         };

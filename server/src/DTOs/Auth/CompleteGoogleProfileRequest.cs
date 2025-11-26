@@ -26,5 +26,9 @@ namespace server.DTOs.Auth
     
     public required string DateOfBirth { get; set; }
     public required string ContactNumber { get; set; }
+    
+    [RegularExpression(@"^(Single|Married|Widowed|Divorced|Separated)$", 
+        ErrorMessage = "Civil status must be one of: Single, Married, Widowed, Divorced, Separated")]
+    public string? CivilStatus { get; set; }
   }
 }

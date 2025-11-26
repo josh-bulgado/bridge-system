@@ -55,6 +55,7 @@ export function DocumentRequestDataTable<TData, TValue>({
     pageIndex: 0,
     pageSize: 10,
   });
+  const [globalFilter, setGlobalFilter] = React.useState("");
 
   const table = useReactTable({
     data: data,
@@ -64,11 +65,30 @@ export function DocumentRequestDataTable<TData, TValue>({
       columnVisibility,
       columnFilters,
       pagination,
+      globalFilter,
     },
     onSortingChange: setSorting,
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, columnId, filterValue) => {
+      const searchValue = String(filterValue).toLowerCase();
+      
+      // Get values from the row
+      const trackingNumber = String(row.getValue("trackingNumber") || "").toLowerCase();
+      const documentType = String(row.getValue("documentType") || "").toLowerCase();
+      const purpose = String(row.getValue("purpose") || "").toLowerCase();
+      const status = String(row.getValue("status") || "").toLowerCase();
+
+      // Search across multiple fields
+      return (
+        trackingNumber.includes(searchValue) ||
+        documentType.includes(searchValue) ||
+        purpose.includes(searchValue) ||
+        status.includes(searchValue)
+      );
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -82,11 +102,9 @@ export function DocumentRequestDataTable<TData, TValue>({
       {/* Search and Filters */}
       <div className="flex items-center gap-4">
         <Input
-          placeholder="Search by tracking number..."
-          value={(table.getColumn("trackingNumber")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("trackingNumber")?.setFilterValue(event.target.value)
-          }
+          placeholder="Search by tracking number, document type, or purpose..."
+          value={globalFilter ?? ""}
+          onChange={(event) => setGlobalFilter(String(event.target.value))}
           className="max-w-sm"
         />
 
