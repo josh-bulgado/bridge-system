@@ -76,7 +76,7 @@ export const EnhancedQuickActions: React.FC<EnhancedQuickActionsProps> = ({
   return (
     <div>
       {/* Primary Actions - Main Cards */}
-      <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {primaryActions.map((action) => {
           const Icon = action.icon;
           const isPrimary = action.id === "new-request";
@@ -85,24 +85,23 @@ export const EnhancedQuickActions: React.FC<EnhancedQuickActionsProps> = ({
             <Card
               key={action.id}
               className={cn(
-                "group overflow-hidden transition-all duration-200 cursor-pointer",
+                "overflow-hidden transition-colors duration-200 cursor-pointer",
                 isPrimary
-                  ? "border-green-200 dark:border-green-800 hover:shadow-lg"
-                  : "border-border/40 hover:shadow-md hover:border-primary/50",
+                  ? "border-green-500 dark:border-green-500 bg-green-50 dark:bg-green-950/20 hover:bg-green-100 dark:hover:bg-green-950/30"
+                  : "hover:border-green-500 dark:hover:border-green-500",
                 action.disabled && "opacity-60 cursor-not-allowed"
               )}
               onClick={!action.disabled ? action.onClick : undefined}
             >
-              <CardContent className="p-3">
-                <div className="flex items-start gap-3">
+              <CardContent className="p-5">
+                <div className="flex items-start gap-4">
                   {/* Icon */}
                   <div
                     className={cn(
-                      "rounded-lg p-2 transition-all duration-200",
+                      "rounded-lg p-3",
                       isPrimary
                         ? action.bgColor
-                        : action.bgColor,
-                      !action.disabled && "group-hover:scale-110"
+                        : action.bgColor
                     )}
                   >
                     <Icon
@@ -117,13 +116,13 @@ export const EnhancedQuickActions: React.FC<EnhancedQuickActionsProps> = ({
                   <div className="flex-1 min-w-0">
                     <h3
                       className={cn(
-                        "font-semibold text-sm mb-0.5",
+                        "font-semibold text-base mb-1",
                         isPrimary && !action.disabled && "text-green-700 dark:text-green-300"
                       )}
                     >
                       {action.label}
                     </h3>
-                    <p className="text-xs text-muted-foreground">
+                    <p className="text-sm text-muted-foreground">
                       {action.disabled ? "Verification required" : action.description}
                     </p>
                   </div>
@@ -131,7 +130,7 @@ export const EnhancedQuickActions: React.FC<EnhancedQuickActionsProps> = ({
                   {/* Badge for primary action */}
                   {isPrimary && !action.disabled && (
                     <div className="flex items-center">
-                      <div className="h-1.5 w-1.5 rounded-full bg-green-600 dark:bg-green-400 animate-pulse" />
+                      <div className="h-2 w-2 rounded-full bg-green-500 animate-pulse" />
                     </div>
                   )}
                 </div>

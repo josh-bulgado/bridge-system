@@ -8,6 +8,7 @@ export interface RequestData {
   status: string;
   date: string;
   statusColor: string;
+  trackingNumber?: string;
 }
 
 interface RequestItemProps {
