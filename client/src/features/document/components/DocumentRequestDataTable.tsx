@@ -67,6 +67,7 @@ export function DocumentRequestDataTable<TData, TValue>({
     pageIndex: 0,
     pageSize: 10,
   });
+  const [globalFilter, setGlobalFilter] = React.useState("");
   const [bulkDeleteDialogOpen, setBulkDeleteDialogOpen] = React.useState(false);
   const [isDeleting, setIsDeleting] = React.useState(false);
 
@@ -81,6 +82,7 @@ export function DocumentRequestDataTable<TData, TValue>({
       rowSelection,
       columnFilters,
       pagination,
+      globalFilter,
     },
     enableRowSelection: true,
     onRowSelectionChange: setRowSelection,
@@ -88,6 +90,26 @@ export function DocumentRequestDataTable<TData, TValue>({
     onColumnFiltersChange: setColumnFilters,
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
+    onGlobalFilterChange: setGlobalFilter,
+    globalFilterFn: (row, columnId, filterValue) => {
+      const searchValue = String(filterValue).toLowerCase();
+      
+      // Get values from the row
+      const residentName = String(row.getValue("residentName") || "").toLowerCase();
+      const residentEmail = String(row.getValue("residentEmail") || "").toLowerCase();
+      const documentType = String(row.getValue("documentType") || "").toLowerCase();
+      const trackingNumber = String(row.getValue("trackingNumber") || "").toLowerCase();
+      const status = String(row.getValue("status") || "").toLowerCase();
+
+      // Search across multiple fields
+      return (
+        residentName.includes(searchValue) ||
+        residentEmail.includes(searchValue) ||
+        documentType.includes(searchValue) ||
+        trackingNumber.includes(searchValue) ||
+        status.includes(searchValue)
+      );
+    },
     getCoreRowModel: getCoreRowModel(),
     getFilteredRowModel: getFilteredRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
@@ -127,11 +149,9 @@ export function DocumentRequestDataTable<TData, TValue>({
       {/* Search and Filters */}
       <div className="flex items-center gap-4">
         <Input
-          placeholder="Search by resident name or email..."
-          value={(table.getColumn("residentName")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("residentName")?.setFilterValue(event.target.value)
-          }
+          placeholder="Search by name, email, tracking number, or document..."
+          value={globalFilter ?? ""}
+          onChange={(event) => setGlobalFilter(String(event.target.value))}
           className="max-w-sm"
         />
         <Select

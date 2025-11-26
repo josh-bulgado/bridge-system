@@ -173,6 +173,40 @@ const StepPersonalInfo = () => {
             </FormItem>
           )}
         />
+
+        {/* Civil Status Section */}
+        <FormField
+          control={control}
+          name="civilStatus"
+          render={({ field }) => (
+            <FormItem className="space-y-2">
+              <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                Civil Status
+                <span className="text-red-500">*</span>
+              </FormLabel>
+              <Select
+                onValueChange={field.onChange}
+                value={field.value}
+              >
+                <FormControl>
+                  <SelectTrigger className="h-10">
+                    <SelectValue placeholder="Select civil status" />
+                  </SelectTrigger>
+                </FormControl>
+                <SelectContent>
+                  <SelectItem value="Single">Single</SelectItem>
+                  <SelectItem value="Married">Married</SelectItem>
+                  <SelectItem value="Widowed">Widowed</SelectItem>
+                  <SelectItem value="Divorced">Divorced</SelectItem>
+                  <SelectItem value="Separated">Separated</SelectItem>
+                </SelectContent>
+              </Select>
+              <div className="min-h-[20px] text-sm">
+                <FormMessage />
+              </div>
+            </FormItem>
+          )}
+        />
       </div>
     </div>
   );

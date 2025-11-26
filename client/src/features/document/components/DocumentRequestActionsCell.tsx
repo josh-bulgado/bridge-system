@@ -60,6 +60,7 @@ import {
 } from "../hooks";
 import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
 import { Badge } from "@/components/ui/badge";
+import { DocumentGenerationModal } from "./DocumentGenerationModal";
 
 interface DocumentRequestActionsCellProps {
   request: DocumentRequest;
@@ -79,6 +80,7 @@ export function DocumentRequestActionsCell({
   const [imagePreviewOpen, setImagePreviewOpen] = React.useState(false);
   const [previewImageUrl, setPreviewImageUrl] = React.useState<string | null>(null);
   const [previewImageTitle, setPreviewImageTitle] = React.useState<string>("");
+  const [generateModalOpen, setGenerateModalOpen] = React.useState(false);
 
   const approveMutation = useApproveDocumentRequest();
   const rejectMutation = useRejectDocumentRequest();
@@ -185,11 +187,11 @@ export function DocumentRequestActionsCell({
   };
 
   const handleGenerateDocument = () => {
-    // TODO: Implement document generation
-    console.log("Generating document for request:", request.id);
+    setGenerateModalOpen(true);
   };
 
-  const canGenerate = request.status === "ready_for_generation";
+  // Check if document can be generated - after documents are approved
+  const canGenerate = request.status === "approved" || request.status === "payment_verified" || request.status === "processing";
 
   return (
     <>
@@ -610,6 +612,35 @@ export function DocumentRequestActionsCell({
                     </div>
                   </div>
                 )}
+
+                {/* Generate Document Button - Show when payment is verified */}
+                {canGenerate && (
+                  <div className="space-y-4 pt-4">
+                    <div className="bg-blue-500/10 border border-blue-500/50 rounded-lg p-4">
+                      <div className="flex items-center gap-2 text-blue-700 dark:text-blue-400">
+                        <FileText className="h-5 w-5" />
+                        <div>
+                          <p className="text-sm font-semibold">Ready for Document Generation</p>
+                          <p className="text-xs text-muted-foreground mt-0.5">
+                            Payment has been verified. You can now generate the official document.
+                          </p>
+                        </div>
+                      </div>
+                    </div>
+                    
+                    <div className="pt-2 border-t">
+                      <Button
+                        onClick={handleGenerateDocument}
+                        disabled={isProcessing}
+                        className="w-full h-12 bg-blue-600 hover:bg-blue-700 font-semibold"
+                        size="lg"
+                      >
+                        <FileText className="mr-2 h-5 w-5" />
+                        Generate Document
+                      </Button>
+                    </div>
+                  </div>
+                )}
               </TabsContent>
             </Tabs>
           </div>
@@ -842,6 +873,15 @@ export function DocumentRequestActionsCell({
           </div>
         </DialogContent>
       </Dialog>
+
+      {/* Document Generation Modal */}
+      <DocumentGenerationModal
+        open={generateModalOpen}
+        onOpenChange={setGenerateModalOpen}
+        documentRequestId={request.id}
+        residentName={request.residentName}
+        documentType={request.documentType}
+      />
     </>
   );
 }

@@ -6,7 +6,7 @@ import {
   SidebarMenuButton,
   SidebarMenuItem,
 } from "@/components/ui/sidebar";
-import { type LucideIcon, LucidePlusCircle } from "lucide-react";
+import { type LucideIcon } from "lucide-react";
 
 export function NavMain({
   items,

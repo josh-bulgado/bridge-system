@@ -71,16 +71,21 @@ export function ResidentDataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, filterValue) => {
-      const searchValue = filterValue.toLowerCase();
-      const fullName = row.getValue("fullName") as string;
-      const email = row.getValue("email") as string;
-      const localAddress = row.getValue("localAddress") as string;
+    globalFilterFn: (row, columnId, filterValue) => {
+      const searchValue = String(filterValue).toLowerCase();
+      
+      // Get values from the row
+      const fullName = String(row.getValue("fullName") || "").toLowerCase();
+      const email = String(row.getValue("email") || "").toLowerCase();
+      const localAddress = String(row.getValue("localAddress") || "").toLowerCase();
+      const contactNumber = String(row.getValue("contactNumber") || "").toLowerCase();
 
+      // Search across multiple fields
       return (
-        fullName?.toLowerCase().includes(searchValue) ||
-        email?.toLowerCase().includes(searchValue) ||
-        localAddress?.toLowerCase().includes(searchValue)
+        fullName.includes(searchValue) ||
+        email.includes(searchValue) ||
+        localAddress.includes(searchValue) ||
+        contactNumber.includes(searchValue)
       );
     },
     getCoreRowModel: getCoreRowModel(),
@@ -104,9 +109,9 @@ export function ResidentDataTable<TData, TValue>({
         <div className="flex flex-1 items-center gap-4">
           {/* Search by name/email/address */}
           <Input
-            placeholder="Search by name, email, or address..."
+            placeholder="Search by name, email, address, or contact..."
             value={globalFilter ?? ""}
-            onChange={(event) => setGlobalFilter(event.target.value)}
+            onChange={(event) => setGlobalFilter(String(event.target.value))}
             className="h-10 w-[250px] lg:w-[350px]"
           />
 

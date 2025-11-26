@@ -27,6 +27,11 @@ namespace server.DTOs
     [Required, EmailAddress] public string Email { get; set; } = string.Empty;
     
     [Required]
+    [RegularExpression(@"^(Single|Married|Widowed|Divorced|Separated)$", 
+        ErrorMessage = "Civil status must be one of: Single, Married, Widowed, Divorced, Separated")]
+    public string CivilStatus { get; set; } = string.Empty;
+    
+    [Required]
     [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[^\da-zA-Z]).{8,}$", 
         ErrorMessage = "Password must be at least 8 characters long and contain at least one uppercase letter, one lowercase letter, one number, and one special character.")]
     public string Password { get; set; } = string.Empty;

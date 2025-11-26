@@ -50,6 +50,7 @@ interface Resident {
   email: string;
   contactNumber: string;
   localAddress: string;
+  civilStatus?: string;
   verificationStatus: "Not Submitted" | "Pending" | "Approved" | "Rejected" | "Under Review";
   isEmailVerified: boolean;
   isDeleted: boolean;
@@ -300,36 +301,56 @@ export default function ResidentDetailsModal({
           "flex overflow-hidden",
           canApproveReject ? "max-h-[calc(90vh-200px)]" : "max-h-[calc(90vh-140px)]"
         )}>
-          {/* Left Column - Resident Details with Tabs */}
-          <Tabs defaultValue="current" className="flex-1 flex flex-col overflow-hidden">
-            <div className="border-b px-6 py-3 bg-muted/30">
-              <TabsList className="grid w-full grid-cols-2">
-                <TabsTrigger value="current" className="text-xs">
-                  Current Submission
-                </TabsTrigger>
-                <TabsTrigger value="history" className="text-xs" disabled={!hasHistory}>
-                  <History className="h-3 w-3 mr-1.5" />
-                  History ({displayResident.verificationHistory?.length || 0})
-                </TabsTrigger>
-              </TabsList>
-            </div>
+          {/* Left Column - Resident Details */}
+          <ScrollArea className="w-1/2 border-r">
+            <div className="space-y-4 px-6 py-4">
+              {/* Personal Information */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  Personal Information
+                </Label>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                  <div>
+                    <Label className="text-muted-foreground text-xs">Full Name</Label>
+                    <p className="text-sm mt-0.5 font-medium">{displayResident.fullName}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground text-xs">Civil Status</Label>
+                    <p className="text-sm mt-0.5">{displayResident.civilStatus || "—"}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground text-xs">Email</Label>
+                    <p className="text-sm mt-0.5">{displayResident.email}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground text-xs">Contact Number</Label>
+                    <p className="text-sm mt-0.5">{formatPhoneNumber(displayResident.contactNumber)}</p>
+                  </div>
+                </div>
+              </div>
 
-              <TabsContent value="current" className="flex-1 m-0 overflow-hidden h-full flex">
-                {/* Left side - Details */}
-                <div className="w-1/2 border-r flex flex-col overflow-hidden">
-                  <ScrollArea className="h-full w-full">
-                    <div className="space-y-4 px-6 py-4 pb-8">
-                    {/* Address Info */}
-                    <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
-                      <div>
-                        <Label className="text-muted-foreground text-xs">House/Unit</Label>
-                        <p className="text-sm mt-0.5">{displayResident.houseNumberUnit || "—"}</p>
-                      </div>
-                      <div>
-                        <Label className="text-muted-foreground text-xs">Street/Purok</Label>
-                        <p className="text-sm mt-0.5">{displayResident.streetPurok || "—"}</p>
-                      </div>
-                    </div>
+              <Separator className="my-3" />
+
+              {/* Address Info */}
+              <div>
+                <Label className="text-sm font-medium mb-3 block">
+                  Address Information
+                </Label>
+                <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
+                  <div>
+                    <Label className="text-muted-foreground text-xs">House/Unit Number</Label>
+                    <p className="text-sm mt-0.5">{displayResident.houseNumberUnit || "—"}</p>
+                  </div>
+                  <div>
+                    <Label className="text-muted-foreground text-xs">Street/Purok</Label>
+                    <p className="text-sm mt-0.5">{displayResident.streetPurok || "—"}</p>
+                  </div>
+                  <div className="col-span-2">
+                    <Label className="text-muted-foreground text-xs">Complete Address</Label>
+                    <p className="text-sm mt-0.5">{displayResident.localAddress || "—"}</p>
+                  </div>
+                </div>
+              </div>
 
                     <Separator className="my-3" />
 

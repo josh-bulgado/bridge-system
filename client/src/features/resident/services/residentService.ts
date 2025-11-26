@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import api from "@/lib/api";
 
 export interface VerificationHistoryItem {
@@ -26,6 +27,7 @@ export interface ResidentListItem {
   fullName: string;
   email: string;
   contactNumber: string;
+  maritalStatus: string;
   localAddress: string;
   verificationStatus: "Not Submitted" | "Pending" | "Approved" | "Rejected" | "Under Review";
   isEmailVerified: boolean;

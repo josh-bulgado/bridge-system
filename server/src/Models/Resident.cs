@@ -36,6 +36,9 @@ namespace server.Models
         [Phone]
         public required string ContactNumber { get; set; }
 
+        [BsonElement("civilStatus")]
+        public string? CivilStatus { get; set; } // Single, Married, Widowed, Divorced, Separated
+
         // Helper property for full name
         [BsonIgnore]
         public string FullName
