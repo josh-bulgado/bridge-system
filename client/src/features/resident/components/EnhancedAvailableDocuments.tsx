@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export const EnhancedAvailableDocuments: React.FC<EnhancedAvailableDocumentsProp
   const filteredAndSortedDocuments = React.useMemo(() => {
     if (!documents) return [];
 
-    let filtered = documents.filter((doc) =>
+    const filtered = documents.filter((doc) =>
       doc.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -93,7 +94,7 @@ export const EnhancedAvailableDocuments: React.FC<EnhancedAvailableDocumentsProp
               />
             </div>
             <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-              <SelectTrigger className="w-full sm:w-[160px] h-10">
+              <SelectTrigger className="w-full sm:w-40 h-10">
                 <Filter className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
