@@ -20,3 +20,8 @@ export { DocumentUploadSection } from "./DocumentUploadSection";
 export { VerificationSuccessScreen } from "./VerificationSuccessScreen";
 export { VerificationForm } from "./VerificationForm";
 export { VerificationDialog } from "./VerificationDialog";
+
+// Export payment and request components
+export { ThankYouDialog } from "./ThankYouDialog";
+export { GCashPaymentDialog } from "./GCashPaymentDialog";
+export { DocumentRequestForm } from "./DocumentRequestForm";

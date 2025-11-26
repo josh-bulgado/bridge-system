@@ -83,21 +83,6 @@ export const RegistrationForm = () => {
       // Check if email is available (not already registered)
       const emailIsAvailable = emailAvailable === true;
       
-      // Debug logging in development
-      if (import.meta.env.DEV) {
-        console.log('Step 2 Validation:', {
-          contactNumber: fields[0] || 'Empty',
-          email: fields[1] || 'Empty',
-          phoneValid: phoneValid ? '✓ Valid' : '✗ Invalid',
-          emailAvailable: emailIsAvailable ? '✓ Available' : '✗ Not available',
-          contactNumberError: errors.contactNumber?.message || 'No error',
-          emailError: errors.email?.message || 'No error',
-          allFilled: allFilled ? '✓' : '✗',
-          hasErrors: hasErrors ? '✗ Has errors' : '✓ No errors',
-          isValid: (allFilled && !hasErrors && phoneValid && emailIsAvailable) ? '✓ Valid' : '✗ Invalid'
-        });
-      }
-      
       return allFilled && !hasErrors && phoneValid && emailIsAvailable;
     }
     
@@ -227,27 +212,27 @@ export const RegistrationForm = () => {
 
           <CardContent className="p-6 pt-0">
             <FormProvider {...methods}>
-              <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-6">
-                <div className="min-h-[400px] animate-in fade-in slide-in-from-right-4 duration-300">
+              <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-8">
+                <div className="min-h-[480px] animate-in fade-in slide-in-from-right-4 duration-300">
                   {step === 1 && <StepPersonalInfo />}
                   {step === 2 && <StepContactInfo_New />}
                   {step === 3 && <StepSecuritySetup />}
                 </div>
 
               {error && (
-                <Alert variant="destructive">
+                <Alert variant="destructive" className="animate-in fade-in slide-in-from-top-2 duration-200">
                   <AlertCircle className="h-4 w-4" />
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
 
-              <div className="flex items-center justify-between pt-4">
+              <div className="flex items-center justify-between pt-2">
                 <Button
                   type="button"
                   variant="ghost"
                   onClick={prevStep}
                   disabled={step === 1 || isLoading}
-                  className={`gap-2 ${step === 1 ? "invisible" : ""}`}
+                  className={`gap-2 h-10 ${step === 1 ? "invisible" : ""}`}
                 >
                   <ArrowLeft className="h-4 w-4" /> Back
                 </Button>
@@ -257,49 +242,47 @@ export const RegistrationForm = () => {
                     type="button"
                     onClick={nextStep}
                     disabled={!isStepValid(step - 1) || isLoading}
-                    className="gap-2"
+                    className="gap-2 h-10 min-w-[100px]"
                   >
                     Next <ArrowRight className="h-4 w-4" />
                   </Button>
                 ) : (
-                  <>
-                    <Button
-                      type="submit"
-                      disabled={!isStepValid(2) || isLoading || Object.keys(methods.formState.errors).length > 0}
-                      className="gap-2"
-                      onClick={() => {
-                        // if (import.meta.env.DEV) {
-                        //   const hasErrors = Object.keys(methods.formState.errors).length > 0;
-                        //   console.log('Create Account button clicked:', {
-                        //     isStepValid: isStepValid(2),
-                        //     isLoading,
-                        //     hasFormErrors: hasErrors,
-                        //     formErrors: methods.formState.errors,
-                        //     errorFields: Object.keys(methods.formState.errors),
-                        //   });
-                        //   
-                        //   if (hasErrors) {
-                        //     console.warn('❌ Form has validation errors. Please fix them before submitting.');
-                        //   }
-                        // }
-                      }}
-                    >
-                      {isLoading ? (
-                        <>
-                          <Spinner className="mr-2 h-4 w-4 animate-spin" />
-                          Creating...
-                        </>
-                      ) : (
-                        <>
-                          <Check className="h-4 w-4" /> Create Account
-                        </>
-                      )}
-                    </Button>
-                  </>
+                  <Button
+                    type="submit"
+                    disabled={!isStepValid(2) || isLoading || Object.keys(methods.formState.errors).length > 0}
+                    className="gap-2 h-10 min-w-[140px]"
+                    onClick={() => {
+                      // if (import.meta.env.DEV) {
+                      //   const hasErrors = Object.keys(methods.formState.errors).length > 0;
+                      //   console.log('Create Account button clicked:', {
+                      //     isStepValid: isStepValid(2),
+                      //     isLoading,
+                      //     hasFormErrors: hasErrors,
+                      //     formErrors: methods.formState.errors,
+                      //     errorFields: Object.keys(methods.formState.errors),
+                      //   });
+                      //   
+                      //   if (hasErrors) {
+                      //     console.warn('❌ Form has validation errors. Please fix them before submitting.');
+                      //   }
+                      // }
+                    }}
+                  >
+                    {isLoading ? (
+                      <>
+                        <Spinner className="h-4 w-4 animate-spin" />
+                        Creating...
+                      </>
+                    ) : (
+                      <>
+                        <Check className="h-4 w-4" /> Create Account
+                      </>
+                    )}
+                  </Button>
                 )}
               </div>
 
-              <div className="text-center text-sm">
+              <div className="text-center text-sm pt-2">
                 <span className="text-muted-foreground">
                   Already have an account?{" "}
                 </span>

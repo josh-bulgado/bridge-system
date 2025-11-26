@@ -201,7 +201,7 @@ public class NotificationService : INotificationService
     public async Task NotifyDocumentRequestCreated(string requestId, string residentName, string documentType)
     {
         await SendToRole(
-            "Staff",
+            "staff",
             "New Document Request",
             $"{residentName} submitted a request for {documentType}",
             "info",
@@ -211,7 +211,7 @@ public class NotificationService : INotificationService
         );
 
         await SendToRole(
-            "Admin",
+            "admin",
             "New Document Request",
             $"{residentName} submitted a request for {documentType}",
             "info",

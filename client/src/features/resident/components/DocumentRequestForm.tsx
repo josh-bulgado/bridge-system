@@ -25,7 +25,8 @@ import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Label } from "@/components/ui/label";
 import { Separator } from "@/components/ui/separator";
 import { useFetchAvailableDocuments, useFetchGCashConfig, useCreateResidentDocumentRequest } from "../hooks";
-import { GCashPaymentInfo } from "./GCashPaymentInfo";
+import { GCashPaymentDialog } from "./GCashPaymentDialog";
+import { ThankYouDialog } from "./ThankYouDialog";
 import { MultiFileUploadZone } from "./MultiFileUploadZone";
 import { PURPOSE_OPTIONS } from "../types/residentDocumentRequest";
 import type { Document } from "@/features/document/types/document";
@@ -72,6 +73,10 @@ export function DocumentRequestForm({
   
   const [selectedDocumentId, setSelectedDocumentId] = useState<string>("");
   const [showCustomPurpose, setShowCustomPurpose] = useState(false);
+  const [showPaymentDialog, setShowPaymentDialog] = useState(false);
+  const [showThankYouDialog, setShowThankYouDialog] = useState(false);
+  const [submittedTrackingNumber, setSubmittedTrackingNumber] = useState<string>("");
+  const [submittedPaymentMethod, setSubmittedPaymentMethod] = useState<"online" | "walkin">("walkin");
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
@@ -114,7 +119,7 @@ export function DocumentRequestForm({
     setShowCustomPurpose(purpose === "other");
   }, [purpose]);
 
-  const onSubmit = (values: FormValues) => {
+  const handleFormSubmit = (values: FormValues) => {
     if (!user?.residentId) {
       toast.error("No resident ID found", {
         description: "Please make sure your profile is linked to a resident account.",
@@ -136,6 +141,19 @@ export function DocumentRequestForm({
       }
     }
 
+    // For GCash payment, open the payment dialog
+    if (!isFreeDocument && values.paymentMethod === "online") {
+      setShowPaymentDialog(true);
+      return;
+    }
+
+    // For cash on pickup or free documents, submit directly
+    submitRequest(values);
+  };
+
+  const submitRequest = (values: FormValues, referenceNumber?: string, receiptUrl?: string) => {
+    if (!user?.residentId) return;
+
     const finalPurpose = values.purpose === "other" ? values.customPurpose! : values.purpose;
 
     // For free documents, default to walkin payment method
@@ -148,19 +166,32 @@ export function DocumentRequestForm({
         purpose: finalPurpose,
         additionalDetails: values.additionalDetails,
         paymentMethod: paymentMethod,
-        paymentProof: values.paymentProof,
+        paymentProof: receiptUrl || values.paymentProof,
+        paymentReferenceNumber: referenceNumber,
+        supportingDocuments: values.supportingDocuments,
       },
       {
-        onSuccess: () => {
-          navigate("/resident/requests");
+        onSuccess: (data) => {
+          setShowPaymentDialog(false);
+          setSubmittedTrackingNumber(data.trackingNumber);
+          setSubmittedPaymentMethod(paymentMethod);
+          setShowThankYouDialog(true);
         },
       }
     );
   };
 
+  const handleConfirmPayment = (referenceNumber: string, receiptUrl: string) => {
+    const values = form.getValues();
+    // Store the receipt URL in the form
+    form.setValue("paymentProof", receiptUrl);
+    submitRequest(values, referenceNumber, receiptUrl);
+  };
+
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+    <>
+      <Form {...form}>
+        <form onSubmit={form.handleSubmit(handleFormSubmit)} className="space-y-6">
         {/* Document Type Selection */}
         <FormField
           control={form.control}
@@ -294,7 +325,7 @@ export function DocumentRequestForm({
                     />
                   </FormControl>
                   <FormDescription>
-                    Upload the required documents listed in the order summary (max 5 files, 10MB each)
+                    Upload the required documents listed in the order summary (Images only: PNG, JPG, JPEG - max 5 files, 10MB each)
                   </FormDescription>
                   <FormMessage />
                 </FormItem>
@@ -339,32 +370,6 @@ export function DocumentRequestForm({
               )}
             />
 
-            {/* GCash Payment Info (shown when online is selected) */}
-            {paymentMethod === "online" && (
-              <>
-                <GCashPaymentInfo gcashConfig={gcashConfig} />
-                
-                <FormField
-                  control={form.control}
-                  name="paymentProof"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>GCash Reference Number *</FormLabel>
-                      <FormControl>
-                        <Input
-                          placeholder="Enter reference number"
-                          {...field}
-                        />
-                      </FormControl>
-                      <FormDescription>
-                        Enter the GCash transaction reference number
-                      </FormDescription>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
-              </>
-            )}
 
             <Separator />
           </>
@@ -392,10 +397,29 @@ export function DocumentRequestForm({
             }
           >
             {isPending && <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />}
-            Submit Request
+            {!isFreeDocument && paymentMethod === "online" ? "Pay Now" : "Submit Request"}
           </Button>
         </div>
       </form>
     </Form>
+
+    {/* GCash Payment Dialog */}
+    <GCashPaymentDialog
+      open={showPaymentDialog}
+      onOpenChange={setShowPaymentDialog}
+      gcashConfig={gcashConfig}
+      documentPrice={selectedDocument?.price || 0}
+      onConfirmPayment={handleConfirmPayment}
+      isPending={isPending}
+    />
+
+    {/* Thank You Dialog */}
+    <ThankYouDialog
+      open={showThankYouDialog}
+      onOpenChange={setShowThankYouDialog}
+      trackingNumber={submittedTrackingNumber}
+      paymentMethod={submittedPaymentMethod}
+    />
+    </>
   );
 }

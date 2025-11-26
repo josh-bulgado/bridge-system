@@ -166,6 +166,8 @@ public class DocumentRequestService
             PaymentMethod = dto.PaymentMethod,
             Amount = document.Price, // Snapshot current price
             PaymentProof = dto.PaymentProof,
+            PaymentReferenceNumber = dto.PaymentReferenceNumber,
+            SupportingDocuments = dto.SupportingDocuments,
             Status = "pending",
             CreatedAt = DateTime.UtcNow,
             UpdatedAt = DateTime.UtcNow,
@@ -505,6 +507,8 @@ Thank you!"
                 PaymentMethod = request.PaymentMethod,
                 Amount = request.Amount,
                 PaymentProof = request.PaymentProof,
+                PaymentReferenceNumber = request.PaymentReferenceNumber,
+                SupportingDocuments = request.SupportingDocuments,
                 PaymentVerifiedBy = request.PaymentVerifiedBy,
                 PaymentVerifiedByName = paymentVerifiedByName,
                 PaymentVerifiedAt = request.PaymentVerifiedAt,

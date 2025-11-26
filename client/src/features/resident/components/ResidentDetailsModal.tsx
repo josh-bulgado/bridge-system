@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import {
   Dialog,
   DialogContent,
@@ -14,10 +14,12 @@ import { UserCheck, UserX, ExternalLink } from "lucide-react";
 import { Label } from "@/components/ui/label";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { useApproveResidentVerification, useRejectResidentVerification } from "../hooks";
+import { useFetchResidentById } from "../../staff/hooks";
 import { RejectVerificationDialog } from "./RejectVerificationDialog";
 import { DocumentViewer } from "@/components/ui/document-viewer";
 import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
 import { cn } from "@/lib/utils";
+import { useQueryClient } from "@tanstack/react-query";
 
 interface Resident {
   id: string;
@@ -189,14 +191,28 @@ export default function ResidentDetailsModal({
   userRole,
 }: ResidentDetailsModalProps) {
   const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
+  const queryClient = useQueryClient();
   const approveResidentMutation = useApproveResidentVerification();
   const rejectResidentMutation = useRejectResidentVerification();
+  
+  // Fetch fresh resident data when modal is open
+  const { data: freshResidentData, refetch: refetchResident } = useFetchResidentById(resident?.id || "");
+  
+  // Use fresh data if available, otherwise use prop data
+  const displayResident = (isOpen && freshResidentData) ? freshResidentData : resident;
+  
+  // Refetch when modal opens
+  useEffect(() => {
+    if (isOpen && resident?.id) {
+      refetchResident();
+    }
+  }, [isOpen, resident?.id, refetchResident]);
 
-  if (!resident) return null;
+  if (!displayResident) return null;
 
   const handleApprove = async () => {
     try {
-      await approveResidentMutation.mutateAsync(resident.id);
+      await approveResidentMutation.mutateAsync(displayResident.id);
       onClose();
       if (onRefresh) onRefresh();
     } catch (error) {
@@ -211,7 +227,7 @@ export default function ResidentDetailsModal({
   const handleRejectConfirm = async (reason?: string) => {
     try {
       await rejectResidentMutation.mutateAsync({ 
-        residentId: resident.id,
+        residentId: displayResident.id,
         reason 
       });
       setIsRejectDialogOpen(false);
@@ -223,8 +239,8 @@ export default function ResidentDetailsModal({
   };
 
   const canApproveReject =
-    resident.verificationStatus === "Pending" ||
-    resident.verificationStatus === "Under Review";
+    displayResident.verificationStatus === "Pending" ||
+    displayResident.verificationStatus === "Under Review";
 
   const isApproving = approveResidentMutation.isPending;
   const isRejecting = rejectResidentMutation.isPending;
@@ -236,13 +252,13 @@ export default function ResidentDetailsModal({
         <div className="border-b bg-muted/30 px-6 py-4">
           <div className="flex items-start gap-4">
             <div className="flex-1">
-              <DialogTitle className="text-xl font-semibold">{resident.fullName}</DialogTitle>
+              <DialogTitle className="text-xl font-semibold">{displayResident.fullName}</DialogTitle>
               <DialogDescription className="mt-1 text-sm">
-                {resident.email} • {formatPhoneNumber(resident.contactNumber)}
+                {displayResident.email} • {formatPhoneNumber(displayResident.contactNumber)}
               </DialogDescription>
             </div>
             <div className="flex items-center pr-10">
-              {getVerificationStatusBadge(resident.verificationStatus)}
+              {getVerificationStatusBadge(displayResident.verificationStatus)}
             </div>
           </div>
         </div>
@@ -259,11 +275,11 @@ export default function ResidentDetailsModal({
               <div className="grid grid-cols-2 gap-x-4 gap-y-3 text-sm">
                 <div>
                   <Label className="text-muted-foreground text-xs">House/Unit</Label>
-                  <p className="text-sm mt-0.5">{resident.houseNumberUnit || "—"}</p>
+                  <p className="text-sm mt-0.5">{displayResident.houseNumberUnit || "—"}</p>
                 </div>
                 <div>
                   <Label className="text-muted-foreground text-xs">Street/Purok</Label>
-                  <p className="text-sm mt-0.5">{resident.streetPurok || "—"}</p>
+                  <p className="text-sm mt-0.5">{displayResident.streetPurok || "—"}</p>
                 </div>
               </div>
 
@@ -273,15 +289,15 @@ export default function ResidentDetailsModal({
               <div className="grid grid-cols-2 gap-3 text-sm">
                 <div>
                   <Label className="text-muted-foreground text-xs">Registered</Label>
-                  <p className="text-sm mt-0.5">{formatDate(resident.registrationDate)}</p>
+                  <p className="text-sm mt-0.5">{formatDate(displayResident.registrationDate)}</p>
                 </div>
-                {resident.verifiedDate && (
+                {displayResident.verifiedDate && (
                   <div>
                     <Label className="text-muted-foreground text-xs">
-                      {resident.verificationStatus === "Approved" ? "Approved" : 
-                       resident.verificationStatus === "Rejected" ? "Rejected" : "Verified"}
+                      {displayResident.verificationStatus === "Approved" ? "Approved" : 
+                       displayResident.verificationStatus === "Rejected" ? "Rejected" : "Verified"}
                     </Label>
-                    <p className="text-sm mt-0.5">{formatDate(resident.verifiedDate)}</p>
+                    <p className="text-sm mt-0.5">{formatDate(displayResident.verifiedDate)}</p>
                   </div>
                 )}
               </div>
@@ -293,26 +309,26 @@ export default function ResidentDetailsModal({
                 <Label className="text-sm font-medium mb-3 block">
                   Government ID Documents
                 </Label>
-                {resident.hasDocuments ? (
+                {displayResident.hasDocuments ? (
                   <div className="space-y-3">
-                    {resident.governmentIdFront && (
+                    {displayResident.governmentIdFront && (
                       <DocumentViewer
-                        title={`${formatGovernmentIdType(resident.governmentIdType)} (Front)`}
-                        url={resident.governmentIdFrontUrl}
-                        publicId={resident.governmentIdFront}
-                        fileType={resident.governmentIdFrontFileType}
+                        title={`${formatGovernmentIdType(displayResident.governmentIdType)} (Front)`}
+                        url={displayResident.governmentIdFrontUrl}
+                        publicId={displayResident.governmentIdFront}
+                        fileType={displayResident.governmentIdFrontFileType}
                         showDownload={userRole === "admin"}
-                        residentId={resident.id}
+                        residentId={displayResident.id}
                       />
                     )}
-                    {resident.governmentIdBack && (
+                    {displayResident.governmentIdBack && (
                       <DocumentViewer
-                        title={`${formatGovernmentIdType(resident.governmentIdType)} (Back)`}
-                        url={resident.governmentIdBackUrl}
-                        publicId={resident.governmentIdBack}
-                        fileType={resident.governmentIdBackFileType}
+                        title={`${formatGovernmentIdType(displayResident.governmentIdType)} (Back)`}
+                        url={displayResident.governmentIdBackUrl}
+                        publicId={displayResident.governmentIdBack}
+                        fileType={displayResident.governmentIdBackFileType}
                         showDownload={userRole === "admin"}
-                        residentId={resident.id}
+                        residentId={displayResident.id}
                       />
                     )}
                   </div>
@@ -328,21 +344,21 @@ export default function ResidentDetailsModal({
             <div className="border-b px-6 py-3 bg-muted/30 flex items-center justify-between flex-shrink-0">
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-semibold">Proof of Residency</Label>
-                {resident.proofOfResidencyType && (
+                {displayResident.proofOfResidencyType && (
                   <span className="text-xs text-muted-foreground">
-                    {formatProofOfResidencyType(resident.proofOfResidencyType)}
+                    {formatProofOfResidencyType(displayResident.proofOfResidencyType)}
                   </span>
                 )}
               </div>
-              {resident.proofOfResidency && (
+              {displayResident.proofOfResidency && (
                 <Button
                   variant="outline"
                   size="sm"
                   className="h-8 text-xs"
                   onClick={() => {
                     // Open the document in new tab
-                    if (resident.proofOfResidencyUrl) {
-                      window.open(resident.proofOfResidencyUrl, '_blank', 'noopener,noreferrer');
+                    if (displayResident.proofOfResidencyUrl) {
+                      window.open(displayResident.proofOfResidencyUrl, '_blank', 'noopener,noreferrer');
                     }
                   }}
                 >
@@ -352,15 +368,15 @@ export default function ResidentDetailsModal({
               )}
             </div>
             <div className="flex-1 min-h-0 overflow-auto">
-              {resident.proofOfResidency ? (
+              {displayResident.proofOfResidency ? (
                 <div className="h-full">
                   <InlineDocumentViewer
-                    title={formatProofOfResidencyType(resident.proofOfResidencyType)}
-                    url={resident.proofOfResidencyUrl}
-                    publicId={resident.proofOfResidency}
-                    fileType={resident.proofOfResidencyFileType}
+                    title={formatProofOfResidencyType(displayResident.proofOfResidencyType)}
+                    url={displayResident.proofOfResidencyUrl}
+                    publicId={displayResident.proofOfResidency}
+                    fileType={displayResident.proofOfResidencyFileType}
                     showDownload={userRole === "admin"}
-                    residentId={resident.id}
+                    residentId={displayResident.id}
                   />
                 </div>
               ) : (
@@ -403,7 +419,7 @@ export default function ResidentDetailsModal({
         isOpen={isRejectDialogOpen}
         onClose={() => setIsRejectDialogOpen(false)}
         onConfirm={handleRejectConfirm}
-        residentName={resident.fullName}
+        residentName={displayResident.fullName}
         isLoading={isRejecting}
       />
     </Dialog>

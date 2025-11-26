@@ -71,21 +71,41 @@ export function useEmailAvailability(email: string): UseEmailAvailabilityResult 
         // Debounce the API call
         debounceTimer.current = setTimeout(async () => {
             try {
+                // 🐛 DEBUG: Start timing
+                const startTime = performance.now();
+                console.log(`[EMAIL CHECK] Starting check for: ${email}`);
+                
                 // 🔒 Security: Sanitize email before sending
                 const sanitizedEmail = email.trim().toLowerCase();
                 
-                const result = await authService.checkEmailAvailability(sanitizedEmail);
+                // Set a timeout for the API call (30 seconds)
+                const timeoutPromise = new Promise((_, reject) => {
+                    setTimeout(() => {
+                        console.log(`[EMAIL CHECK] ⏱️ Request timed out after 30 seconds`);
+                        reject(new Error('Request timeout'));
+                    }, 30000);
+                });
+                
+                const apiPromise = authService.checkEmailAvailability(sanitizedEmail);
+                
+                const result = await Promise.race([apiPromise, timeoutPromise]) as { available: boolean };
+                
+                // 🐛 DEBUG: End timing
+                const endTime = performance.now();
+                const duration = (endTime - startTime).toFixed(2);
+                console.log(`[EMAIL CHECK] ✅ Completed in ${duration}ms | Available: ${result.available}`);
                 
                 setIsAvailable(result.available);
                 setError(null);
                 setIsChecking(false);
             } catch (err: any) {
-                if (import.meta.env.DEV) {
-                    console.error("Email availability check failed:", err.message || err);
-                }
+                // 🐛 DEBUG: Log error
+                console.log(`[EMAIL CHECK] ❌ Error occurred:`, err.message);
                 
                 // Distinguish between network errors and server errors
-                if (err.code === "ERR_NETWORK" || !err.response) {
+                if (err.message === 'Request timeout') {
+                    setError("Request timed out. Please try again.");
+                } else if (err.code === "ERR_NETWORK" || !err.response) {
                     setError("Cannot connect to server. Please check your connection.");
                 } else if (err.response?.status === 429) {
                     setError("Too many requests. Please wait a moment and try again.");

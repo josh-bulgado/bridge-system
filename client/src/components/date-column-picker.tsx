@@ -113,10 +113,10 @@ export function DateColumnPicker({
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="flex gap-3">
+      <div className="grid grid-cols-3 gap-3">
         {/* Month Select */}
-        <div className="flex-1 space-y-2">
-          <label className="text-foreground text-sm font-medium">Month</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">Month</label>
           <Select
             value={selectedMonth.toString()}
             onValueChange={handleMonthChange}
@@ -135,8 +135,8 @@ export function DateColumnPicker({
         </div>
 
         {/* Day Select */}
-        <div className="flex-1 space-y-2">
-          <label className="text-foreground text-sm font-medium">Day</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">Day</label>
           <Select
             value={selectedDay.toString()}
             onValueChange={handleDayChange}
@@ -155,8 +155,8 @@ export function DateColumnPicker({
         </div>
 
         {/* Year Select */}
-        <div className="flex-1 space-y-2">
-          <label className="text-foreground text-sm font-medium">Year</label>
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-foreground">Year</label>
           <Select
             value={selectedYear.toString()}
             onValueChange={handleYearChange}

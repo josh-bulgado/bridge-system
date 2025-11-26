@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using server.Services;
+using server.src.Services;
 using server.DTOs.Residents;
 using System.Security.Claims;
 
@@ -13,12 +14,18 @@ namespace server.Controllers
         private readonly ResidentService _residentService;
         private readonly UserService _userService;
         private readonly CloudinaryService _cloudinaryService;
+        private readonly INotificationService _notificationService;
 
-        public ResidentController(ResidentService residentService, UserService userService, CloudinaryService cloudinaryService)
+        public ResidentController(
+            ResidentService residentService, 
+            UserService userService, 
+            CloudinaryService cloudinaryService,
+            INotificationService notificationService)
         {
             _residentService = residentService;
             _userService = userService;
             _cloudinaryService = cloudinaryService;
+            _notificationService = notificationService;
         }
 
         /// <summary>
@@ -67,6 +74,39 @@ namespace server.Controllers
                 {
                     return NotFound(new { message = "Resident not found" });
                 }
+
+                // Send notification to resident
+                await _notificationService.SendToUser(
+                    userId,
+                    "Verification Submitted",
+                    "Your verification documents have been submitted successfully. Our staff will review them shortly.",
+                    "info",
+                    "verification",
+                    resident.Id,
+                    "/resident/verification"
+                );
+
+                // Notify staff and admin about new verification submission
+                var residentName = resident.FullName ?? "A resident";
+                await _notificationService.SendToRole(
+                    "staff",
+                    "New Verification Submission",
+                    $"{residentName} has submitted verification documents for review.",
+                    "info",
+                    "verification",
+                    resident.Id,
+                    $"/staff/residents/{resident.Id}"
+                );
+
+                await _notificationService.SendToRole(
+                    "admin",
+                    "New Verification Submission",
+                    $"{residentName} has submitted verification documents for review.",
+                    "info",
+                    "verification",
+                    resident.Id,
+                    $"/admin/residents/{resident.Id}"
+                );
 
                 return Ok(new VerificationResponse
                 {
@@ -220,6 +260,21 @@ namespace server.Controllers
                     return NotFound(new { message = "Resident not found" });
                 }
 
+                // Get user associated with the resident to send notification
+                var residentUser = await _userService.GetByResidentIdAsync(residentId);
+                if (residentUser != null)
+                {
+                    await _notificationService.SendToUser(
+                        residentUser.Id ?? "",
+                        "Verification Approved",
+                        "Congratulations! Your residency verification has been approved. You can now request barangay documents.",
+                        "success",
+                        "verification",
+                        residentId,
+                        "/resident/dashboard"
+                    );
+                }
+
                 return Ok(new
                 {
                     message = "Resident approved successfully",
@@ -258,6 +313,21 @@ namespace server.Controllers
                 if (resident == null)
                 {
                     return NotFound(new { message = "Resident not found" });
+                }
+
+                // Get user associated with the resident to send notification
+                var residentUser = await _userService.GetByResidentIdAsync(residentId);
+                if (residentUser != null)
+                {
+                    await _notificationService.SendToUser(
+                        residentUser.Id ?? "",
+                        "Verification Rejected",
+                        "Your residency verification has been rejected. Please review your documents and resubmit with correct information.",
+                        "error",
+                        "verification",
+                        residentId,
+                        "/resident/verification"
+                    );
                 }
 
                 return Ok(new

@@ -3,6 +3,7 @@ import { IconUpload, IconFile, IconX, IconLoader2 } from "@tabler/icons-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { toast } from "sonner";
+import { useUploadDocument } from "@/hooks/useUploadFile";
 
 interface UploadedFile {
   name: string;
@@ -24,24 +25,39 @@ export function MultiFileUploadZone({
   const [uploadedFiles, setUploadedFiles] = useState<UploadedFile[]>([]);
   const [uploading, setUploading] = useState(false);
   const [isDragging, setIsDragging] = useState(false);
+  const { mutateAsync: uploadDocument } = useUploadDocument();
 
   const uploadFile = async (file: File): Promise<UploadedFile> => {
-    // TODO: Replace with actual upload to your backend/Cloudinary
-    // For now, create a mock URL
-    await new Promise((resolve) => setTimeout(resolve, 1000));
-    
-    return {
-      name: file.name,
-      url: `https://example.com/uploads/${file.name}`, // Replace with actual URL
-      size: file.size,
-    };
+    try {
+      console.log("Uploading file:", file.name, "Size:", file.size);
+      const response = await uploadDocument({ 
+        file, 
+        folder: "supporting-documents" 
+      });
+      console.log("Upload response:", response);
+      
+      return {
+        name: file.name,
+        url: response.url,
+        size: file.size,
+      };
+    } catch (error) {
+      console.error("Upload error for", file.name, ":", error);
+      throw error;
+    }
   };
 
   const handleFiles = useCallback(async (files: FileList) => {
     const fileArray = Array.from(files);
     
+    console.log("=== MULTI FILE UPLOAD ===");
+    console.log("Files selected:", fileArray.length);
+    console.log("Already uploaded:", uploadedFiles.length);
+    console.log("Total would be:", uploadedFiles.length + fileArray.length);
+    console.log("Max allowed:", maxFiles);
+    
     if (uploadedFiles.length + fileArray.length > maxFiles) {
-      toast.error(`Maximum ${maxFiles} files allowed`);
+      toast.error(`Maximum ${maxFiles} files allowed. You already have ${uploadedFiles.length} file(s) uploaded.`);
       return;
     }
 
@@ -52,20 +68,34 @@ export function MultiFileUploadZone({
       return;
     }
 
+    // Check file types - only images allowed
+    const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg'];
+    const invalidFiles = fileArray.filter(f => !allowedTypes.includes(f.type));
+    if (invalidFiles.length > 0) {
+      toast.error(`Only PNG, JPG, and JPEG images are allowed`);
+      console.error("Invalid file types:", invalidFiles.map(f => `${f.name} (${f.type})`));
+      return;
+    }
+
     setUploading(true);
 
     try {
       const uploadPromises = fileArray.map(file => uploadFile(file));
       const newFiles = await Promise.all(uploadPromises);
       
+      console.log("All files uploaded:", newFiles);
+      
       const updatedFiles = [...uploadedFiles, ...newFiles];
       setUploadedFiles(updatedFiles);
-      onUploadComplete(updatedFiles.map(f => f.url));
       
-      toast.success(`${fileArray.length} file(s) uploaded successfully`);
+      const allUrls = updatedFiles.map(f => f.url);
+      console.log("Calling onUploadComplete with URLs:", allUrls);
+      onUploadComplete(allUrls);
+      
+      toast.success(`${fileArray.length} file(s) uploaded successfully to Cloudinary`);
     } catch (error) {
-      toast.error("Failed to upload files");
-      console.error(error);
+      toast.error("Failed to upload files to Cloudinary");
+      console.error("Upload error:", error);
     } finally {
       setUploading(false);
     }
@@ -125,7 +155,7 @@ export function MultiFileUploadZone({
           <input
             type="file"
             multiple
-            accept=".pdf,.png,.jpg,.jpeg"
+            accept="image/png,image/jpeg,image/jpg"
             onChange={handleFileSelect}
             disabled={uploading}
             className="absolute inset-0 cursor-pointer opacity-0"
@@ -141,7 +171,10 @@ export function MultiFileUploadZone({
                 {isDragging ? 'Drop files here' : 'Click to upload or drag and drop'}
               </p>
               <p className="text-xs text-muted-foreground">
-                PDF, PNG, JPG up to {maxSize / (1024 * 1024)}MB (max {maxFiles} files)
+                PNG, JPG, JPEG images up to {maxSize / (1024 * 1024)}MB each
+              </p>
+              <p className="text-xs font-medium text-primary">
+                You can upload up to {maxFiles - uploadedFiles.length} more file(s)
               </p>
             </div>
           </div>

@@ -296,27 +296,30 @@ class AuthService {
   // Check Email Availability
   async checkEmailAvailability(email: string): Promise<{ available: boolean }> {
     try {
+      // 🐛 DEBUG: Track API call timing
+      const apiStartTime = performance.now();
+      console.log(`[API] → Sending GET request to /check-email-availability`);
+      
       const { data } = await api.get<{ available: boolean }>(
         `${this.baseUrl}/check-email-availability`,
         { params: { email } },
       );
 
-      // 🔒 Security: Only log in development mode, and mask the email
-      if (import.meta.env.DEV) {
-        const maskedEmail =
-          email.substring(0, 3) + "***@" + email.split("@")[1];
-        console.log(
-          `Email availability check for ${maskedEmail}:`,
-          data.available ? "Available" : "Not available",
-        );
-      }
+      // 🐛 DEBUG: Log response time
+      const apiEndTime = performance.now();
+      const apiDuration = (apiEndTime - apiStartTime).toFixed(2);
+      console.log(`[API] ← Response received in ${apiDuration}ms | Data:`, data);
 
       return data;
     } catch (error: any) {
-      if (import.meta.env.DEV) {
-        // Error handling - keep for debugging non-sensitive errors
-      }
-
+      // 🐛 DEBUG: Log API error
+      console.log(`[API] ❌ Request failed:`, {
+        status: error.response?.status,
+        statusText: error.response?.statusText,
+        message: error.message,
+        code: error.code
+      });
+      
       // Only return false if we get a definitive response from the server
       // Otherwise, throw the error so the UI can handle it appropriately
       if (error.response?.status === 400 || error.response?.status === 409) {

@@ -8,12 +8,13 @@ import {
 } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { Building2, MapPin, Phone, Clock, Save, Loader2 } from "lucide-react";
+import { Building2, MapPin, Phone, Clock, Save, Loader2, Wallet } from "lucide-react";
 import { LogoUploadSection } from "./LogoUploadSection";
 import { CaptainSection } from "./CaptainSection";
 import { AddressSection } from "./AddressSection";
 import { ContactSection } from "./ContactSection";
 import { OfficeHoursSection } from "./OfficeHoursSection";
+import { GCashSection } from "./GCashSection";
 import type { UseFormReturn } from "react-hook-form";
 import type { BarangayConfigFormData } from "../../schemas/barangayConfigSchema";
 
@@ -41,6 +42,10 @@ interface BarangayConfigFormProps {
     option: AddressOption
   ) => void;
   onLogoSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  displayQrCode: string | null;
+  isUploadingQr: boolean;
+  onQrCodeSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
+  onQrCodeRemove: () => void;
   onCancel?: () => void;
 }
 
@@ -60,6 +65,10 @@ export const BarangayConfigForm: React.FC<BarangayConfigFormProps> = ({
   isLoadingBarangays,
   onAddressSelect,
   onLogoSelect,
+  displayQrCode,
+  isUploadingQr,
+  onQrCodeSelect,
+  onQrCodeRemove,
   onCancel,
 }) => {
   const {
@@ -155,6 +164,29 @@ export const BarangayConfigForm: React.FC<BarangayConfigFormProps> = ({
         </CardHeader>
         <CardContent>
           <OfficeHoursSection register={register} errors={errors} />
+        </CardContent>
+      </Card>
+
+      {/* GCash Payment Configuration Card */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Wallet className="h-5 w-5 text-blue-600" />
+            GCash Payment Configuration
+          </CardTitle>
+          <CardDescription>
+            Leave blank if you only accept face-to-face payments at the barangay hall
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <GCashSection
+            register={register}
+            errors={errors}
+            displayQrCode={displayQrCode}
+            onQrCodeSelect={onQrCodeSelect}
+            onQrCodeRemove={onQrCodeRemove}
+            isUploadingQr={isUploadingQr}
+          />
         </CardContent>
       </Card>
 

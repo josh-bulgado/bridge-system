@@ -2,6 +2,8 @@ using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using server.Services;
+using server.src.Services;
+using server.src.Hubs;
 using QuestPDF.Infrastructure;
 using DotNetEnv; // ensure using
 
@@ -27,6 +29,9 @@ builder.Services.AddSingleton<DocumentService>();
 builder.Services.AddSingleton<StaffService>();
 builder.Services.AddSingleton<DocumentRequestService>();
 builder.Services.AddSingleton<DocumentTemplateService>();
+
+// Notification service
+builder.Services.AddSingleton<INotificationService, NotificationService>();
 
 // 🟢 Bind JWT settings from configuration (.env or appsettings.json)
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection("Jwt"));
@@ -71,6 +76,9 @@ builder.Services.AddSwaggerGen(options =>
     // Add the custom file upload operation filter
     options.OperationFilter<FileUploadOperationFilter>();
 });
+
+// Add SignalR
+builder.Services.AddSignalR();
 
 
 // CORS - Allow multiple local development ports with security headers
@@ -118,6 +126,23 @@ builder.Services.AddAuthentication(options =>
         ValidIssuer = builder.Configuration["Jwt:Issuer"],
         IssuerSigningKey = new SymmetricSecurityKey(keyBytes),
         ClockSkew = TimeSpan.Zero // optional but recommended
+    };
+
+    // Configure JWT for SignalR
+    options.Events = new JwtBearerEvents
+    {
+        OnMessageReceived = context =>
+        {
+            var accessToken = context.Request.Query["access_token"];
+            var path = context.HttpContext.Request.Path;
+            
+            if (!string.IsNullOrEmpty(accessToken) && path.StartsWithSegments("/notificationHub"))
+            {
+                context.Token = accessToken;
+            }
+            
+            return Task.CompletedTask;
+        }
     };
 });
 
@@ -168,4 +193,8 @@ app.UseSwaggerUI();
 app.UseAuthentication();
 app.UseAuthorization();
 app.MapControllers();
+
+// Map SignalR hub
+app.MapHub<NotificationHub>("/notificationHub");
+
 app.Run();

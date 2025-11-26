@@ -2,6 +2,7 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { SiteHeader } from "@/components/site-header";
 import { Outlet } from "react-router-dom";
 import React from "react";
+import { useNotifications } from "@/hooks/useNotifications";
 
 interface BaseDashboardLayoutProps {
   sidebar: React.ReactNode;
@@ -10,6 +11,9 @@ interface BaseDashboardLayoutProps {
 const BaseDashboardLayout: React.FC<BaseDashboardLayoutProps> = ({
   sidebar,
 }) => {
+  // Initialize SignalR connection and notification handling
+  useNotifications();
+
   return (
     <SidebarProvider
       style={
