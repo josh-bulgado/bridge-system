@@ -99,8 +99,14 @@ function App() {
               <Route index element={<ResidentDashboard />} />
               <Route path="verify" element={<VerificationPage />} />
               <Route path="verification" element={<VerificationPage />} />
-              <Route path="requests" element={<ResidentDocumentRequestPage />} />
-              <Route path="requests/new" element={<CreateDocumentRequestPage />} />
+              <Route
+                path="requests"
+                element={<ResidentDocumentRequestPage />}
+              />
+              <Route
+                path="requests/new"
+                element={<CreateDocumentRequestPage />}
+              />
             </Route>
 
             {/* Admin Routes */}
