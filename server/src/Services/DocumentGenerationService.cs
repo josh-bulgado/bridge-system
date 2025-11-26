@@ -1,15 +1,14 @@
-using MongoDB.Driver;
-using server.Models;
-using System.IO;
+
 using System.Text.RegularExpressions;
+using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Wordprocessing;
-using DocumentFormat.OpenXml;
+using MongoDB.Driver;
+using server.Models;
 using A = DocumentFormat.OpenXml.Drawing;
 using DW = DocumentFormat.OpenXml.Drawing.Wordprocessing;
 using PIC = DocumentFormat.OpenXml.Drawing.Pictures;
 using DocModel = server.Models.Document;
-using OpenXmlDocument = DocumentFormat.OpenXml.Wordprocessing.Document;
 
 namespace server.Services
 {
@@ -125,7 +124,7 @@ namespace server.Services
                 throw new Exception("Barangay configuration not found");
 
             // Download template from Cloudinary
-            _logger.LogInformation("Using template URL: {TemplateUrl} for document type: {DocumentType}", 
+            _logger.LogInformation("Using template URL: {TemplateUrl} for document type: {DocumentType}",
                 document.TemplateUrl, document.Name);
             var templatePath = await DownloadTemplateAsync(document.TemplateUrl);
 
@@ -134,6 +133,56 @@ namespace server.Services
                 // Process the document using OpenXML
                 var outputPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.docx");
                 File.Copy(templatePath, outputPath, true);
+
+                // Update resident civil status if provided and different
+                var residentCollection = _context.GetCollection<Resident>("residents");
+                var resident = await residentCollection
+                    .Find(r => r.Id == documentRequest.ResidentId)
+                    .FirstOrDefaultAsync();
+
+                _logger.LogInformation("DEBUG: Resident found: {Found}, ResidentId: {ResidentId}",
+                    resident != null, documentRequest.ResidentId);
+
+                if (resident != null)
+                {
+                    _logger.LogInformation("DEBUG: Current civil status: {Current}, Data contains CIVIL_STATUS: {Contains}",
+                        resident.CivilStatus ?? "NULL", data.ContainsKey("CIVIL_STATUS"));
+
+                    if (data.ContainsKey("CIVIL_STATUS"))
+                    {
+                        var newCivilStatus = data["CIVIL_STATUS"];
+                        _logger.LogInformation("DEBUG: New civil status from data: {New}, Is empty: {IsEmpty}, Are different: {Different}",
+                            newCivilStatus ?? "NULL",
+                            string.IsNullOrEmpty(newCivilStatus),
+                            resident.CivilStatus != newCivilStatus);
+
+                        if (!string.IsNullOrEmpty(newCivilStatus) && resident.CivilStatus != newCivilStatus)
+                        {
+                            var oldStatus = resident.CivilStatus;
+                            resident.CivilStatus = newCivilStatus;
+
+                            var updateResult = await residentCollection.ReplaceOneAsync(
+                                r => r.Id == resident.Id,
+                                resident
+                            );
+
+                            _logger.LogInformation("Updated resident {ResidentId} civil status from '{Old}' to '{New}'. ModifiedCount: {Count}",
+                                resident.Id, oldStatus ?? "NULL", newCivilStatus, updateResult.ModifiedCount);
+                        }
+                        else
+                        {
+                            _logger.LogInformation("Skipping civil status update - either empty or same value");
+                        }
+                    }
+                    else
+                    {
+                        _logger.LogWarning("CIVIL_STATUS key not found in data dictionary");
+                    }
+                }
+                else
+                {
+                    _logger.LogWarning("Resident not found for ResidentId: {ResidentId}", documentRequest.ResidentId);
+                }
 
                 using (WordprocessingDocument wordDoc = WordprocessingDocument.Open(outputPath, true))
                 {
@@ -152,23 +201,56 @@ namespace server.Services
                                 ReplaceText(body, placeholder, kvp.Value ?? "N/A");
                             }
                         }
+
+                        // Optimize page layout to prevent overflow
+                        OptimizePageLayout(wordDoc);
                     }
 
                     wordDoc.MainDocumentPart?.Document.Save();
                 }
 
-                // For now, upload DOCX (PDF conversion can be added later)
-                // Read file and upload
-                using var fileStream = new FileStream(outputPath, FileMode.Open, FileAccess.Read);
-                var formFile = new FormFile(fileStream, 0, fileStream.Length, "file", Path.GetFileName(outputPath))
+                // Convert DOCX to PDF using FreeSpire.Doc
+                var pdfPath = Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.pdf");
+                var spireDoc = new Spire.Doc.Document();
+                spireDoc.LoadFromFile(outputPath);
+
+                // Configure PDF conversion settings to preserve spacing and quality
+                spireDoc.JPEGQuality = 100; // High quality images
+
+                // Apply tight margins and spacing directly to Spire.Doc sections
+                foreach (Spire.Doc.Section section in spireDoc.Sections)
+                {
+                    // Set 0.5" margins (36 points = 0.5 inch)
+                    section.PageSetup.Margins.Top = 72f;
+                    section.PageSetup.Margins.Bottom = 72f;
+                    section.PageSetup.Margins.Left = 72f;
+                    section.PageSetup.Margins.Right = 72f;
+
+                    // Apply tight line spacing to all paragraphs in the section
+                    foreach (Spire.Doc.Documents.Paragraph para in section.Paragraphs)
+                    {
+                        // Set line spacing to 0.8 (tighter than single)
+                        para.Format.LineSpacing = 9.6f; // 12pt * 0.8 = 9.6pt
+
+                        // Remove paragraph spacing
+                        para.Format.BeforeSpacing = 0f;
+                        para.Format.AfterSpacing = 0f;
+                    }
+                }
+
+                spireDoc.SaveToFile(pdfPath, Spire.Doc.FileFormat.PDF);
+
+                // Upload PDF file
+                using var fileStream = new FileStream(pdfPath, FileMode.Open, FileAccess.Read);
+                var formFile = new FormFile(fileStream, 0, fileStream.Length, "file", Path.GetFileName(pdfPath))
                 {
                     Headers = new HeaderDictionary(),
-                    ContentType = "application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                    ContentType = "application/pdf"
                 };
-                
+
                 var uploadResult = await _cloudinaryService.UploadDocumentAsync(
                     formFile,
-                    $"generated_documents/{documentRequest.TrackingNumber}_{DateTime.Now:yyyyMMdd_HHmmss}.docx"
+                    $"generated_documents/{documentRequest.TrackingNumber}_{DateTime.Now:yyyyMMdd_HHmmss}.pdf"
                 );
 
                 if (!uploadResult.success || string.IsNullOrEmpty(uploadResult.url))
@@ -176,55 +258,7 @@ namespace server.Services
                     throw new Exception($"Failed to upload document: {uploadResult.error}");
                 }
 
-                // Update resident civil status if provided and different
-                var residentCollection = _context.GetCollection<Resident>("residents");
-                var resident = await residentCollection
-                    .Find(r => r.Id == documentRequest.ResidentId)
-                    .FirstOrDefaultAsync();
 
-                _logger.LogInformation("DEBUG: Resident found: {Found}, ResidentId: {ResidentId}", 
-                    resident != null, documentRequest.ResidentId);
-                
-                if (resident != null)
-                {
-                    _logger.LogInformation("DEBUG: Current civil status: {Current}, Data contains CIVIL_STATUS: {Contains}", 
-                        resident.CivilStatus ?? "NULL", data.ContainsKey("CIVIL_STATUS"));
-                    
-                    if (data.ContainsKey("CIVIL_STATUS"))
-                    {
-                        var newCivilStatus = data["CIVIL_STATUS"];
-                        _logger.LogInformation("DEBUG: New civil status from data: {New}, Is empty: {IsEmpty}, Are different: {Different}", 
-                            newCivilStatus ?? "NULL", 
-                            string.IsNullOrEmpty(newCivilStatus),
-                            resident.CivilStatus != newCivilStatus);
-                        
-                        if (!string.IsNullOrEmpty(newCivilStatus) && resident.CivilStatus != newCivilStatus)
-                        {
-                            var oldStatus = resident.CivilStatus;
-                            resident.CivilStatus = newCivilStatus;
-                            
-                            var updateResult = await residentCollection.ReplaceOneAsync(
-                                r => r.Id == resident.Id,
-                                resident
-                            );
-                            
-                            _logger.LogInformation("Updated resident {ResidentId} civil status from '{Old}' to '{New}'. ModifiedCount: {Count}", 
-                                resident.Id, oldStatus ?? "NULL", newCivilStatus, updateResult.ModifiedCount);
-                        }
-                        else
-                        {
-                            _logger.LogInformation("Skipping civil status update - either empty or same value");
-                        }
-                    }
-                    else
-                    {
-                        _logger.LogWarning("CIVIL_STATUS key not found in data dictionary");
-                    }
-                }
-                else
-                {
-                    _logger.LogWarning("Resident not found for ResidentId: {ResidentId}", documentRequest.ResidentId);
-                }
 
                 // Update document request
                 documentRequest.GeneratedDocumentUrl = uploadResult.url;
@@ -248,7 +282,7 @@ namespace server.Services
                 );
 
                 // Cleanup temp files
-                CleanupTempFiles(templatePath, outputPath);
+                CleanupTempFiles(templatePath, outputPath, pdfPath);
 
                 return uploadResult.url;
             }
@@ -289,7 +323,7 @@ namespace server.Services
             foreach (var paragraph in paragraphs)
             {
                 var fullText = string.Join("", paragraph.Descendants<Text>().Select(t => t.Text));
-                
+
                 if (fullText.Contains(placeholder))
                 {
                     // Clear all text runs
@@ -298,7 +332,7 @@ namespace server.Services
                     {
                         text.Remove();
                     }
-                    
+
                     // Replace in the first text element
                     var firstText = paragraph.Descendants<Text>().FirstOrDefault();
                     if (firstText != null)
@@ -344,11 +378,11 @@ namespace server.Services
                 string relationshipId = mainPart.GetIdOfPart(imagePart);
 
                 // Find all paragraphs containing <<LOGO>>
-                var paragraphs = mainPart.Document.Body.Descendants<Paragraph>().ToList();
+                var paragraphs = mainPart.Document.Body?.Descendants<Paragraph>().ToList() ?? new List<Paragraph>();
                 foreach (var paragraph in paragraphs)
                 {
                     var fullText = string.Join("", paragraph.Descendants<Text>().Select(t => t.Text));
-                    
+
                     if (fullText.Contains("<<LOGO>>"))
                     {
                         // Remove all existing runs in the paragraph
@@ -356,10 +390,10 @@ namespace server.Services
 
                         // Create a new run with the image
                         var run = paragraph.AppendChild(new Run());
-                        
-                        // Create drawing element with 1.5" x 1.5" dimensions (1.5 inch = 1371600 EMUs)
+
+                        // Create drawing element with 1.0" x 1.0" dimensions (reduced to prevent page overflow)
                         const long emusPerInch = 914400L;
-                        const double sizeInInches = 1.5;
+                        const double sizeInInches = 1.0; // Reduced from 1.5" to 1.0"
                         long imageSize = (long)(sizeInInches * emusPerInch);
 
                         var element = new Drawing(
@@ -383,17 +417,18 @@ namespace server.Services
                                                     new A.Offset() { X = 0L, Y = 0L },
                                                     new A.Extents() { Cx = imageSize, Cy = imageSize }),
                                                 new A.PresetGeometry(new A.AdjustValueList()) { Preset = A.ShapeTypeValues.Rectangle }))
-                                    ) { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" })
-                            ) 
-                            { 
-                                DistanceFromTop = 0U, 
-                                DistanceFromBottom = 0U, 
-                                DistanceFromLeft = 0U, 
-                                DistanceFromRight = 0U 
+                                    )
+                                    { Uri = "http://schemas.openxmlformats.org/drawingml/2006/picture" })
+                            )
+                            {
+                                DistanceFromTop = 0U,
+                                DistanceFromBottom = 0U,
+                                DistanceFromLeft = 0U,
+                                DistanceFromRight = 0U
                             });
 
                         run.AppendChild(element);
-                        
+
                         _logger.LogInformation("Successfully replaced <<LOGO>> with image");
                         break; // Only replace the first occurrence
                     }
@@ -422,7 +457,7 @@ namespace server.Services
                 if (mainPart == null) return;
 
                 // Find the image part by relationship ID
-                var imagePart = mainPart.ImageParts.FirstOrDefault(ip => 
+                var imagePart = mainPart.ImageParts.FirstOrDefault(ip =>
                     mainPart.GetIdOfPart(ip) == relationshipId);
 
                 if (imagePart != null)
@@ -438,8 +473,8 @@ namespace server.Services
                 }
                 else
                 {
-                    _logger.LogWarning("Image relationship {RelationshipId} not found in template. Available IDs: {AvailableIds}", 
-                        relationshipId, 
+                    _logger.LogWarning("Image relationship {RelationshipId} not found in template. Available IDs: {AvailableIds}",
+                        relationshipId,
                         string.Join(", ", mainPart.ImageParts.Select(ip => mainPart.GetIdOfPart(ip))));
                 }
 
@@ -489,6 +524,72 @@ namespace server.Services
             }
 
             return $"{prefix}{nextNumber:D5}";
+        }
+
+        private void OptimizePageLayout(WordprocessingDocument wordDoc)
+        {
+            try
+            {
+                var body = wordDoc.MainDocumentPart?.Document?.Body;
+                if (body == null) return;
+
+                // Set 0.5" margins on all sides (720 twips = 0.5 inch)
+                var sectionProperties = body.Descendants<SectionProperties>().FirstOrDefault();
+                if (sectionProperties != null)
+                {
+                    var pageMargin = sectionProperties.GetFirstChild<PageMargin>();
+                    if (pageMargin == null)
+                    {
+                        pageMargin = new PageMargin();
+                        sectionProperties.AppendChild(pageMargin);
+                    }
+
+                    // Set 0.5" margins on all sides
+                    pageMargin.Top = 1440;
+                    pageMargin.Bottom = 1440;
+                    pageMargin.Left = (UInt32Value)1440U;
+                    pageMargin.Right = (UInt32Value)1440U;
+                }
+
+                // Set tighter line spacing (180 twips with auto rule)
+                foreach (var paragraph in body.Descendants<Paragraph>())
+                {
+                    var paragraphProperties = paragraph.GetFirstChild<ParagraphProperties>();
+
+                    // Create paragraph properties if they don't exist
+                    if (paragraphProperties == null)
+                    {
+                        paragraphProperties = new ParagraphProperties();
+                        paragraph.PrependChild(paragraphProperties);
+                    }
+
+                    // Remove existing spacing element if present
+                    var existingSpacing = paragraphProperties.GetFirstChild<SpacingBetweenLines>();
+                    if (existingSpacing != null)
+                    {
+                        existingSpacing.Remove();
+                    }
+
+                    // Create new spacing element with tighter spacing
+                    var spacingBetweenLines = new SpacingBetweenLines();
+
+                    // Use 180 twips with auto line rule for tighter spacing
+                    spacingBetweenLines.Line = "180";
+                    spacingBetweenLines.LineRule = LineSpacingRuleValues.Auto;
+
+                    // No before/after paragraph spacing
+                    // Don't set Before and After properties to keep them unset
+
+                    paragraphProperties.AppendChild(spacingBetweenLines);
+                }
+
+                _logger.LogInformation("Page layout optimized - 0.5\" margins applied, line spacing set to 180 twips (auto)");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogWarning(ex, "Failed to optimize page layout");
+                // Non-critical, continue anyway
+            }
         }
 
         private void CleanupTempFiles(params string[] paths)
