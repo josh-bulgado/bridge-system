@@ -121,7 +121,7 @@ export default function DocumentRequestDetailPage() {
       </div>
 
       {/* Status Stepper */}
-      <Card>
+      <Card className="hidden md:flex">
         <CardHeader>
           <CardTitle>Request Progress</CardTitle>
         </CardHeader>
@@ -282,11 +282,12 @@ export default function DocumentRequestDetailPage() {
         <div className="space-y-6">
           {/* Timeline */}
           <Card>
-            <CardContent >
+            <CardContent className="pt-6">
               <RequestStatusTimeline
                 currentStatus={request.status}
                 createdAt={request.createdAt}
                 updatedAt={request.updatedAt}
+                statusHistory={request.statusHistory}
               />
             </CardContent>
           </Card>

@@ -6,6 +6,9 @@ import { IconEye } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 
 function formatCurrency(amount: number): string {
+  if (amount === 0) {
+    return "Free";
+  }
   return new Intl.NumberFormat("en-PH", {
     style: "currency",
     currency: "PHP",
@@ -89,9 +92,15 @@ export const columns: ColumnDef<DocumentRequest>[] = [
   {
     accessorKey: "amount",
     header: "Amount",
-    cell: ({ row }) => (
-      <div className="font-medium">{formatCurrency(row.original.amount)}</div>
-    ),
+    cell: ({ row }) => {
+      const amount = row.original.amount;
+      const formatted = formatCurrency(amount);
+      return (
+        <div className={`font-medium ${amount === 0 ? 'text-green-600 dark:text-green-400' : ''}`}>
+          {formatted}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "paymentMethod",

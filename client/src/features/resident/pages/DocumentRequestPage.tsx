@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useMemo } from "react";
 import { useLocation } from "react-router-dom";
 import { DocumentRequestDataTable } from "../components/DocumentRequestDataTable";
 import { columns } from "../components/DocumentRequestColumn";
@@ -7,13 +7,11 @@ import { useFetchMyDocumentRequests } from "../hooks";
 const DocumentRequestPage = () => {
   const location = useLocation();
   const { data: requests = [], isLoading, error } = useFetchMyDocumentRequests();
-  const [filteredRequests, setFilteredRequests] = useState(requests);
 
-  // Handle filter and search from dashboard navigation
-  useEffect(() => {
+  // Handle filter and search from dashboard navigation using useMemo
+  const filteredRequests = useMemo(() => {
     if (!requests || requests.length === 0) {
-      setFilteredRequests([]);
-      return;
+      return [];
     }
 
     let filtered = [...requests];
@@ -54,8 +52,8 @@ const DocumentRequestPage = () => {
       );
     }
 
-    setFilteredRequests(filtered);
-  }, [requests, location.state]);
+    return filtered;
+  }, [requests, location.state]); 
 
   return (
     <div className="flex flex-col space-y-6">

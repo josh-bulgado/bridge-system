@@ -37,7 +37,8 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
             disabled={!isVerified}
             onClick={onNewRequest}
           >
-            {!isVerified ? <Lock className="h-4 w-4" /> : <Plus className="h-4 w-4" />}
+            {!isVerified && <Lock className="h-4 w-4" />}
+            {isVerified && <Plus className="h-4 w-4" />}
             New Request
           </Button>
           <Button 
@@ -46,7 +47,8 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
             disabled={!isVerified}
             onClick={onViewAllRequests}
           >
-            {!isVerified ? <Lock className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+            {!isVerified && <Lock className="h-4 w-4" />}
+            {isVerified && <Eye className="h-4 w-4" />}
             View All Requests
           </Button>
           <Button 
@@ -55,7 +57,8 @@ export const QuickActions: React.FC<QuickActionsProps> = ({
             disabled={!isVerified}
             onClick={onPickupSchedule}
           >
-            {!isVerified ? <Lock className="h-4 w-4" /> : <Package className="h-4 w-4" />}
+            {!isVerified && <Lock className="h-4 w-4" />}
+            {isVerified && <Package className="h-4 w-4" />}
             Pickup Schedule
           </Button>
         </div>
