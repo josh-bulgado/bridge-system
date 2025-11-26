@@ -33,6 +33,7 @@ const ResidentDashboard = () => {
 
   const isVerified = verificationData?.isVerified ?? false;
   const verificationStatus = verificationData?.status ?? "Not Submitted";
+  const rejectionReason = verificationData?.rejectionReason;
 
   const [isVerificationDialogOpen, setIsVerificationDialogOpen] =
     useState(false);
@@ -265,9 +266,24 @@ const ResidentDashboard = () => {
               Verification Rejected
             </AlertTitle>
             <AlertDescription className="text-red-700 dark:text-red-300">
-              Your verification request was not approved. Please review your
-              documents and submit again. If you have questions, please contact
-              the barangay office.
+              <p>
+                Your verification request was not approved. Please review your
+                documents and submit again. If you have questions, please contact
+                the barangay office.
+              </p>
+              {rejectionReason && (
+                <div className="mt-3 p-3 rounded-md bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800">
+                  <p className="font-semibold text-sm mb-1">Reason for Rejection:</p>
+                  <p className="text-sm">{rejectionReason}</p>
+                </div>
+              )}
+              <Button
+                onClick={handleVerifyClick}
+                variant="outline"
+                className="mt-3 border-red-300 text-red-700 hover:bg-red-100 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/30"
+              >
+                Resubmit Verification
+              </Button>
             </AlertDescription>
           </Alert>
         )}

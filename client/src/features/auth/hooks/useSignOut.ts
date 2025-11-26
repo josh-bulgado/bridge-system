@@ -2,6 +2,7 @@ import { useMutation, useQueryClient, type UseMutationResult } from "@tanstack/r
 import { authService } from "../services/authService";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
+import { clearAllApplicationCaches } from "@/lib/cache-cleanup";
 
 // Explicitly type the mutation result
 export function useSignOut(): UseMutationResult<void, Error, void, unknown> {
@@ -10,9 +11,9 @@ export function useSignOut(): UseMutationResult<void, Error, void, unknown> {
 
   return useMutation<void, Error, void>({
     mutationFn: () => authService.logout(),
-    onSuccess: () => {
-      // Clear all React Query cache
-      queryClient.clear();
+    onSuccess: async () => {
+      // Clear all caches (React Query + File Cache)
+      await clearAllApplicationCaches(queryClient);
       
       // Navigate to sign-in page
       navigate("/sign-in", { replace: true });

@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { approveDocumentRequest } from "../services/documentRequestService";
 import { toast } from "sonner";
 import type { ApproveDocumentRequestRequest } from "../types/documentRequest";
+import { CACHE_INVALIDATION, QUERY_KEYS } from "@/lib/cache-config";
 
 export const useApproveDocumentRequest = () => {
   const queryClient = useQueryClient();
@@ -11,8 +12,9 @@ export const useApproveDocumentRequest = () => {
       approveDocumentRequest(id, data),
     onSuccess: (data) => {
       // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["documentRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["documentRequest", data.id] });
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.documentRequests() });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.documentRequestDetail(data.id) });
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.stats() });
       
       toast.success("Request Approved", {
         description: `Request ${data.trackingNumber} has been approved successfully.`,

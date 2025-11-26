@@ -46,13 +46,14 @@ export const useNotifications = () => {
     // If verification status changed, invalidate verification status query
     if (category === 'verification') {
       queryClient.invalidateQueries({ queryKey: ['verification-status'] });
+      queryClient.invalidateQueries({ queryKey: ['verificationStatus'] });
       // Invalidate residents list to update status in admin/staff view
       queryClient.invalidateQueries({ queryKey: ['residents'] });
       // Invalidate individual resident queries (for modal updates)
       queryClient.invalidateQueries({ queryKey: ['resident'] });
       
-      // If verification was approved, reload the page after a short delay to update UI
-      if (title.includes('Approved')) {
+      // If verification was approved or rejected, reload the page after a short delay to update UI
+      if (title.includes('Approved') || title.includes('Rejected')) {
         setTimeout(() => {
           window.location.reload();
         }, 2000); // Give user time to see the notification

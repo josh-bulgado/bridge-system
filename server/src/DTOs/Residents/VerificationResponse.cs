@@ -15,5 +15,6 @@ namespace server.DTOs.Residents
         public DateTime? SubmittedAt { get; set; }
         public DateTime? VerifiedAt { get; set; }
         public string? VerifiedBy { get; set; }
+        public string? RejectionReason { get; set; }
     }
 }

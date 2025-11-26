@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, Clock, AlertCircle, FileText } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useVerificationStatus } from "../../hooks/useVerificationStatus";
 
 interface VerificationStatusSectionProps {
   onClose?: () => void;
@@ -10,6 +11,7 @@ interface VerificationStatusSectionProps {
 
 export function VerificationStatusSection({ onClose }: VerificationStatusSectionProps) {
   const { data: user } = useAuth();
+  const { data: verificationData } = useVerificationStatus();
   const navigate = useNavigate();
 
   const handleNavigateToVerification = () => {
@@ -17,46 +19,48 @@ export function VerificationStatusSection({ onClose }: VerificationStatusSection
     onClose?.();
   };
 
-  const verificationStatus = user?.resident?.verificationStatus || "unverified";
-  const submittedDocuments = user?.resident?.documents || [];
+  const isVerified = verificationData?.isVerified ?? false;
+  const verificationStatus = verificationData?.status || "Not Submitted";
+  const submittedDocuments = verificationData?.documents || [];
+  const rejectionReason = verificationData?.rejectionReason;
 
   const getStatusIcon = () => {
-    switch (verificationStatus) {
-      case "verified":
-        return <CheckCircle2 className="h-5 w-5 text-green-500" />;
-      case "pending":
-        return <Clock className="h-5 w-5 text-yellow-500" />;
-      case "rejected":
-        return <XCircle className="h-5 w-5 text-red-500" />;
-      default:
-        return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
+    if (isVerified || verificationStatus === "Approved") {
+      return <CheckCircle2 className="h-5 w-5 text-green-500" />;
     }
+    if (verificationStatus === "Pending" || verificationStatus === "Under Review") {
+      return <Clock className="h-5 w-5 text-yellow-500" />;
+    }
+    if (verificationStatus === "Rejected") {
+      return <XCircle className="h-5 w-5 text-red-500" />;
+    }
+    return <AlertCircle className="h-5 w-5 text-muted-foreground" />;
   };
 
   const getStatusBadge = () => {
-    switch (verificationStatus) {
-      case "verified":
-        return <Badge className="bg-green-500">Verified</Badge>;
-      case "pending":
-        return <Badge className="bg-yellow-500">Pending Review</Badge>;
-      case "rejected":
-        return <Badge variant="destructive">Rejected</Badge>;
-      default:
-        return <Badge variant="secondary">Not Verified</Badge>;
+    if (isVerified || verificationStatus === "Approved") {
+      return <Badge className="bg-green-500">Verified</Badge>;
     }
+    if (verificationStatus === "Pending" || verificationStatus === "Under Review") {
+      return <Badge className="bg-yellow-500">Pending Review</Badge>;
+    }
+    if (verificationStatus === "Rejected") {
+      return <Badge variant="destructive">Rejected</Badge>;
+    }
+    return <Badge variant="secondary">Not Verified</Badge>;
   };
 
   const getStatusDescription = () => {
-    switch (verificationStatus) {
-      case "verified":
-        return "Your account has been verified. You have full access to all resident services.";
-      case "pending":
-        return "Your verification documents are currently under review. This process typically takes 1-3 business days.";
-      case "rejected":
-        return "Your verification was rejected. Please review the feedback and resubmit your documents.";
-      default:
-        return "You need to verify your account to access all resident services. Please submit the required documents.";
+    if (isVerified || verificationStatus === "Approved") {
+      return "Your account has been verified. You have full access to all resident services.";
     }
+    if (verificationStatus === "Pending" || verificationStatus === "Under Review") {
+      return "Your verification documents are currently under review. This process typically takes 1-3 business days.";
+    }
+    if (verificationStatus === "Rejected") {
+      return "Your verification was rejected. Please review the feedback and resubmit your documents.";
+    }
+    return "You need to verify your account to access all resident services. Please submit the required documents.";
   };
 
   return (
@@ -82,13 +86,26 @@ export function VerificationStatusSection({ onClose }: VerificationStatusSection
           </div>
           {getStatusBadge()}
         </div>
-        {(verificationStatus === "unverified" || verificationStatus === "rejected") && (
+        
+        {/* Display Rejection Reason if status is rejected */}
+        {verificationStatus === "Rejected" && rejectionReason && (
+          <div className="mt-3 rounded-md bg-red-50 dark:bg-red-950/30 border border-red-200 dark:border-red-900 p-3">
+            <p className="text-xs font-medium text-red-900 dark:text-red-200 mb-1">
+              Reason for Rejection:
+            </p>
+            <p className="text-xs text-red-800 dark:text-red-300">
+              {rejectionReason}
+            </p>
+          </div>
+        )}
+        
+        {(!isVerified && verificationStatus !== "Pending" && verificationStatus !== "Under Review") && (
           <Button
             onClick={handleNavigateToVerification}
-            className="w-full"
+            className="w-full mt-3"
             size="sm"
           >
-            {verificationStatus === "rejected" ? "Resubmit Documents" : "Start Verification"}
+            {verificationStatus === "Rejected" ? "Resubmit Documents" : "Start Verification"}
           </Button>
         )}
       </div>

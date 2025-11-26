@@ -66,11 +66,13 @@ type FormValues = z.infer<typeof formSchema>;
 interface DocumentRequestFormProps {
   onDocumentSelect: (document: Document | null) => void;
   onPaymentMethodChange: (method: "online" | "walkin") => void;
+  preSelectedDocumentId?: string;
 }
 
 export function DocumentRequestForm({
   onDocumentSelect,
   onPaymentMethodChange,
+  preSelectedDocumentId,
 }: DocumentRequestFormProps) {
   const navigate = useNavigate();
   const { data: user } = useAuth();
@@ -137,6 +139,16 @@ export function DocumentRequestForm({
   useEffect(() => {
     setShowCustomPurpose(purpose === "other");
   }, [purpose]);
+
+  // Auto-select document if preSelectedDocumentId is provided
+  useEffect(() => {
+    if (preSelectedDocumentId && documents.length > 0) {
+      const docExists = documents.find((d: Document) => d.id === preSelectedDocumentId);
+      if (docExists) {
+        form.setValue("documentId", preSelectedDocumentId);
+      }
+    }
+  }, [preSelectedDocumentId, documents, form]);
 
   const handleFormSubmit = (values: FormValues) => {
     if (!user?.residentId) {
@@ -262,7 +274,7 @@ export function DocumentRequestForm({
                 <FormLabel>Document Type *</FormLabel>
                 <Select
                   onValueChange={field.onChange}
-                  defaultValue={field.value}
+                  value={field.value}
                 >
                   <FormControl>
                     <SelectTrigger>

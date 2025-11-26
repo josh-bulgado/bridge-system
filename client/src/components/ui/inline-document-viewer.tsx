@@ -44,10 +44,15 @@ export function InlineDocumentViewer({
   // Fetch signed URL from backend
   useEffect(() => {
     const fetchSignedUrl = async () => {
+      console.log('InlineDocumentViewer props:', { publicId, residentId, url, fileType });
+      
       if (!publicId || !residentId) {
+        console.warn('Missing publicId or residentId, trying to use stored URL');
         // Use stored URL if no publicId/residentId
         if (url && url.startsWith('http')) {
           setSignedUrl(url);
+        } else {
+          setError('Missing document information');
         }
         return;
       }
@@ -56,9 +61,13 @@ export function InlineDocumentViewer({
         setIsLoading(true);
         setError(null);
         
+        console.log('Fetching signed URL for:', { publicId, residentId });
+        
         const response = await api.get(
-          `/resident/${residentId}/document-url?publicId=${encodeURIComponent(publicId)}`
+          `resident/${residentId}/document-url?publicId=${encodeURIComponent(publicId)}`
         );
+        
+        console.log('Signed URL response:', response.data);
         
         if (response.data?.url) {
           setSignedUrl(response.data.url);
@@ -67,6 +76,7 @@ export function InlineDocumentViewer({
         }
       } catch (err: any) {
         console.error('Failed to get signed URL:', err);
+        console.error('Error details:', { status: err.response?.status, data: err.response?.data });
         
         if (err.response?.status === 401) {
           setError('Your session has expired. Please log in again.');

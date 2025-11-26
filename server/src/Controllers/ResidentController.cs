@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using server.Services;
 using server.src.Services;
 using server.DTOs.Residents;
+using server.Models;
 using System.Security.Claims;
 
 namespace server.Controllers
@@ -26,6 +27,37 @@ namespace server.Controllers
             _userService = userService;
             _cloudinaryService = cloudinaryService;
             _notificationService = notificationService;
+        }
+
+        /// <summary>
+        /// Helper method to map verification history to DTO
+        /// </summary>
+        private List<VerificationHistoryDto>? MapVerificationHistory(List<VerificationHistoryEntry>? history)
+        {
+            if (history == null || history.Count == 0)
+                return null;
+
+            return history.Select(h => new VerificationHistoryDto
+            {
+                GovernmentIdType = h.GovernmentIdType,
+                GovernmentIdFront = h.GovernmentIdFront,
+                GovernmentIdFrontUrl = h.GovernmentIdFrontUrl,
+                GovernmentIdFrontFileType = h.GovernmentIdFrontFileType,
+                GovernmentIdBack = h.GovernmentIdBack,
+                GovernmentIdBackUrl = h.GovernmentIdBackUrl,
+                GovernmentIdBackFileType = h.GovernmentIdBackFileType,
+                ProofOfResidencyType = h.ProofOfResidencyType,
+                ProofOfResidency = h.ProofOfResidency,
+                ProofOfResidencyUrl = h.ProofOfResidencyUrl,
+                ProofOfResidencyFileType = h.ProofOfResidencyFileType,
+                StreetPurok = h.StreetPurok,
+                HouseNumberUnit = h.HouseNumberUnit,
+                SubmittedAt = h.SubmittedAt,
+                Status = h.Status,
+                ReviewedBy = h.ReviewedBy,
+                ReviewedAt = h.ReviewedAt,
+                RejectionReason = h.RejectionReason
+            }).ToList();
         }
 
         /// <summary>
@@ -166,7 +198,8 @@ namespace server.Controllers
                     Status = actualStatus,
                     SubmittedAt = resident.VerificationDocuments?.SubmittedAt,
                     VerifiedAt = resident.VerifiedAt,
-                    VerifiedBy = resident.VerifiedBy
+                    VerifiedBy = resident.VerifiedBy,
+                    RejectionReason = resident.RejectionReason
                 });
             }
             catch (Exception ex)
@@ -199,6 +232,9 @@ namespace server.Controllers
                         verificationStatus = "Not Submitted";
                     }
 
+                    // Map verification history to DTO
+                    var historyDto = MapVerificationHistory(r.VerificationHistory);
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -213,7 +249,7 @@ namespace server.Controllers
                         RegistrationDate = r.VerificationDocuments?.SubmittedAt ?? user?.CreatedAt ?? DateTime.UtcNow,
                         VerifiedDate = r.VerifiedAt,
                         HasDocuments = r.VerificationDocuments != null,
-                        // Include verification documents
+                        // Include current verification documents
                         GovernmentIdType = r.VerificationDocuments?.GovernmentIdType,
                         GovernmentIdFront = r.VerificationDocuments?.GovernmentIdFront,
                         GovernmentIdFrontUrl = r.VerificationDocuments?.GovernmentIdFrontUrl,
@@ -226,7 +262,9 @@ namespace server.Controllers
                         ProofOfResidencyUrl = r.VerificationDocuments?.ProofOfResidencyUrl,
                         ProofOfResidencyFileType = r.VerificationDocuments?.ProofOfResidencyFileType,
                         StreetPurok = r.Address?.StreetPurok,
-                        HouseNumberUnit = r.Address?.HouseNumberUnit
+                        HouseNumberUnit = r.Address?.HouseNumberUnit,
+                        // Include verification history
+                        VerificationHistory = historyDto
                     };
                 }).ToList();
 
@@ -298,7 +336,7 @@ namespace server.Controllers
         /// </summary>
         [HttpPost("{residentId}/reject")]
         [Authorize(Roles = "staff,admin")]
-        public async Task<ActionResult> RejectResident(string residentId)
+        public async Task<ActionResult> RejectResident(string residentId, [FromBody] RejectResidentRequest? request)
         {
             try
             {
@@ -309,7 +347,8 @@ namespace server.Controllers
                     return Unauthorized(new { message = "User not authenticated" });
                 }
 
-                var resident = await _residentService.RejectResidentAsync(residentId, userId);
+                var rejectionReason = request?.RejectionReason;
+                var resident = await _residentService.RejectResidentAsync(residentId, userId, rejectionReason);
                 if (resident == null)
                 {
                     return NotFound(new { message = "Resident not found" });
@@ -319,10 +358,16 @@ namespace server.Controllers
                 var residentUser = await _userService.GetByResidentIdAsync(residentId);
                 if (residentUser != null)
                 {
+                    var notificationMessage = "Your residency verification has been rejected. Please review your documents and resubmit with correct information.";
+                    if (!string.IsNullOrWhiteSpace(rejectionReason))
+                    {
+                        notificationMessage = $"Your residency verification has been rejected. Reason: {rejectionReason}";
+                    }
+
                     await _notificationService.SendToUser(
                         residentUser.Id ?? "",
                         "Verification Rejected",
-                        "Your residency verification has been rejected. Please review your documents and resubmit with correct information.",
+                        notificationMessage,
                         "error",
                         "verification",
                         residentId,
@@ -337,7 +382,8 @@ namespace server.Controllers
                     {
                         id = resident.Id,
                         fullName = resident.FullName,
-                        verificationStatus = resident.ResidentVerificationStatus
+                        verificationStatus = resident.ResidentVerificationStatus,
+                        rejectionReason = resident.RejectionReason
                     }
                 });
             }
@@ -372,6 +418,9 @@ namespace server.Controllers
                     verificationStatus = "Not Submitted";
                 }
 
+                // Map verification history to DTO
+                var historyDto = MapVerificationHistory(resident.VerificationHistory);
+
                 var response = new ResidentListResponse
                 {
                     Id = resident.Id ?? "",
@@ -398,7 +447,8 @@ namespace server.Controllers
                     ProofOfResidencyUrl = resident.VerificationDocuments?.ProofOfResidencyUrl,
                     ProofOfResidencyFileType = resident.VerificationDocuments?.ProofOfResidencyFileType,
                     StreetPurok = resident.Address?.StreetPurok,
-                    HouseNumberUnit = resident.Address?.HouseNumberUnit
+                    HouseNumberUnit = resident.Address?.HouseNumberUnit,
+                    VerificationHistory = historyDto
                 };
 
                 return Ok(response);
@@ -436,6 +486,9 @@ namespace server.Controllers
                         verificationStatus = "Not Submitted";
                     }
 
+                    // Map verification history to DTO
+                    var historyDto = MapVerificationHistory(r.VerificationHistory);
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -462,7 +515,8 @@ namespace server.Controllers
                         ProofOfResidencyUrl = r.VerificationDocuments?.ProofOfResidencyUrl,
                         ProofOfResidencyFileType = r.VerificationDocuments?.ProofOfResidencyFileType,
                         StreetPurok = r.Address?.StreetPurok,
-                        HouseNumberUnit = r.Address?.HouseNumberUnit
+                        HouseNumberUnit = r.Address?.HouseNumberUnit,
+                        VerificationHistory = historyDto
                     };
                 }).ToList();
 
@@ -502,6 +556,9 @@ namespace server.Controllers
                         verificationStatus = "Not Submitted";
                     }
 
+                    // Map verification history to DTO
+                    var historyDto = MapVerificationHistory(r.VerificationHistory);
+
                     return new ResidentListResponse
                     {
                         Id = r.Id ?? "",
@@ -528,7 +585,8 @@ namespace server.Controllers
                         ProofOfResidencyUrl = r.VerificationDocuments?.ProofOfResidencyUrl,
                         ProofOfResidencyFileType = r.VerificationDocuments?.ProofOfResidencyFileType,
                         StreetPurok = r.Address?.StreetPurok,
-                        HouseNumberUnit = r.Address?.HouseNumberUnit
+                        HouseNumberUnit = r.Address?.HouseNumberUnit,
+                        VerificationHistory = historyDto
                     };
                 }).ToList();
 
@@ -618,6 +676,9 @@ namespace server.Controllers
                     verificationStatus = "Not Submitted";
                 }
 
+                // Map verification history to DTO
+                var historyDto = MapVerificationHistory(resident.VerificationHistory);
+
                 var response = new ResidentListResponse
                 {
                     Id = resident.Id ?? "",
@@ -644,7 +705,8 @@ namespace server.Controllers
                     ProofOfResidencyUrl = resident.VerificationDocuments?.ProofOfResidencyUrl,
                     ProofOfResidencyFileType = resident.VerificationDocuments?.ProofOfResidencyFileType,
                     StreetPurok = resident.Address?.StreetPurok,
-                    HouseNumberUnit = resident.Address?.HouseNumberUnit
+                    HouseNumberUnit = resident.Address?.HouseNumberUnit,
+                    VerificationHistory = historyDto
                 };
 
                 return Ok(response);
@@ -718,14 +780,65 @@ namespace server.Controllers
                     return NotFound(new { message = "Resident not found" });
                 }
 
-                // 🔒 Security: Verify document belongs to resident
+                // 🔒 Security: Verify document belongs to resident (check current documents and history)
                 var isValidDocument = false;
+                
+                // Check current verification documents
                 if (resident.VerificationDocuments != null)
                 {
                     isValidDocument = 
                         resident.VerificationDocuments.GovernmentIdFront == publicId ||
                         resident.VerificationDocuments.GovernmentIdBack == publicId ||
                         resident.VerificationDocuments.ProofOfResidency == publicId;
+                }
+
+                // Check verification history documents if not found in current documents
+                if (!isValidDocument && resident.VerificationHistory != null && resident.VerificationHistory.Count > 0)
+                {
+                    foreach (var historyEntry in resident.VerificationHistory)
+                    {
+                        if (historyEntry.GovernmentIdFront == publicId ||
+                            historyEntry.GovernmentIdBack == publicId ||
+                            historyEntry.ProofOfResidency == publicId)
+                        {
+                            isValidDocument = true;
+                            break;
+                        }
+                    }
+                }
+
+                // Also check if the publicId starts with "verification/" and belongs to this resident's history
+                // This handles cases where the document path may contain old resident IDs from resubmissions
+                if (!isValidDocument && publicId.StartsWith("verification/"))
+                {
+                    // Extract just the filename from the publicId
+                    var filename = publicId.Split('/').Last();
+                    
+                    // Check if any history entry has a matching filename
+                    if (resident.VerificationHistory != null)
+                    {
+                        foreach (var historyEntry in resident.VerificationHistory)
+                        {
+                            if (historyEntry.GovernmentIdFront?.EndsWith(filename) == true ||
+                                historyEntry.GovernmentIdBack?.EndsWith(filename) == true ||
+                                historyEntry.ProofOfResidency?.EndsWith(filename) == true)
+                            {
+                                isValidDocument = true;
+                                break;
+                            }
+                        }
+                    }
+                    
+                    // Also check current documents by filename
+                    if (!isValidDocument && resident.VerificationDocuments != null)
+                    {
+                        if (resident.VerificationDocuments.GovernmentIdFront?.EndsWith(filename) == true ||
+                            resident.VerificationDocuments.GovernmentIdBack?.EndsWith(filename) == true ||
+                            resident.VerificationDocuments.ProofOfResidency?.EndsWith(filename) == true)
+                        {
+                            isValidDocument = true;
+                        }
+                    }
                 }
 
                 if (!isValidDocument)

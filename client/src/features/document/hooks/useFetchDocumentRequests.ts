@@ -1,5 +1,6 @@
 import { useQuery } from "@tanstack/react-query";
 import { fetchDocumentRequests } from "../services/documentRequestService";
+import { QUERY_KEYS, CACHE_STRATEGIES } from "@/lib/cache-config";
 
 interface UseFetchDocumentRequestsParams {
   status?: string;
@@ -10,8 +11,9 @@ interface UseFetchDocumentRequestsParams {
 
 export const useFetchDocumentRequests = (params?: UseFetchDocumentRequestsParams) => {
   return useQuery({
-    queryKey: ["documentRequests", params],
+    queryKey: QUERY_KEYS.documentRequestList(params),
     queryFn: () => fetchDocumentRequests(params),
-    staleTime: 30000, // 30 seconds
+    staleTime: CACHE_STRATEGIES.DOCUMENT_REQUESTS.staleTime,
+    gcTime: CACHE_STRATEGIES.DOCUMENT_REQUESTS.gcTime,
   });
 };

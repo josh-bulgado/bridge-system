@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useLocation } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { IconFileText } from "@tabler/icons-react";
@@ -7,6 +8,9 @@ import { OrderSummary } from "../components/OrderSummary";
 import type { Document } from "@/features/document/types/document";
 
 const CreateDocumentRequestPage = () => {
+  const location = useLocation();
+  const preSelectedDocumentId = location.state?.preSelectedDocumentId;
+
   const [selectedDocument, setSelectedDocument] = useState<Document | null>(
     null,
   );
@@ -42,6 +46,7 @@ const CreateDocumentRequestPage = () => {
               <DocumentRequestForm
                 onDocumentSelect={setSelectedDocument}
                 onPaymentMethodChange={setPaymentMethod}
+                preSelectedDocumentId={preSelectedDocumentId}
               />
             </CardContent>
           </Card>

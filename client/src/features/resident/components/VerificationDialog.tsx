@@ -22,7 +22,7 @@ export const VerificationDialog = ({
   onOpenChange,
   onVerificationSuccess,
 }: VerificationDialogProps) => {
-  const { form, isSubmitted, isSubmitting, onSubmit, handleBackToDashboard } =
+  const { form, isSubmitted, isSubmitting, onSubmit, handleBackToDashboard, resetForm } =
     useVerification();
 
   const {
@@ -44,15 +44,25 @@ export const VerificationDialog = ({
 
   // Handle dialog close - clear files and reset form
   const handleDialogClose = (open: boolean) => {
-    if (!open && isSubmitted) {
-      // Clear files and reset when closing after successful submission
+    if (!open) {
+      // Clear files and reset form when closing
       setUploadedIdFront(null);
       setUploadedIdBack(null);
       setUploadedProof(null);
-      handleBackToDashboard();
-      if (onVerificationSuccess) {
-        onVerificationSuccess();
+      
+      if (isSubmitted) {
+        // Reset the submitted state when closing after successful submission
+        resetForm();
+        if (onVerificationSuccess) {
+          onVerificationSuccess();
+        }
       }
+    } else {
+      // When opening the dialog, reset the form
+      resetForm();
+      setUploadedIdFront(null);
+      setUploadedIdBack(null);
+      setUploadedProof(null);
     }
     onOpenChange(open);
   };
