@@ -27,7 +27,7 @@ export interface ResidentListItem {
   fullName: string;
   email: string;
   contactNumber: string;
-  maritalStatus: string;
+  civilStatus?: string;
   localAddress: string;
   verificationStatus: "Not Submitted" | "Pending" | "Approved" | "Rejected" | "Under Review";
   isEmailVerified: boolean;

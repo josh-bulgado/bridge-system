@@ -184,7 +184,8 @@ export default function ResidentDetailsModal({
     if (isOpen && resident?.id) {
       refetchResident();
     }
-  }, [isOpen, resident?.id, refetchResident]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [isOpen, resident?.id]);
 
   if (!displayResident) return null;
 
@@ -276,8 +277,8 @@ export default function ResidentDetailsModal({
                     <p className="text-sm mt-0.5 font-medium">{displayResident.fullName}</p>
                   </div>
                   <div>
-                    <Label className="text-muted-foreground text-xs">Marital Status</Label>
-                    <p className="text-sm mt-0.5">{displayResident.maritalStatus || "—"}</p>
+                    <Label className="text-muted-foreground text-xs">Civil Status</Label>
+                    <p className="text-sm mt-0.5">{displayResident.civilStatus || "—"}</p>
                   </div>
                   <div>
                     <Label className="text-muted-foreground text-xs">Email</Label>
@@ -627,12 +628,6 @@ export default function ResidentDetailsModal({
                       <div className="flex-1 min-h-0 overflow-auto">
                         {entry.proofOfResidency ? (
                           <div className="h-full">
-                            {console.log('History Proof of Residency:', {
-                              publicId: entry.proofOfResidency,
-                              url: entry.proofOfResidencyUrl,
-                              fileType: entry.proofOfResidencyFileType,
-                              residentId: displayResident.id
-                            })}
                             <InlineDocumentViewer
                               title={formatProofOfResidencyType(entry.proofOfResidencyType)}
                               url={entry.proofOfResidencyUrl}

@@ -44,11 +44,12 @@ export function usePreloadResidentDocuments(resident: ResidentWithDocuments | nu
         console.warn('Failed to preload resident documents:', err);
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     resident?.governmentIdFrontUrl, 
     resident?.governmentIdBackUrl, 
     resident?.proofOfResidencyUrl,
-    resident?.verificationHistory,
+    resident?.verificationHistory?.length,
     enabled
   ]);
 }
