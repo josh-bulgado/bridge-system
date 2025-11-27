@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React, { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -42,7 +43,7 @@ export const EnhancedAvailableDocuments: React.FC<EnhancedAvailableDocumentsProp
   const filteredAndSortedDocuments = React.useMemo(() => {
     if (!documents) return [];
 
-    let filtered = documents.filter((doc) =>
+    const filtered = documents.filter((doc) =>
       doc.name.toLowerCase().includes(searchQuery.toLowerCase())
     );
 
@@ -62,39 +63,39 @@ export const EnhancedAvailableDocuments: React.FC<EnhancedAvailableDocumentsProp
   }, [documents, searchQuery, sortBy]);
 
   return (
-    <Card className="border-border/40">
-      <CardHeader className="pb-3">
+    <Card>
+      <CardHeader className="pb-4">
         <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <CardTitle>Available Documents</CardTitle>
-            <CardDescription>
+            <CardTitle className="text-xl">Available Documents</CardTitle>
+            <CardDescription className="mt-1">
               {isVerified
                 ? "Request any document you need"
                 : "Documents available after verification"}
             </CardDescription>
           </div>
           {documents && documents.length > 0 && (
-            <Badge variant="secondary" className="w-fit text-xs py-0">
-              {documents.length} {documents.length === 1 ? "Doc" : "Docs"}
+            <Badge variant="secondary" className="w-fit">
+              {documents.length} {documents.length === 1 ? "Document" : "Documents"}
             </Badge>
           )}
         </div>
 
         {/* Search and Filter */}
         {documents && documents.length > 0 && (
-          <div className="flex flex-col gap-2 sm:flex-row mt-3">
+          <div className="flex flex-col gap-3 sm:flex-row mt-4">
             <div className="relative flex-1">
-              <Search className="absolute left-2.5 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-muted-foreground" />
+              <Search className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
               <Input
                 placeholder="Search documents..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-8 h-9 text-sm bg-background border-border/60"
+                className="pl-10 h-10"
               />
             </div>
             <Select value={sortBy} onValueChange={(value: any) => setSortBy(value)}>
-              <SelectTrigger className="w-full sm:w-[160px] h-9">
-                <Filter className="h-3.5 w-3.5 mr-1.5" />
+              <SelectTrigger className="w-full sm:w-40 h-10">
+                <Filter className="h-4 w-4 mr-2" />
                 <SelectValue placeholder="Sort by" />
               </SelectTrigger>
               <SelectContent>
@@ -130,48 +131,47 @@ export const EnhancedAvailableDocuments: React.FC<EnhancedAvailableDocumentsProp
             <p>No documents match your search.</p>
           </div>
         ) : (
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
             {filteredAndSortedDocuments.map((doc) => (
               <Card
                 key={doc.id}
                 className={cn(
-                  "group relative overflow-hidden transition-all duration-200",
-                  "border-border/40 hover:border-primary/50",
-                  "hover:shadow-md",
-                  !isVerified && "opacity-75"
+                  "relative overflow-hidden transition-colors duration-200",
+                  "hover:border-green-500 dark:hover:border-green-500",
+                  !isVerified && "opacity-70"
                 )}
               >
-                <CardContent className="p-3">
+                <CardContent className="p-5">
                   {/* Document Icon/Badge */}
-                  <div className="mb-3 flex items-start justify-between">
-                    <div className="rounded-lg bg-primary/10 p-2">
-                      <FileText className="h-5 w-5 text-primary" />
+                  <div className="mb-4 flex items-start justify-between">
+                    <div className="rounded-lg bg-green-100 dark:bg-green-950 p-3">
+                      <FileText className="h-5 w-5 text-green-600 dark:text-green-400" />
                     </div>
                     {!isVerified && (
                       <Badge
                         variant="secondary"
-                        className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400 text-[10px] py-0"
+                        className="bg-orange-100 text-orange-700 dark:bg-orange-950 dark:text-orange-400"
                       >
-                        <ShieldAlert className="h-3 w-3 mr-0.5" />
+                        <ShieldAlert className="h-3 w-3 mr-1" />
                         Locked
                       </Badge>
                     )}
                   </div>
 
                   {/* Document Name */}
-                  <h3 className="font-semibold text-sm mb-2 line-clamp-2 group-hover:text-primary transition-colors">
+                  <h3 className="font-semibold text-base mb-3 line-clamp-2">
                     {doc.name}
                   </h3>
 
                   {/* Document Info */}
-                  <div className="space-y-1.5 mb-3">
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <Clock className="h-3.5 w-3.5 shrink-0" />
+                  <div className="space-y-2 mb-4">
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4 shrink-0" />
                       <span>{doc.processingTime}</span>
                     </div>
-                    <div className="flex items-center gap-1.5 text-xs text-muted-foreground">
-                      <PhilippinePeso className="h-3.5 w-3.5 shrink-0" />
-                      <span className="font-medium">
+                    <div className="flex items-center gap-2 text-sm">
+                      <PhilippinePeso className="h-4 w-4 shrink-0 text-muted-foreground" />
+                      <span className="font-semibold">
                         {doc.price === 0 ? (
                           <span className="text-green-600 dark:text-green-400">Free</span>
                         ) : (
@@ -183,28 +183,25 @@ export const EnhancedAvailableDocuments: React.FC<EnhancedAvailableDocumentsProp
 
                   {/* Action Button */}
                   <Button
-                    className="w-full h-8"
-                    size="sm"
+                    className="w-full"
+                    size="default"
                     variant={isVerified ? "default" : "outline"}
                     disabled={!isVerified}
                     onClick={() => isVerified && onRequestDocument?.(doc.id)}
                   >
                     {isVerified ? (
                       <>
-                        Request
-                        <ArrowRight className="h-3.5 w-3.5 ml-1.5 group-hover:translate-x-1 transition-transform" />
+                        Request Now
+                        <ArrowRight className="h-4 w-4 ml-2" />
                       </>
                     ) : (
                       <>
-                        <ShieldAlert className="h-3.5 w-3.5 mr-1.5" />
-                        Locked
+                        <ShieldAlert className="h-4 w-4 mr-2" />
+                        Verification Required
                       </>
                     )}
                   </Button>
                 </CardContent>
-
-                {/* Hover Gradient Effect */}
-                <div className="absolute inset-0 bg-gradient-to-t from-primary/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none" />
               </Card>
             ))}
           </div>

@@ -40,13 +40,12 @@ const EnhancedStatCard: React.FC<StatCardProps> = ({
   return (
     <Card
       className={cn(
-        "transition-all duration-200 hover:shadow-md cursor-pointer group",
-        "border-border/60 hover:border-primary/50",
-        "bg-card shadow-sm"
+        "transition-colors duration-200 cursor-pointer",
+        "hover:border-green-500 dark:hover:border-green-500"
       )}
       onClick={onClick}
     >
-      <CardContent className="p-4">
+      <CardContent className="p-5">
         <div className="flex items-start justify-between">
           <div className="space-y-2 flex-1">
             <p className="text-sm font-medium text-muted-foreground">
@@ -77,12 +76,7 @@ const EnhancedStatCard: React.FC<StatCardProps> = ({
           </div>
 
           {/* Icon */}
-          <div
-            className={cn(
-              "rounded-lg p-2 transition-transform group-hover:scale-110",
-              iconBgColor
-            )}
-          >
+          <div className={cn("rounded-lg p-2.5", iconBgColor)}>
             <Icon className={cn("h-5 w-5", iconColor)} />
           </div>
         </div>

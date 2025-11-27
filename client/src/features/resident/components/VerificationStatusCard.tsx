@@ -7,7 +7,6 @@ import {
   Clock,
   XCircle,
   AlertCircle,
-  ShieldCheck,
   Upload,
 } from "lucide-react";
 import { cn } from "@/lib/utils";

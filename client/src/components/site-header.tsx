@@ -1,6 +1,9 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { NotificationCenter } from "./notification-center";
+import { SearchModal } from "./search-modal";
+import { Button } from "@/components/ui/button";
 import {
   Breadcrumb,
   BreadcrumbItem,
@@ -10,8 +13,8 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 import { useLocation, Link } from "react-router-dom";
-import { Fragment, useMemo } from "react";
-import { ChevronRight } from "lucide-react";
+import { Fragment, useMemo, useState } from "react";
+import { ChevronRight, Search } from "lucide-react";
 
 // Route label mapping for better breadcrumb display
 const routeLabels: Record<string, string> = {
@@ -62,6 +65,7 @@ const formatSegment = (segment: string): string => {
 
 export function SiteHeader() {
   const location = useLocation();
+  const [isSearchOpen, setIsSearchOpen] = useState(false);
 
   // Generate breadcrumb items from current path
   const breadcrumbs = useMemo(() => {
@@ -128,7 +132,7 @@ export function SiteHeader() {
         {breadcrumbs.length > 0 && (
           <Breadcrumb>
             <BreadcrumbList>
-              {breadcrumbs.map((crumb, index) => (
+              {breadcrumbs.map((crumb, _index) => (
                 <Fragment key={crumb.href}>
                   <BreadcrumbItem>
                     {crumb.isLast ? (
@@ -155,9 +159,21 @@ export function SiteHeader() {
         )}
         
         <div className="ml-auto flex items-center gap-2">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => setIsSearchOpen(true)}
+            className="relative"
+          >
+            <Search className="h-5 w-5" />
+            <span className="sr-only">Search</span>
+          </Button>
           <NotificationCenter />
         </div>
       </div>
+
+      {/* Search Modal */}
+      <SearchModal open={isSearchOpen} onOpenChange={setIsSearchOpen} />
     </header>
   );
 }

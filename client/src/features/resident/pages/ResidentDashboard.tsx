@@ -2,13 +2,11 @@ import { useMemo, useState } from "react";
 import {
   VerificationReminder,
   WelcomeSection,
-  StatsGrid,
   QuickActions,
   RecentRequests,
   AvailableDocumentsInfo,
   OfficeInfoCard,
   HowToVerifyCard,
-  type DashboardStat,
   type RequestData,
 } from "../components";
 import { VerificationDialog } from "../components/VerificationDialog";
@@ -135,10 +133,6 @@ const ResidentDashboard = () => {
     setIsVerificationDialogOpen(true);
   };
 
-  const handleStatClick = (stat: DashboardStat, index: number) => {
-    // TODO: Navigate to specific stat details
-  };
-
   const handleNewRequest = () => {
     navigate("/resident/requests/new");
   };
@@ -241,7 +235,7 @@ const ResidentDashboard = () => {
           !hasSeenApproval && (
             <Alert className="relative border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50">
               <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <AlertTitle className="text-green-800 dark:text-green-200 flex justify-between">
+              <AlertTitle className="flex justify-between text-green-800 dark:text-green-200">
                 <div>Verification Approved!</div>
                 <Button
                   onClick={handleDismissApproval}
@@ -268,12 +262,14 @@ const ResidentDashboard = () => {
             <AlertDescription className="text-red-700 dark:text-red-300">
               <p>
                 Your verification request was not approved. Please review your
-                documents and submit again. If you have questions, please contact
-                the barangay office.
+                documents and submit again. If you have questions, please
+                contact the barangay office.
               </p>
               {rejectionReason && (
-                <div className="mt-3 p-3 rounded-md bg-red-100 dark:bg-red-900/30 border border-red-300 dark:border-red-800">
-                  <p className="font-semibold text-sm mb-1">Reason for Rejection:</p>
+                <div className="mt-3 rounded-md border border-red-300 bg-red-100 p-3 dark:border-red-800 dark:bg-red-900/30">
+                  <p className="mb-1 text-sm font-semibold">
+                    Reason for Rejection:
+                  </p>
                   <p className="text-sm">{rejectionReason}</p>
                 </div>
               )}
@@ -295,8 +291,6 @@ const ResidentDashboard = () => {
         {isVerified ? (
           <>
             {/* Verified Users: Show Full Dashboard */}
-            {/* Stats Cards */}
-            <StatsGrid isVerified={isVerified} onStatClick={handleStatClick} />
 
             {/* Quick Actions */}
             <QuickActions

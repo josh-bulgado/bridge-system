@@ -11,7 +11,6 @@ import type { RequestData } from "../components";
 // Import new enhanced components
 import { DashboardHeader } from "../components/DashboardHeader";
 import { VerificationStatusCard } from "../components/VerificationStatusCard";
-import { EnhancedStatsGrid } from "../components/EnhancedStatsGrid";
 import { VerificationProgressStepper } from "../components/VerificationProgressStepper";
 import { DashboardFooter } from "../components/DashboardFooter";
 import { OfficeInfoBanner } from "../components/OfficeInfoBanner";
@@ -95,7 +94,7 @@ const ResidentDashboardRedesigned = () => {
     return documentRequests
       .sort(
         (a, b) =>
-          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime()
+          new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime(),
       )
       .slice(0, 5)
       .map((req) => ({
@@ -108,6 +107,7 @@ const ResidentDashboardRedesigned = () => {
           day: "numeric",
         }),
         statusColor: getStatusColor(req.status),
+        trackingNumber: req.trackingNumber,
       }));
   }, [documentRequests]);
 
@@ -139,20 +139,8 @@ const ResidentDashboardRedesigned = () => {
   const handleRequestDocument = (documentId: string) => {
     if (isVerified) {
       navigate("/resident/new-requests", {
-        state: { preSelectedDocumentId: documentId }
+        state: { preSelectedDocumentId: documentId },
       });
-    }
-  };
-
-  const handleStatClick = (index: number) => {
-    // Navigate to requests with appropriate filter based on stat clicked
-    const filters = ["all", "action", "pickup", "completed"];
-    navigate("/resident/requests", { state: { filter: filters[index] } });
-  };
-
-  const handleSearch = (query: string) => {
-    if (query.trim()) {
-      navigate("/resident/requests", { state: { searchQuery: query } });
     }
   };
 
@@ -191,13 +179,9 @@ const ResidentDashboardRedesigned = () => {
         onVerificationSuccess={handleVerificationSuccess}
       />
 
-      <div className="space-y-5">
-        {/* Dashboard Header with Search */}
-        <DashboardHeader 
-          userName={firstName} 
-          isVerified={isVerified}
-          onSearch={handleSearch}
-        />
+      <div className="space-y-6">
+        {/* Dashboard Header */}
+        <DashboardHeader userName={firstName} isVerified={isVerified} />
 
         {/* Verification Status Card - Only show for non-verified users */}
         {!isVerified && (
@@ -209,15 +193,12 @@ const ResidentDashboardRedesigned = () => {
           />
         )}
 
-        {/* Office Info Banner - Always visible at top */}
-        <OfficeInfoBanner />
-
         {/* Conditional Layout Based on Verification Status */}
         {isVerified ? (
           <>
             {/* VERIFIED USER DASHBOARD */}
-            
-            {/* Quick Actions */}
+
+            {/* Quick Actions - PRIMARY SECTION */}
             <section>
               <EnhancedQuickActions
                 isVerified={isVerified}
@@ -228,7 +209,7 @@ const ResidentDashboardRedesigned = () => {
               />
             </section>
 
-            {/* Available Documents Section - PRIMARY */}
+            {/* Available Documents Section */}
             <section>
               <EnhancedAvailableDocuments
                 isVerified={isVerified}
@@ -247,18 +228,15 @@ const ResidentDashboardRedesigned = () => {
               />
             </section>
 
-            {/* Stats Overview Grid - MOVED TO BOTTOM */}
+            {/* Office Info */}
             <section>
-              <EnhancedStatsGrid
-                isVerified={isVerified}
-                onStatClick={handleStatClick}
-              />
+              <OfficeInfoBanner />
             </section>
           </>
         ) : (
           <>
             {/* NON-VERIFIED USER DASHBOARD */}
-            
+
             {/* Verification Steps */}
             <section>
               <VerificationProgressStepper
@@ -275,40 +253,75 @@ const ResidentDashboardRedesigned = () => {
               />
             </section>
 
+            {/* Office Info */}
+            <section>
+              <OfficeInfoBanner />
+            </section>
+
             {/* Helpful Information Cards */}
-            <section className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
-              <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-4 text-center">
-                <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                  <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 10V3L4 14h7v7l9-11h-7z" />
+            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-lg border border-dashed border-green-300 bg-green-50 p-5 text-center dark:border-green-700 dark:bg-green-950/20">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                  <svg
+                    className="h-6 w-6 text-green-600 dark:text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
                   </svg>
                 </div>
-                <h3 className="font-semibold text-sm mb-1">Fast Processing</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="mb-2 text-sm font-semibold">Fast Processing</h3>
+                <p className="text-muted-foreground text-xs">
                   Most documents ready in 1-3 business days
                 </p>
               </div>
 
-              <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-4 text-center">
-                <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                  <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z" />
+              <div className="rounded-lg border border-dashed border-green-300 bg-green-50 p-5 text-center dark:border-green-700 dark:bg-green-950/20">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                  <svg
+                    className="h-6 w-6 text-green-600 dark:text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    />
                   </svg>
                 </div>
-                <h3 className="font-semibold text-sm mb-1">Secure Process</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="mb-2 text-sm font-semibold">Secure Process</h3>
+                <p className="text-muted-foreground text-xs">
                   Your documents are handled with strict confidentiality
                 </p>
               </div>
 
-              <div className="rounded-lg border-2 border-dashed border-primary/30 bg-primary/5 p-4 text-center sm:col-span-2 lg:col-span-1">
-                <div className="mx-auto w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center mb-2">
-                  <svg className="h-5 w-5 text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z" />
+              <div className="rounded-lg border border-dashed border-green-300 bg-green-50 p-5 text-center sm:col-span-2 lg:col-span-1 dark:border-green-700 dark:bg-green-950/20">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                  <svg
+                    className="h-6 w-6 text-green-600 dark:text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
                   </svg>
                 </div>
-                <h3 className="font-semibold text-sm mb-1">24/7 Support</h3>
-                <p className="text-xs text-muted-foreground">
+                <h3 className="mb-2 text-sm font-semibold">24/7 Support</h3>
+                <p className="text-muted-foreground text-xs">
                   Get help anytime through our support channels
                 </p>
               </div>

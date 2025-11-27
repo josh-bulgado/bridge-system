@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
 import {
   Dialog,
   DialogContent,
@@ -42,56 +43,57 @@ export const OfficeInfoBanner: React.FC = () => {
 
   return (
     <>
-      <div className="rounded-lg border border-border/40 bg-card p-4 shadow-sm">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
-          {/* Left: Office Info */}
-          <div className="flex items-start gap-3">
-            <div className="rounded-lg bg-primary/10 p-2.5">
-              <Building2 className="h-5 w-5 text-primary" />
-            </div>
-            <div className="flex-1 min-w-0">
-              <div className="flex items-center gap-2 mb-1">
-                <h3 className="font-semibold">Barangay Office</h3>
-                <Badge
-                  variant={officeIsOpen ? "default" : "secondary"}
-                  className={cn(
-                    "text-xs",
-                    officeIsOpen
-                      ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400"
-                      : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
-                  )}
-                >
-                  {officeIsOpen ? "Open Now" : "Closed"}
-                </Badge>
+      <Card>
+        <CardContent className="p-5">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+            {/* Left: Office Info */}
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-green-100 dark:bg-green-950 p-3">
+                <Building2 className="h-5 w-5 text-green-600 dark:text-green-400" />
               </div>
-              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
-                <a
-                  href={`tel:${config.contact.phone}`}
-                  className="flex items-center gap-1.5 hover:text-foreground transition-colors"
-                >
-                  <Phone className="h-3.5 w-3.5" />
-                  <span>{config.contact.phone}</span>
-                </a>
-                <div className="flex items-center gap-1.5">
-                  <MapPin className="h-3.5 w-3.5" />
-                  <span className="truncate">Brgy. {config.address.barangayName}</span>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-2 mb-1">
+                  <h3 className="font-semibold text-base">Barangay Office</h3>
+                  <Badge
+                    variant={officeIsOpen ? "default" : "secondary"}
+                    className={cn(
+                      officeIsOpen
+                        ? "bg-green-100 text-green-700 dark:bg-green-950 dark:text-green-400"
+                        : "bg-gray-100 text-gray-700 dark:bg-gray-800 dark:text-gray-400"
+                    )}
+                  >
+                    {officeIsOpen ? "Open Now" : "Closed"}
+                  </Badge>
+                </div>
+                <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-muted-foreground">
+                  <a
+                    href={`tel:${config.contact.phone}`}
+                    className="flex items-center gap-2 hover:text-foreground transition-colors"
+                  >
+                    <Phone className="h-4 w-4" />
+                    <span>{config.contact.phone}</span>
+                  </a>
+                  <div className="flex items-center gap-2">
+                    <MapPin className="h-4 w-4" />
+                    <span className="truncate">Brgy. {config.address.barangayName}</span>
+                  </div>
                 </div>
               </div>
             </div>
-          </div>
 
-          {/* Right: View Details Button */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => setIsOpen(true)}
-            className="shrink-0"
-          >
-            View Details
-            <ChevronRight className="h-4 w-4 ml-1" />
-          </Button>
-        </div>
-      </div>
+            {/* Right: View Details Button */}
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setIsOpen(true)}
+              className="shrink-0"
+            >
+              View Details
+              <ChevronRight className="h-4 w-4 ml-2" />
+            </Button>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Full Details Modal */}
       <Dialog open={isOpen} onOpenChange={setIsOpen}>

@@ -1,6 +1,5 @@
 import {
   LayoutDashboard,
-  Search,
   FilePlus,
   ClipboardList,
   MessageSquare,
@@ -44,11 +43,6 @@ const navSecondaryItems = [
     title: "Help & Support",
     url: "/resident/help",
     icon: MessageSquare,
-  },
-  {
-    title: "Search",
-    url: "/resident/search",
-    icon: Search,
   },
 ];
 

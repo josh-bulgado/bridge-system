@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import React from "react";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -66,7 +67,7 @@ export const VerificationProgressStepper: React.FC<VerificationProgressStepperPr
 
   return (
     <Card className="overflow-hidden">
-      <CardHeader className="bg-gradient-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
+      <CardHeader className="bg-linear-to-r from-green-50 to-emerald-50 dark:from-green-950/20 dark:to-emerald-950/20">
         <div className="flex items-center gap-2">
           <ShieldCheck className="h-5 w-5 text-green-600 dark:text-green-400" />
           <CardTitle>Verification Process</CardTitle>
@@ -89,7 +90,7 @@ export const VerificationProgressStepper: React.FC<VerificationProgressStepperPr
           </div>
 
           {/* Steps */}
-          {steps.map((step, index) => {
+          {steps.map((step, _index) => {
             const Icon = step.icon;
             return (
               <div key={step.id} className="flex flex-col items-center relative z-10 flex-1">
