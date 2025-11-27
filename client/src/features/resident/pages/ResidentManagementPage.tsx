@@ -2,9 +2,12 @@ import { ResidentDataTable } from "../components/ResidentDataTable";
 import { columns } from "../components/ResidentDataColumn";
 import { Button } from "@/components/ui/button";
 import { useResidents } from "../../staff/hooks";
+import { useSearchParams } from "react-router-dom";
 
 const ResidentManagementPage = () => {
   const { residents, isLoading, error, refetch } = useResidents();
+  const [searchParams] = useSearchParams();
+  const initialStatus = searchParams.get("status") || "all";
 
   return (
     <div className="flex flex-col space-y-6">
@@ -34,6 +37,7 @@ const ResidentManagementPage = () => {
           data={residents || []}
           columns={columns}
           isLoading={isLoading}
+          initialStatusFilter={initialStatus}
         />
       )}
     </div>
