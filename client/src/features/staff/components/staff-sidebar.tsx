@@ -2,9 +2,6 @@ import * as React from "react";
 import {
   LayoutDashboard,
   Users,
-  CreditCard,
-  Download,
-  BarChart3,
   Settings,
   HelpCircle,
   Building2,
@@ -45,21 +42,6 @@ const staffData = {
       title: "Document Requests",
       url: "/staff/doc-requests",
       icon: FileStack,
-    },
-    {
-      title: "Payment Verification",
-      url: "/staff/payment-verification",
-      icon: CreditCard,
-    },
-    {
-      title: "Document Generation",
-      url: "/staff/document-generation",
-      icon: Download,
-    },
-    {
-      title: "Reports",
-      url: "/staff/reports",
-      icon: BarChart3,
     },
   ],
   navSecondary: [

@@ -9,13 +9,7 @@ import {
 } from "@/components/ui/tooltip";
 import { Badge } from "@/components/ui/badge";
 import { DocumentRequestActionsCell } from "./DocumentRequestActionsCell";
-
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-PH", {
-    style: "currency",
-    currency: "PHP",
-  }).format(amount);
-}
+import { formatCurrency } from "@/lib/format";
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {
@@ -147,7 +141,7 @@ export const columns: ColumnDef<DocumentRequest>[] = [
     cell: ({ row }) => (
       <div className="space-y-1">
         <div className="font-medium">{row.original.residentName}</div>
-        <div className="text-xs text-muted-foreground">
+        <div className="text-muted-foreground text-xs">
           {row.original.residentEmail}
         </div>
       </div>
@@ -175,12 +169,12 @@ export const columns: ColumnDef<DocumentRequest>[] = [
       const purpose = row.original.purpose;
       const maxLength = 30;
       const truncated = purpose.length > maxLength;
-      
+
       return (
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="cursor-help text-sm">
+              <div className="cursor-help text-sm capitalize">
                 {truncated ? `${purpose.substring(0, maxLength)}...` : purpose}
               </div>
             </TooltipTrigger>
@@ -197,9 +191,17 @@ export const columns: ColumnDef<DocumentRequest>[] = [
   {
     accessorKey: "amount",
     header: "Amount",
-    cell: ({ row }) => (
-      <div className="font-medium">{formatCurrency(row.original.amount)}</div>
-    ),
+    cell: ({ row }) => {
+      const amount = row.original.amount;
+      const formatted = formatCurrency(amount);
+      return (
+        <div
+          className={`font-medium ${amount === 0 ? "text-green-600 dark:text-green-400" : ""}`}
+        >
+          {formatted}
+        </div>
+      );
+    },
   },
   {
     accessorKey: "status",
@@ -240,7 +242,7 @@ export const columns: ColumnDef<DocumentRequest>[] = [
     accessorKey: "submittedAt",
     header: "Submitted",
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         {formatDateTime(row.original.submittedAt)}
       </div>
     ),
@@ -249,7 +251,7 @@ export const columns: ColumnDef<DocumentRequest>[] = [
     accessorKey: "updatedAt",
     header: "Last Updated",
     cell: ({ row }) => (
-      <div className="text-sm text-muted-foreground">
+      <div className="text-muted-foreground text-sm">
         {formatDate(row.original.updatedAt)}
       </div>
     ),

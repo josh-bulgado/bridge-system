@@ -4,26 +4,9 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { IconEye } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
+import { formatCurrency, formatDate } from "@/lib/format";
 
-function formatCurrency(amount: number): string {
-  if (amount === 0) {
-    return "Free";
-  }
-  return new Intl.NumberFormat("en-PH", {
-    style: "currency",
-    currency: "PHP",
-  }).format(amount);
-}
 
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
-}
 
 // Status badge styling
 const getStatusBadge = (status: string) => {

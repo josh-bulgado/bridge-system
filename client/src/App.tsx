@@ -50,12 +50,6 @@ const DocumentRequestPage = lazy(
 const DocumentManagementPage = lazy(
   () => import("./features/document/pages/DocumentManagementPage"),
 );
-const PaymentVerification = lazy(
-  () => import("./features/staff/pages/PaymentVerification"),
-);
-const DocumentGeneration = lazy(
-  () => import("./features/staff/pages/DocumentGeneration"),
-);
 
 const BarangayConfigPage = lazy(
   () => import("./features/admin/pages/BarangayConfigPage"),
@@ -143,14 +137,6 @@ function App() {
                 element={<ResidentManagementPage />}
               />
               <Route path="doc-requests" element={<DocumentRequestPage />} />
-              <Route
-                path="payment-verification"
-                element={<PaymentVerification />}
-              />
-              <Route
-                path="document-generation"
-                element={<DocumentGeneration />}
-              />
             </Route>
           </Routes>
         </Suspense>
