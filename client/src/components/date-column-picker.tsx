@@ -1,3 +1,4 @@
+/* eslint-disable react-hooks/exhaustive-deps */
 import { useState, useEffect } from "react";
 import { cn } from "@/lib/utils";
 import {
@@ -7,8 +8,6 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-// import { Calendar, ChevronDown } from "lucide-react";
 
 interface DateColumnPickerProps {
   value?: Date;

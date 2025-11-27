@@ -12,16 +12,19 @@ public class DocumentRequestService
     private readonly IMongoCollection<Document> _documents;
     private readonly IMongoCollection<User> _users;
     private readonly EmailService _emailService;
+    private readonly DocumentService _documentService;
 
     public DocumentRequestService(
         MongoDBContext context,
-        EmailService emailService)
+        EmailService emailService,
+        DocumentService documentService)
     {
         _documentRequests = context.GetCollection<DocumentRequest>("documentRequests");
         _residents = context.GetCollection<Resident>("residents");
         _documents = context.GetCollection<Document>("documents");
         _users = context.GetCollection<User>("users");
         _emailService = emailService;
+        _documentService = documentService;
     }
 
     // Generate unique tracking number
@@ -185,6 +188,9 @@ public class DocumentRequestService
         };
 
         await _documentRequests.InsertOneAsync(request);
+
+        // Increment the total requests count for this document
+        await _documentService.IncrementTotalRequestsAsync(dto.DocumentId);
 
         // Get resident email for notification
         var user = await _users.Find(u => u.ResidentId == dto.ResidentId).FirstOrDefaultAsync();

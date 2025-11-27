@@ -10,15 +10,7 @@ import {
 import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { DocumentActionsCell } from "./DocumentActionsCell";
-
-
-function formatDate(dateString: string): string {
-  return new Date(dateString).toLocaleDateString("en-US", {
-    month: "short",
-    day: "numeric",
-    year: "numeric",
-  });
-}
+import { formatCurrency, formatDate } from "@/lib/format";
 
 export const columns: ColumnDef<Document>[] = [
   {
