@@ -6,8 +6,6 @@ import { IconEye } from "@tabler/icons-react";
 import { Link } from "react-router-dom";
 import { formatCurrency, formatDate } from "@/lib/format";
 
-
-
 // Status badge styling
 const getStatusBadge = (status: string) => {
   const statusConfig: Record<string, { className: string; label: string }> = {
@@ -30,6 +28,14 @@ const getStatusBadge = (status: string) => {
     ready_for_generation: {
       className: "bg-purple-500/15 text-purple-700 hover:bg-purple-500/25 dark:bg-purple-500/10 dark:text-purple-400",
       label: "Processing"
+    },
+    processing: {
+      className: "bg-indigo-500/15 text-indigo-700 hover:bg-indigo-500/25 dark:bg-indigo-500/10 dark:text-indigo-400",
+      label: "Processing"
+    },
+    ready_for_pickup: {
+      className: "bg-cyan-500/15 text-cyan-700 hover:bg-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-400",
+      label: "Ready for Pickup"
     },
     completed: {
       className: "bg-green-500/15 text-green-700 hover:bg-green-500/25 dark:bg-green-500/10 dark:text-green-400",

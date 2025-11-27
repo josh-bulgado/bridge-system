@@ -14,18 +14,21 @@ interface RequestStatusStepperProps {
 const statusOrder = [
   "pending",
   "approved",
-  "payment_pending",
   "payment_verified",
   "ready_for_generation",
+  "processing",
+  "ready_for_pickup",
   "completed",
 ];
 
 const statusLabels: Record<string, string> = {
   pending: "Submitted",
   approved: "Approved",
-  payment_pending: "Payment Pending",
+  payment_pending: "Payment Pending", // Still keep for edge cases
   payment_verified: "Payment Verified",
-  ready_for_generation: "Processing",
+  ready_for_generation: "Ready for Generation",
+  processing: "Processing",
+  ready_for_pickup: "Ready for Pickup",
   completed: "Completed",
 };
 

@@ -5,6 +5,8 @@ export type DocumentRequestStatus =
   | 'payment_pending' 
   | 'payment_verified' 
   | 'ready_for_generation' 
+  | 'processing'
+  | 'ready_for_pickup'
   | 'completed';
 
 export type PaymentMethod = 'online' | 'walkin';
@@ -61,6 +63,7 @@ export interface DocumentRequest {
   generatedBy?: string;
   generatedByName?: string;
   generatedAt?: string;
+  completedAt?: string;
   
   // Timestamps
   createdAt: string;

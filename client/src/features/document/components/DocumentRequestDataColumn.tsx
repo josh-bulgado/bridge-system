@@ -85,6 +85,24 @@ function getStatusBadge(status: DocumentRequest["status"]) {
           Ready for Generation
         </Badge>
       );
+    case "processing":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-indigo-500/15 text-indigo-700 hover:bg-indigo-500/25 dark:bg-indigo-500/10 dark:text-indigo-400 dark:hover:bg-indigo-500/20"
+        >
+          Processing
+        </Badge>
+      );
+    case "ready_for_pickup":
+      return (
+        <Badge
+          variant="outline"
+          className="border-0 bg-cyan-500/15 text-cyan-700 hover:bg-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-400 dark:hover:bg-cyan-500/20"
+        >
+          Ready for Pickup
+        </Badge>
+      );
     case "completed":
       return (
         <Badge
@@ -212,7 +230,7 @@ export const columns: ColumnDef<DocumentRequest>[] = [
         <TooltipProvider>
           <Tooltip>
             <TooltipTrigger asChild>
-              <div className="cursor-help">
+              <div className="cursor-help capitalize">
                 {getStatusBadge(request.status)}
               </div>
             </TooltipTrigger>

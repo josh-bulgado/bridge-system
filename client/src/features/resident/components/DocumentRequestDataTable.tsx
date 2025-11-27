@@ -125,7 +125,9 @@ export function DocumentRequestDataTable<TData, TValue>({
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="payment_pending">Payment Pending</SelectItem>
             <SelectItem value="payment_verified">Payment Verified</SelectItem>
-            <SelectItem value="ready_for_generation">Processing</SelectItem>
+            <SelectItem value="ready_for_generation">Ready for Generation</SelectItem>
+            <SelectItem value="processing">Processing</SelectItem>
+            <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
           </SelectContent>

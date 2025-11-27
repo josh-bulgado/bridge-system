@@ -20,6 +20,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Spinner } from "@/components/ui/spinner";
 
 interface DocumentGenerationModalProps {
   open: boolean;
@@ -38,7 +39,9 @@ export function DocumentGenerationModal({
 }: DocumentGenerationModalProps) {
   const [previewData, setPreviewData] = useState<Record<string, string>>({});
   const [editedData, setEditedData] = useState<Record<string, string>>({});
-  const [step, setStep] = useState<"loading" | "editing" | "generating" | "success">("loading");
+  const [step, setStep] = useState<
+    "loading" | "editing" | "generating" | "success"
+  >("loading");
 
   const generatePreview = useGeneratePreview();
   const generateDocument = useGenerateDocument();
@@ -47,7 +50,7 @@ export function DocumentGenerationModal({
   useEffect(() => {
     if (open && documentRequestId) {
       setStep("loading");
-      
+
       // Use setTimeout to avoid state update during render
       const timer = setTimeout(() => {
         generatePreview.mutate(documentRequestId, {
@@ -58,7 +61,11 @@ export function DocumentGenerationModal({
           },
           onError: (error: any) => {
             console.error("Error generating preview:", error);
-            toast.error(error?.response?.data?.message || error.message || "Failed to load document data");
+            toast.error(
+              error?.response?.data?.message ||
+                error.message ||
+                "Failed to load document data",
+            );
             setStep("editing");
             // Close modal on error
             setTimeout(() => onOpenChange(false), 2000);
@@ -87,11 +94,13 @@ export function DocumentGenerationModal({
     // Validate required fields
     const requiredFields = ["FULL_NAME", "AGE", "CIVIL_STATUS"];
     const missingFields = requiredFields.filter(
-      (field) => !editedData[field] || editedData[field].trim() === ""
+      (field) => !editedData[field] || editedData[field].trim() === "",
     );
 
     if (missingFields.length > 0) {
-      toast.error(`Please fill in all required fields: ${missingFields.join(", ")}`);
+      toast.error(
+        `Please fill in all required fields: ${missingFields.join(", ")}`,
+      );
       return;
     }
 
@@ -112,7 +121,7 @@ export function DocumentGenerationModal({
         onError: () => {
           setStep("editing");
         },
-      }
+      },
     );
   };
 
@@ -130,21 +139,22 @@ export function DocumentGenerationModal({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-2xl max-h-[80vh] overflow-y-auto">
+      <DialogContent className="max-h-[80vh] max-w-2xl overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <FileText className="h-5 w-5" />
             Generate Document
           </DialogTitle>
           <DialogDescription>
-            Review and edit the document details for {residentName} - {documentType}
+            Review and edit the document details for {residentName} -{" "}
+            {documentType}
           </DialogDescription>
         </DialogHeader>
 
         {step === "loading" && (
           <div className="flex items-center justify-center py-12">
-            <div className="text-center space-y-4">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+            <div className="space-y-4 text-center">
+              <Loader2 className="text-primary mx-auto h-8 w-8 animate-spin" />
               <p className="text-muted-foreground">Loading document data...</p>
             </div>
           </div>
@@ -155,7 +165,9 @@ export function DocumentGenerationModal({
             <div className="grid grid-cols-2 gap-4">
               {/* Personal Information */}
               <div className="col-span-2">
-                <h3 className="font-semibold text-sm mb-3">Personal Information</h3>
+                <h3 className="mb-3 text-sm font-semibold">
+                  Personal Information
+                </h3>
               </div>
 
               <div className="space-y-2">
@@ -166,7 +178,9 @@ export function DocumentGenerationModal({
                 <Input
                   id="FULL_NAME"
                   value={editedData.FULL_NAME || ""}
-                  onChange={(e) => handleFieldChange("FULL_NAME", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("FULL_NAME", e.target.value)
+                  }
                   placeholder="Juan Dela Cruz"
                 />
               </div>
@@ -186,13 +200,18 @@ export function DocumentGenerationModal({
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="CIVIL_STATUS" className="flex items-center gap-1">
+                <Label
+                  htmlFor="CIVIL_STATUS"
+                  className="flex items-center gap-1"
+                >
                   Civil Status
                   <span className="text-red-500">*</span>
                 </Label>
                 <Select
                   value={editedData.CIVIL_STATUS || ""}
-                  onValueChange={(value) => handleFieldChange("CIVIL_STATUS", value)}
+                  onValueChange={(value) =>
+                    handleFieldChange("CIVIL_STATUS", value)
+                  }
                 >
                   <SelectTrigger id="CIVIL_STATUS">
                     <SelectValue placeholder="Select civil status" />
@@ -206,8 +225,8 @@ export function DocumentGenerationModal({
                   </SelectContent>
                 </Select>
                 {editedData.CIVIL_STATUS && (
-                  <p className="text-xs text-muted-foreground flex items-center gap-1">
-                    <span className="inline-block w-1 h-1 rounded-full bg-blue-500"></span>
+                  <p className="text-muted-foreground flex items-center gap-1 text-xs">
+                    <span className="inline-block h-1 w-1 rounded-full bg-blue-500"></span>
                     Changes will be saved to resident profile
                   </p>
                 )}
@@ -215,7 +234,9 @@ export function DocumentGenerationModal({
 
               {/* Address Information */}
               <div className="col-span-2 mt-4">
-                <h3 className="font-semibold text-sm mb-3">Address Information</h3>
+                <h3 className="mb-3 text-sm font-semibold">
+                  Address Information
+                </h3>
               </div>
 
               <div className="space-y-2">
@@ -223,7 +244,9 @@ export function DocumentGenerationModal({
                 <Input
                   id="BARANGAY_NAME"
                   value={editedData.BARANGAY_NAME || ""}
-                  onChange={(e) => handleFieldChange("BARANGAY_NAME", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("BARANGAY_NAME", e.target.value)
+                  }
                   readOnly
                   className="bg-muted"
                 />
@@ -234,7 +257,9 @@ export function DocumentGenerationModal({
                 <Input
                   id="MUNICIPALITY"
                   value={editedData.MUNICIPALITY || ""}
-                  onChange={(e) => handleFieldChange("MUNICIPALITY", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("MUNICIPALITY", e.target.value)
+                  }
                   readOnly
                   className="bg-muted"
                 />
@@ -245,7 +270,9 @@ export function DocumentGenerationModal({
                 <Input
                   id="PROVINCE"
                   value={editedData.PROVINCE || ""}
-                  onChange={(e) => handleFieldChange("PROVINCE", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("PROVINCE", e.target.value)
+                  }
                   readOnly
                   className="bg-muted"
                 />
@@ -253,7 +280,9 @@ export function DocumentGenerationModal({
 
               {/* Document Information */}
               <div className="col-span-2 mt-4">
-                <h3 className="font-semibold text-sm mb-3">Document Information</h3>
+                <h3 className="mb-3 text-sm font-semibold">
+                  Document Information
+                </h3>
               </div>
 
               <div className="space-y-2">
@@ -281,7 +310,9 @@ export function DocumentGenerationModal({
                 <Input
                   id="CAPTAIN_NAME"
                   value={editedData.CAPTAIN_NAME || ""}
-                  onChange={(e) => handleFieldChange("CAPTAIN_NAME", e.target.value)}
+                  onChange={(e) =>
+                    handleFieldChange("CAPTAIN_NAME", e.target.value)
+                  }
                   readOnly
                   className="bg-muted"
                 />
@@ -297,15 +328,16 @@ export function DocumentGenerationModal({
               </div>
             </div>
 
-            <div className="mt-4 p-3 bg-blue-50 dark:bg-blue-950/20 rounded-lg border border-blue-200 dark:border-blue-800">
+            <div className="mt-4 rounded-lg border border-blue-200 bg-blue-50 p-3 dark:border-blue-800 dark:bg-blue-950/20">
               <p className="text-sm text-blue-800 dark:text-blue-300">
-                <strong>Note:</strong> Review all information carefully. Fields marked with{" "}
-                <span className="text-red-500">*</span> are required. Grayed out fields are
-                auto-filled from system configuration.
+                <strong>Note:</strong> Review all information carefully. Fields
+                marked with <span className="text-red-500">*</span> are
+                required. Grayed out fields are auto-filled from system
+                configuration.
               </p>
-              <p className="text-sm text-blue-800 dark:text-blue-300 mt-2">
-                <strong>Important:</strong> Civil status will be saved to the resident's profile
-                for future use. You can update it if needed.
+              <p className="mt-2 text-sm text-blue-800 dark:text-blue-300">
+                <strong>Important:</strong> Civil status will be saved to the
+                resident's profile for future use. You can update it if needed.
               </p>
             </div>
           </div>
@@ -313,10 +345,10 @@ export function DocumentGenerationModal({
 
         {step === "generating" && (
           <div className="flex items-center justify-center py-12">
-            <div className="text-center space-y-4">
-              <Loader2 className="h-8 w-8 animate-spin mx-auto text-primary" />
+            <div className="space-y-4 text-center">
+              <Loader2 className="text-primary mx-auto h-8 w-8 animate-spin" />
               <p className="text-muted-foreground">Generating document...</p>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-muted-foreground text-sm">
                 This may take a few moments. Please wait.
               </p>
             </div>
@@ -325,11 +357,13 @@ export function DocumentGenerationModal({
 
         {step === "success" && (
           <div className="flex items-center justify-center py-12">
-            <div className="text-center space-y-4">
-              <CheckCircle2 className="h-12 w-12 mx-auto text-green-500" />
+            <div className="space-y-4 text-center">
+              <CheckCircle2 className="mx-auto h-12 w-12 text-green-500" />
               <div>
-                <p className="font-semibold text-lg">Document Generated Successfully!</p>
-                <p className="text-sm text-muted-foreground">
+                <p className="text-lg font-semibold">
+                  Document Generated Successfully!
+                </p>
+                <p className="text-muted-foreground text-sm">
                   The document has been generated and is ready for download.
                 </p>
               </div>
@@ -343,10 +377,13 @@ export function DocumentGenerationModal({
               <Button variant="outline" onClick={handleClose}>
                 Cancel
               </Button>
-              <Button onClick={handleGenerate} disabled={generateDocument.isPending}>
+              <Button
+                onClick={handleGenerate}
+                disabled={generateDocument.isPending}
+              >
                 {generateDocument.isPending ? (
                   <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    <Spinner />
                     Generating...
                   </>
                 ) : (

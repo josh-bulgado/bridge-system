@@ -306,6 +306,56 @@ public class DocumentRequestController : ControllerBase
         }
     }
 
+
+    /// <summary>
+    /// Mark document as ready for pickup
+    /// </summary>
+    [HttpPut("{id}/ready-for-pickup")]
+    [Authorize(Roles = "staff,admin")]
+    public async Task<ActionResult<DocumentRequestResponse>> MarkAsReadyForPickup(
+        string id)
+    {
+        try
+        {
+            var userId = GetCurrentUserId();
+            var result = await _documentRequestService.UpdateStatusAsync(id, userId, new UpdateStatusRequest
+            {
+                Status = "ready_for_pickup",
+                Notes = "Document is ready for pickup"
+            });
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
+
+    /// <summary>
+    /// Complete document request (mark as picked up)
+    /// </summary>
+    [HttpPut("{id}/complete")]
+    [Authorize(Roles = "staff,admin")]
+    public async Task<ActionResult<DocumentRequestResponse>> CompleteRequest(
+        string id,
+        [FromBody] CompleteDocumentRequestRequest request)
+    {
+        try
+        {
+            if (!ModelState.IsValid)
+            {
+                return BadRequest(ModelState);
+            }
+
+            var userId = GetCurrentUserId();
+            var result = await _documentRequestService.CompleteRequestAsync(id, userId, request);
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            return BadRequest(new { message = ex.Message });
+        }
+    }
     /// <summary>
     /// Cancel document request (Resident only - can cancel their own pending requests)
     /// </summary>

@@ -37,7 +37,7 @@ export const EnhancedQuickActions: React.FC<EnhancedQuickActionsProps> = ({
   const completedCount =
     requests?.filter(
       (req) =>
-        req.status === "completed" || req.status === "ready_for_generation",
+        req.status === "ready_for_pickup" || req.status === "completed",
     ).length || 0;
   const primaryActions: QuickAction[] = [
     {

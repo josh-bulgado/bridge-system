@@ -35,11 +35,11 @@ export const useResidentStats = (residentId?: string): ResidentStats => {
       (req) => 
         req.status === "pending" || 
         req.status === "payment_pending" ||
-        req.status === "payment_verified"
+        req.status === "approved"
     ).length;
 
     const readyForPickup = requests.filter(
-      (req) => req.status === "ready_for_generation"
+      (req) => req.status === "ready_for_pickup"
     ).length;
 
     const completed = requests.filter(
