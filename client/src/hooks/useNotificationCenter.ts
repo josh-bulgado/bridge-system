@@ -1,4 +1,5 @@
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import { toast } from 'sonner';
 import api from '@/lib/api';
 import type { Notification } from '@/types/notification';
 
@@ -54,6 +55,10 @@ export const useNotificationCenter = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['notifications'] });
       queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+      toast.success('Notification deleted successfully');
+    },
+    onError: (error: any) => {
+      toast.error(error.response?.data?.error || 'Failed to delete notification');
     },
   });
 

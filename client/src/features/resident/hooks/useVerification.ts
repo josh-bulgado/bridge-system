@@ -64,7 +64,9 @@ export const useVerification = () => {
       
       // Removed: Don't log submission data
       const response = await verificationService.submitVerification(submissionData);
-      toast.success("Verification submitted successfully!");
+      toast.success("Thank you for submitting your verification request! Our staff will review your submission and notify you once it's approved.", {
+        duration: 6000, // Show for 6 seconds
+      });
       setIsSubmitted(true);
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {

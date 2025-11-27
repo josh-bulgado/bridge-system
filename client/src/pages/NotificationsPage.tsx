@@ -1,3 +1,8 @@
+import { useState } from "react";
+import { useNotificationCenter } from "@/hooks/useNotificationCenter";
+import { formatDistanceToNow } from "date-fns";
+import { cn } from "@/lib/utils";
+import type { Notification } from "@/types/notification";
 import {
   Bell,
   Check,
@@ -5,23 +10,23 @@ import {
   CheckCircle2,
   Info,
   AlertCircle,
+  ArrowLeft,
+  Filter,
 } from "lucide-react";
-import { useState, useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-} from "@/components/ui/popover";
-import { ScrollArea } from "@/components/ui/scroll-area";
 import { Badge } from "@/components/ui/badge";
+import { Card } from "@/components/ui/card";
+import { ScrollArea } from "@/components/ui/scroll-area";
 import { Separator } from "@/components/ui/separator";
-import { useNotificationCenter } from "@/hooks/useNotificationCenter";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { NotificationDetailDialog } from "@/components/notification-detail-dialog";
-import { NotificationsViewAllDialog } from "@/components/notifications-view-all-dialog";
-import { formatDistanceToNow } from "date-fns";
-import { cn } from "@/lib/utils";
-import type { Notification } from "@/types/notification";
+import { useNavigate } from "react-router-dom";
 
 interface NotificationItemProps {
   notification: Notification;
@@ -89,10 +94,9 @@ function NotificationItem({
   const Icon = config.icon;
 
   return (
-    <div
+    <Card
       className={cn(
         "group relative cursor-pointer rounded-lg border-l-4 transition-all duration-200",
-        "min-h-[60px]", // Ensure minimum touch target height
         config.accentColor,
         notification.isRead
           ? "bg-background hover:bg-muted/30 border-border/40 border-t border-r border-b"
@@ -189,11 +193,12 @@ function NotificationItem({
           </div>
         </div>
       </div>
-    </div>
+    </Card>
   );
 }
 
-export function NotificationCenter() {
+export function NotificationsPage() {
+  const navigate = useNavigate();
   const {
     notifications,
     unreadCount,
@@ -205,20 +210,9 @@ export function NotificationCenter() {
 
   const [selectedNotification, setSelectedNotification] = useState<Notification | null>(null);
   const [dialogOpen, setDialogOpen] = useState(false);
-  const [viewAllDialogOpen, setViewAllDialogOpen] = useState(false);
-  const [hasSeenBadge, setHasSeenBadge] = useState(false);
-  const previousUnreadCount = useRef(unreadCount);
-
-  // Reset hasSeenBadge when unread count increases (new notification arrives)
-  useEffect(() => {
-    if (unreadCount > previousUnreadCount.current) {
-      setHasSeenBadge(false);
-    }
-    previousUnreadCount.current = unreadCount;
-  }, [unreadCount]);
+  const [filter, setFilter] = useState<"all" | "unread" | "read">("all");
 
   const handleNotificationClick = (notification: Notification) => {
-    // Mark as read when clicking a notification
     if (!notification.isRead) {
       markAsRead(notification.id);
     }
@@ -226,15 +220,16 @@ export function NotificationCenter() {
     setDialogOpen(true);
   };
 
-  const handlePopoverOpenChange = (open: boolean) => {
-    // When opening the popover, mark that user has seen the badge
-    if (open) {
-      setHasSeenBadge(true);
-    }
+  const handleBack = () => {
+    navigate(-1);
   };
 
-  // Show badge only if user hasn't seen it yet
-  const effectiveUnreadCount = hasSeenBadge ? 0 : unreadCount;
+  // Filter notifications based on selected filter
+  const filteredNotifications = notifications.filter((notification) => {
+    if (filter === "unread") return !notification.isRead;
+    if (filter === "read") return notification.isRead;
+    return true;
+  });
 
   return (
     <>
@@ -245,124 +240,111 @@ export function NotificationCenter() {
         onMarkAsRead={markAsRead}
         onDelete={deleteNotification}
       />
-      <NotificationsViewAllDialog
-        open={viewAllDialogOpen}
-        onOpenChange={setViewAllDialogOpen}
-      />
-      <Popover onOpenChange={handlePopoverOpenChange}>
-      <PopoverTrigger asChild>
-        <Button
-          variant="ghost"
-          size="icon"
-          className="relative"
-          aria-label={`Notifications${unreadCount > 0 ? ` (${unreadCount} unread)` : ""}`}
-        >
-          <Bell className="h-5 w-5" />
-          {effectiveUnreadCount > 0 && (
-            <Badge
-              variant="destructive"
-              className="absolute -top-1 -right-1 flex h-5 w-5 items-center justify-center rounded-full p-0 text-[10px] font-semibold shadow-sm"
-            >
-              {effectiveUnreadCount > 99 ? "99+" : effectiveUnreadCount}
-            </Badge>
-          )}
-        </Button>
-      </PopoverTrigger>
-      <PopoverContent
-        className="border-border/50 w-[420px] p-0 shadow-lg"
-        align="end"
-        sideOffset={8}
-      >
+
+      <div className="min-h-screen bg-background">
         {/* Header */}
-        <div className="bg-background/95 supports-backdrop-filter:bg-background/80 border-border/50 sticky top-0 z-10 border-b backdrop-blur">
-          <div className="flex items-center justify-between px-4 py-3">
-            <div className="flex items-center gap-2">
-              <h3 className="text-base font-semibold">Notifications</h3>
-              {unreadCount > 0 && (
-                <Badge
-                  variant="secondary"
-                  className="bg-primary/10 text-primary hover:bg-primary/15 h-5 px-2 text-xs font-medium"
+        <div className="sticky top-0 z-10 border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+          <div className="container mx-auto px-4 py-4">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-4">
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  onClick={handleBack}
+                  className="h-9 w-9"
                 >
-                  {unreadCount}
-                </Badge>
-              )}
+                  <ArrowLeft className="h-5 w-5" />
+                </Button>
+                <div className="flex items-center gap-3">
+                  <Bell className="h-6 w-6" />
+                  <div>
+                    <h1 className="text-2xl font-bold">Notifications</h1>
+                    <p className="text-sm text-muted-foreground">
+                      {unreadCount > 0
+                        ? `${unreadCount} unread notification${unreadCount !== 1 ? "s" : ""}`
+                        : "All caught up!"}
+                    </p>
+                  </div>
+                </div>
+              </div>
+
+              <div className="flex items-center gap-2">
+                {/* Filter */}
+                <Select value={filter} onValueChange={(value: any) => setFilter(value)}>
+                  <SelectTrigger className="w-[140px]">
+                    <Filter className="h-4 w-4 mr-2" />
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="all">All</SelectItem>
+                    <SelectItem value="unread">Unread</SelectItem>
+                    <SelectItem value="read">Read</SelectItem>
+                  </SelectContent>
+                </Select>
+
+                {unreadCount > 0 && (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => markAllAsRead()}
+                  >
+                    <Check className="mr-2 h-4 w-4" />
+                    Mark all read
+                  </Button>
+                )}
+              </div>
             </div>
-            {unreadCount > 0 && (
-              <Button
-                variant="ghost"
-                size="sm"
-                onClick={() => markAllAsRead()}
-                className="hover:bg-muted text-muted-foreground hover:text-foreground h-8 px-3 text-xs font-medium"
-              >
-                <Check className="mr-1.5 h-3.5 w-3.5" />
-                Mark all read
-              </Button>
-            )}
           </div>
-          {unreadCount > 0 && (
-            <div className="px-4 pb-2">
-              <p className="text-muted-foreground text-xs">
-                {unreadCount} unread notification{unreadCount !== 1 ? "s" : ""}
-              </p>
-            </div>
-          )}
         </div>
 
-        {/* Notification List */}
-        <ScrollArea className="h-[460px]">
-          {isLoading ? (
-            <div className="flex flex-col items-center justify-center px-4 py-12">
-              <div className="border-primary mb-3 h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" />
-              <p className="text-muted-foreground text-sm">
-                Loading notifications...
-              </p>
-            </div>
-          ) : notifications.length === 0 ? (
-            <div className="flex flex-col items-center justify-center px-6 py-16 text-center">
-              <div className="bg-muted/60 mb-4 rounded-full p-4">
-                <Bell className="text-muted-foreground/60 h-8 w-8" />
+        {/* Content */}
+        <div className="container mx-auto px-4 py-6">
+          <div className="mx-auto max-w-4xl">
+            {isLoading ? (
+              <div className="flex flex-col items-center justify-center py-16">
+                <div className="border-primary mb-3 h-10 w-10 animate-spin rounded-full border-2 border-t-transparent" />
+                <p className="text-muted-foreground text-sm">
+                  Loading notifications...
+                </p>
               </div>
-              <h4 className="mb-1.5 text-sm font-semibold">
-                No notifications yet
-              </h4>
-              <p className="text-muted-foreground max-w-[280px] text-xs leading-relaxed">
-                We'll notify you when something important happens, like
-                verification updates or document status changes
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-1.5 p-3">
-              {notifications.map((notification) => (
-                <NotificationItem
-                  key={notification.id}
-                  notification={notification}
-                  onMarkAsRead={markAsRead}
-                  onDelete={deleteNotification}
-                  onClick={handleNotificationClick}
-                />
-              ))}
-            </div>
-          )}
-        </ScrollArea>
-
-        {/* Footer - View All Link */}
-        {notifications.length > 0 && (
-          <>
-            <Separator />
-            <div className="bg-muted/30 p-2">
-              <Button
-                variant="ghost"
-                size="sm"
-                className="hover:bg-background h-9 w-full text-xs font-medium"
-                onClick={() => setViewAllDialogOpen(true)}
-              >
-                View all notifications
-              </Button>
-            </div>
-          </>
-        )}
-      </PopoverContent>
-    </Popover>
+            ) : filteredNotifications.length === 0 ? (
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="bg-muted/60 mb-4 rounded-full p-6">
+                  <Bell className="text-muted-foreground/60 h-12 w-12" />
+                </div>
+                <h3 className="mb-2 text-lg font-semibold">
+                  {filter === "unread"
+                    ? "No unread notifications"
+                    : filter === "read"
+                      ? "No read notifications"
+                      : "No notifications yet"}
+                </h3>
+                <p className="text-muted-foreground max-w-[400px] text-sm leading-relaxed">
+                  {filter === "unread"
+                    ? "You're all caught up! Check back later for new updates."
+                    : filter === "read"
+                      ? "You haven't read any notifications yet."
+                      : "We'll notify you when something important happens, like verification updates or document status changes."}
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {filteredNotifications.map((notification) => (
+                  <NotificationItem
+                    key={notification.id}
+                    notification={notification}
+                    onMarkAsRead={markAsRead}
+                    onDelete={deleteNotification}
+                    onClick={handleNotificationClick}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      </div>
     </>
   );
 }
+
+export default NotificationsPage;

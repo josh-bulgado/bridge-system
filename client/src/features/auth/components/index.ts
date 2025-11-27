@@ -16,3 +16,6 @@ export { RegistrationFeaturesList } from "./RegistrationFeaturesList";
 // Verification components
 export { VerifyOTPForm } from "./VerifyOTPForm";
 export { VerificationFeaturesList } from "./VerificationFeaturesList";
+
+// OTP components
+export * from "./otp";
