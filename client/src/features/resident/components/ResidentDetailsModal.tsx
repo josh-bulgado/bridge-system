@@ -249,7 +249,7 @@ export default function ResidentDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] max-w-7xl p-0">
+      <DialogContent className="max-h-[90vh] max-w-7xl p-0 overflow-hidden">
         {/* Header with Status Badge */}
         <DialogHeader className="bg-muted/30 border-b px-6 py-4">
           <div className="flex items-start gap-4">

@@ -141,7 +141,7 @@ export const BarangayConfigView: React.FC<BarangayConfigViewProps> = ({
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Wallet className="h-5 w-5 text-blue-600" />
-              GCash Payment Configuration
+              GCash Payment 
               <CheckCircle2 className="h-5 w-5 text-green-500 ml-auto" />
             </CardTitle>
           </CardHeader>
