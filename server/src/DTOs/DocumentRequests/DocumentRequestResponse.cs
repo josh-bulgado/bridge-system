@@ -44,6 +44,7 @@ public class DocumentRequestResponse
     public string? GeneratedBy { get; set; }
     public string? GeneratedByName { get; set; }
     public DateTime? GeneratedAt { get; set; }
+    public DateTime? CompletedAt { get; set; }
 
     // Timestamps
     public DateTime CreatedAt { get; set; }

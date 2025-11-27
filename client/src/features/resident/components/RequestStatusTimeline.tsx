@@ -59,13 +59,18 @@ const statusConfig: Record<
   },
   ready_for_generation: {
     icon: Settings,
-    color: "bg-green-500",
-    label: "Processing Document",
+    color: "bg-purple-500",
+    label: "Ready for Generation",
   },
   processing: {
     icon: Settings,
-    color: "bg-green-500",
+    color: "bg-indigo-500",
     label: "Processing Document",
+  },
+  ready_for_pickup: {
+    icon: CheckCircle2,
+    color: "bg-cyan-500",
+    label: "Ready for Pickup",
   },
   completed: {
     icon: CircleCheck,
@@ -118,10 +123,13 @@ export function RequestStatusTimeline({
               break;
             case "processing":
               description =
-                "Your document is being processed and will be ready soon";
+                "Your document is being generated and will be ready soon";
+              break;
+            case "ready_for_pickup":
+              description = "Your document is ready for pickup at the barangay office";
               break;
             case "completed":
-              description = "Your document is ready for pickup or download";
+              description = "Document request completed - picked up by resident";
               break;
             case "rejected":
               description =
@@ -148,15 +156,11 @@ export function RequestStatusTimeline({
           };
         })
       : [
+          // Fallback when no status history is available
           {
             status: currentStatus,
             timestamp: updatedAt,
             description: `Your request is currently ${currentStatus.replace(/_/g, " ")}`,
-          },
-          {
-            status: "pending",
-            timestamp: createdAt,
-            description: "Your request has been submitted successfully",
           },
         ];
 

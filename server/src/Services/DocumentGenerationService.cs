@@ -264,16 +264,16 @@ namespace server.Services
                 documentRequest.GeneratedDocumentUrl = uploadResult.url;
                 documentRequest.GeneratedBy = generatedBy;
                 documentRequest.GeneratedAt = DateTime.UtcNow;
-                documentRequest.Status = "completed";
+                documentRequest.Status = "ready_for_pickup";
                 documentRequest.UpdatedAt = DateTime.UtcNow;
 
                 // Add status history
                 documentRequest.StatusHistory.Add(new StatusHistory
                 {
-                    Status = "completed",
+                    Status = "ready_for_pickup",
                     ChangedBy = generatedBy,
                     ChangedAt = DateTime.UtcNow,
-                    Notes = "Document generated successfully"
+                    Notes = "Document generated and ready for pickup"
                 });
 
                 await documentRequestCollection.ReplaceOneAsync(

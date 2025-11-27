@@ -415,8 +415,32 @@ Thank you!"
 
         await _documentRequests.UpdateOneAsync(r => r.Id == id, update);
 
-        // Send email if completed
-        if (dto.Status == "completed")
+        // Send email and notification based on status
+        if (dto.Status == "ready_for_pickup")
+        {
+            var resident = await _residents.Find(r => r.Id == request.ResidentId).FirstOrDefaultAsync();
+            var user = await _users.Find(u => u.ResidentId == request.ResidentId).FirstOrDefaultAsync();
+            var document = await _documents.Find(d => d.Id == request.DocumentId).FirstOrDefaultAsync();
+
+            if (user != null && resident != null && document != null)
+            {
+                await _emailService.SendEmailAsync(
+                    user.Email,
+                    "Document Ready for Pickup",
+                    $@"Dear {resident.FirstName} {resident.LastName},
+
+Good news! Your document is now ready for pickup.
+
+Tracking Number: {request.TrackingNumber}
+Document Type: {document.Name}
+
+Please visit the barangay office during office hours to claim your document. Bring a valid ID for verification.
+
+Thank you!"
+                );
+            }
+        }
+        else if (dto.Status == "completed")
         {
             var resident = await _residents.Find(r => r.Id == request.ResidentId).FirstOrDefaultAsync();
             var user = await _users.Find(u => u.ResidentId == request.ResidentId).FirstOrDefaultAsync();
@@ -443,6 +467,63 @@ Thank you!"
 
         return (await GetRequestByIdAsync(id))!;
     }
+
+    // Complete document request (mark as picked up)
+    public async Task<DocumentRequestResponse> CompleteRequestAsync(string id, string completedById, CompleteDocumentRequestRequest dto)
+    {
+        var request = await _documentRequests.Find(r => r.Id == id).FirstOrDefaultAsync();
+        if (request == null)
+        {
+            throw new Exception("Request not found");
+        }
+
+        // Only allow completion if status is ready_for_pickup
+        if (request.Status != "ready_for_pickup")
+        {
+            throw new Exception("Request must be in 'ready_for_pickup' status to be completed");
+        }
+
+        var update = Builders<DocumentRequest>.Update
+            .Set(r => r.Status, "completed")
+            .Set(r => r.CompletedAt, DateTime.UtcNow)
+            .Set(r => r.UpdatedAt, DateTime.UtcNow)
+            .Push(r => r.StatusHistory, new StatusHistory
+            {
+                Status = "completed",
+                ChangedBy = completedById,
+                ChangedAt = DateTime.UtcNow,
+                Notes = dto.Notes
+            });
+
+        await _documentRequests.UpdateOneAsync(r => r.Id == id, update);
+
+        // Send email notification
+        var resident = await _residents.Find(r => r.Id == request.ResidentId).FirstOrDefaultAsync();
+        var user = await _users.Find(u => u.ResidentId == request.ResidentId).FirstOrDefaultAsync();
+        var document = await _documents.Find(d => d.Id == request.DocumentId).FirstOrDefaultAsync();
+
+        if (user != null && resident != null && document != null)
+        {
+            await _emailService.SendEmailAsync(
+                user.Email,
+                "Document Request Completed",
+                $@"Dear {resident.FirstName} {resident.LastName},
+
+Your document request has been marked as completed.
+
+Tracking Number: {request.TrackingNumber}
+Document Type: {document.Name}
+
+Thank you for using our barangay document request system!
+
+Best regards,
+Barangay Office"
+            );
+        }
+
+        return (await GetRequestByIdAsync(id))!;
+    }
+
 
     // Helper method to populate resident, document, and user data
     private async Task<List<DocumentRequestResponse>> PopulateRequestsAsync(List<DocumentRequest> requests)
@@ -546,6 +627,7 @@ Thank you!"
                 GeneratedBy = request.GeneratedBy,
                 GeneratedByName = generatedByName,
                 GeneratedAt = request.GeneratedAt,
+                CompletedAt = request.CompletedAt,
                 CreatedAt = request.CreatedAt,
                 UpdatedAt = request.UpdatedAt,
                 SubmittedAt = request.SubmittedAt

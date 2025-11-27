@@ -243,6 +243,12 @@ public class NotificationService : INotificationService
                 "success",
                 $"/resident/requests/{requestId}"
             ),
+            "ready_for_pickup" => (
+                "Document Ready for Pickup!",
+                $"Your {documentType} is ready for pickup at the barangay office during office hours",
+                "success",
+                $"/resident/requests/{requestId}"
+            ),
             "processing" => (
                 "Request Processing",
                 $"Your {documentType} request is now being processed",

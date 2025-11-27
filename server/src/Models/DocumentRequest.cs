@@ -83,6 +83,9 @@ public class DocumentRequest
     [BsonElement("generatedAt")]
     public DateTime? GeneratedAt { get; set; }
 
+    [BsonElement("completedAt")]
+    public DateTime? CompletedAt { get; set; }
+
     // Timestamps
     [BsonElement("createdAt")]
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
