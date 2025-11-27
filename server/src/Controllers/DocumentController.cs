@@ -12,10 +12,12 @@ namespace server.Controllers
     public class DocumentController : ControllerBase
     {
         private readonly DocumentService _documentService;
+        private readonly MongoDBContext _context;
 
-        public DocumentController(DocumentService documentService)
+        public DocumentController(DocumentService documentService, MongoDBContext context)
         {
             _documentService = documentService;
+            _context = context;
         }
 
         /// <summary>
@@ -347,6 +349,26 @@ namespace server.Controllers
             catch (Exception ex)
             {
                 return StatusCode(500, new { message = "An error occurred while searching documents", error = ex.Message });
+            }
+        }
+
+        /// <summary>
+        /// Recalculate statistics for all documents
+        /// </summary>
+        [HttpPost("recalculate-statistics")]
+        // [Authorize(Roles = "admin")]
+        public async Task<ActionResult> RecalculateStatistics()
+        {
+            try
+            {
+                var documentRequests = _context.GetCollection<DocumentRequest>("documentRequests");
+                await _documentService.RecalculateAllTotalRequestsAsync(documentRequests);
+
+                return Ok(new { message = "Statistics recalculated successfully" });
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, new { message = "An error occurred while recalculating statistics", error = ex.Message });
             }
         }
     }

@@ -138,5 +138,35 @@ namespace server.Services
 
             await _documents.UpdateOneAsync(x => x.Id == id, update);
         }
+
+        // Recalculate total requests for a specific document
+        public async Task RecalculateTotalRequestsAsync(string id, IMongoCollection<DocumentRequest> documentRequests)
+        {
+            var document = await GetByIdAsync(id);
+            if (document == null)
+                return;
+
+            var totalRequests = await documentRequests.CountDocumentsAsync(r => r.DocumentId == id);
+
+            var update = Builders<Document>.Update
+                .Set(x => x.TotalRequests, (int)totalRequests)
+                .Set(x => x.UpdatedAt, DateTime.UtcNow);
+
+            await _documents.UpdateOneAsync(x => x.Id == id, update);
+        }
+
+        // Recalculate total requests for all documents
+        public async Task RecalculateAllTotalRequestsAsync(IMongoCollection<DocumentRequest> documentRequests)
+        {
+            var documents = await GetAllAsync();
+            
+            foreach (var document in documents)
+            {
+                if (document.Id != null)
+                {
+                    await RecalculateTotalRequestsAsync(document.Id, documentRequests);
+                }
+            }
+        }
     }
 }
