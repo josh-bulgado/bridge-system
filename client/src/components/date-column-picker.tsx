@@ -7,14 +7,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Card, CardContent } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+
 // import { Calendar, ChevronDown } from "lucide-react";
 
 interface DateColumnPickerProps {
   value?: Date;
   onDateChange?: (date: Date | undefined) => void;
   className?: string;
+  hideLabels?: boolean;
 }
 
 const months = [
@@ -46,18 +46,21 @@ export function DateColumnPicker({
   value,
   onDateChange,
   className,
+  hideLabels = false,
 }: DateColumnPickerProps) {
   const currentYear = new Date().getFullYear();
   const minYear = currentYear - 100; // Allow ages up to 100
   const maxYear = currentYear - 13; // Minimum age of 13
 
   // Initialize state from value prop
-  const [selectedMonth, setSelectedMonth] = useState(
-    value ? value.getMonth() : 0,
+  const [selectedMonth, setSelectedMonth] = useState<number | undefined>(
+    value ? value.getMonth() : undefined,
   );
-  const [selectedDay, setSelectedDay] = useState(value ? value.getDate() : 1);
-  const [selectedYear, setSelectedYear] = useState(
-    value ? value.getFullYear() : maxYear,
+  const [selectedDay, setSelectedDay] = useState<number | undefined>(
+    value ? value.getDate() : undefined,
+  );
+  const [selectedYear, setSelectedYear] = useState<number | undefined>(
+    value ? value.getFullYear() : undefined,
   );
 
   // Update state when value prop changes
@@ -73,11 +76,19 @@ export function DateColumnPicker({
   const years = generateArray(minYear, maxYear);
 
   // Get max days for current month/year
-  const maxDays = getDaysInMonth(selectedMonth + 1, selectedYear);
+  const maxDays = getDaysInMonth(
+    (selectedMonth !== undefined ? selectedMonth : 0) + 1,
+    selectedYear || maxYear
+  );
   const days = generateArray(1, maxDays);
 
   // Create new date and call onChange
-  const updateDate = (month: number, day: number, year: number) => {
+  const updateDate = (month: number | undefined, day: number | undefined, year: number | undefined) => {
+    if (month === undefined || day === undefined || year === undefined) {
+      onDateChange?.(undefined);
+      return;
+    }
+
     // Adjust day if it's greater than the max days in the selected month
     const adjustedDay = Math.min(day, getDaysInMonth(month + 1, year));
     const newDate = new Date(year, month, adjustedDay);
@@ -104,24 +115,24 @@ export function DateColumnPicker({
 
   // Adjust day if current day is invalid for the selected month
   useEffect(() => {
-    if (selectedDay > maxDays) {
+    if (selectedDay !== undefined && selectedDay > maxDays) {
       const adjustedDay = maxDays;
       setSelectedDay(adjustedDay);
       updateDate(selectedMonth, adjustedDay, selectedYear);
     }
-  }, [maxDays, selectedMonth, selectedYear]);
+  }, [maxDays, selectedMonth, selectedYear, selectedDay]);
 
   return (
     <div className={cn("w-full", className)}>
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-[2fr_1fr_1.2fr] gap-3">
         {/* Month Select */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Month</label>
+          {!hideLabels && <label className="text-sm font-medium text-foreground">Month</label>}
           <Select
-            value={selectedMonth.toString()}
+            value={selectedMonth !== undefined ? selectedMonth.toString() : ""}
             onValueChange={handleMonthChange}
           >
-            <SelectTrigger className="h-10">
+            <SelectTrigger className="h-10 w-full">
               <SelectValue placeholder="Month" />
             </SelectTrigger>
             <SelectContent className="max-h-80">
@@ -136,12 +147,12 @@ export function DateColumnPicker({
 
         {/* Day Select */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Day</label>
+          {!hideLabels && <label className="text-sm font-medium text-foreground">Day</label>}
           <Select
-            value={selectedDay.toString()}
+            value={selectedDay !== undefined ? selectedDay.toString() : ""}
             onValueChange={handleDayChange}
           >
-            <SelectTrigger className="h-10">
+            <SelectTrigger className="h-10 w-full">
               <SelectValue placeholder="Day" />
             </SelectTrigger>
             <SelectContent className="max-h-80">
@@ -156,12 +167,12 @@ export function DateColumnPicker({
 
         {/* Year Select */}
         <div className="space-y-2">
-          <label className="text-sm font-medium text-foreground">Year</label>
+          {!hideLabels && <label className="text-sm font-medium text-foreground">Year</label>}
           <Select
-            value={selectedYear.toString()}
+            value={selectedYear !== undefined ? selectedYear.toString() : ""}
             onValueChange={handleYearChange}
           >
-            <SelectTrigger className="h-10">
+            <SelectTrigger className="h-10 w-full">
               <SelectValue placeholder="Year" />
             </SelectTrigger>
             <SelectContent className="max-h-80">

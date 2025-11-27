@@ -149,64 +149,66 @@ const StepPersonalInfo = () => {
           />
         </div>
 
-        {/* Date of Birth Section */}
-        <FormField
-          control={control}
-          name="dateOfBirth"
-          render={({ field }) => (
-            <FormItem className="space-y-2">
-              <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
-                Date of Birth
-                <span className="text-red-500">*</span>
-              </FormLabel>
-              <FormControl>
-                <DateColumnPicker
-                  value={field.value ? new Date(field.value) : undefined}
-                  onDateChange={(date) => {
-                    field.onChange(formatLocalDate(date));
-                  }}
-                />
-              </FormControl>
-              <div className="min-h-[20px] text-sm">
-                <FormMessage />
-              </div>
-            </FormItem>
-          )}
-        />
-
-        {/* Civil Status Section */}
-        <FormField
-          control={control}
-          name="civilStatus"
-          render={({ field }) => (
-            <FormItem className="space-y-2">
-              <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
-                Civil Status
-                <span className="text-red-500">*</span>
-              </FormLabel>
-              <Select
-                onValueChange={field.onChange}
-                value={field.value}
-              >
+        {/* Date of Birth and Civil Status Row */}
+        <div className="grid grid-cols-1 items-start gap-4 md:grid-cols-[1.3fr_1fr]">
+          <FormField
+            control={control}
+            name="dateOfBirth"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                  Date of Birth
+                  <span className="text-red-500">*</span>
+                </FormLabel>
                 <FormControl>
-                  <SelectTrigger className="h-10">
-                    <SelectValue placeholder="Select civil status" />
-                  </SelectTrigger>
+                  <DateColumnPicker
+                    value={field.value ? new Date(field.value) : undefined}
+                    onDateChange={(date) => {
+                      field.onChange(formatLocalDate(date));
+                    }}
+                    hideLabels={true}
+                  />
                 </FormControl>
-                <SelectContent>
-                  <SelectItem value="Single">Single</SelectItem>
-                  <SelectItem value="Married">Married</SelectItem>
-                  <SelectItem value="Widowed">Widowed</SelectItem>
-                  <SelectItem value="Divorced">Divorced</SelectItem>
-                  <SelectItem value="Separated">Separated</SelectItem>
-                </SelectContent>
-              </Select>
-              <div className="min-h-[20px] text-sm">
-                <FormMessage />
-              </div>
-            </FormItem>
-          )}
-        />
+                <div className="min-h-[20px] text-sm">
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={control}
+            name="civilStatus"
+            render={({ field }) => (
+              <FormItem className="space-y-2">
+                <FormLabel className="flex items-center gap-1.5 text-sm font-medium">
+                  Civil Status
+                  <span className="text-red-500">*</span>
+                </FormLabel>
+                <Select
+                  onValueChange={field.onChange}
+                  value={field.value}
+                >
+                  <FormControl>
+                    <SelectTrigger className="h-10 w-full">
+                      <SelectValue placeholder="Select civil status" />
+                    </SelectTrigger>
+                  </FormControl>
+                  <SelectContent>
+                    <SelectItem value="Single">Single</SelectItem>
+                    <SelectItem value="Married">Married</SelectItem>
+                    <SelectItem value="Widowed">Widowed</SelectItem>
+                    <SelectItem value="Divorced">Divorced</SelectItem>
+                    <SelectItem value="Separated">Separated</SelectItem>
+                  </SelectContent>
+                </Select>
+                <div className="min-h-[20px] text-sm">
+                  <FormMessage />
+                </div>
+              </FormItem>
+            )}
+          />
+        </div>
       </div>
     </div>
   );
