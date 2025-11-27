@@ -11,12 +11,6 @@ import { IconCircleCheckFilled, IconX } from "@tabler/icons-react";
 import { Badge } from "@/components/ui/badge";
 import { DocumentActionsCell } from "./DocumentActionsCell";
 
-function formatCurrency(amount: number): string {
-  return new Intl.NumberFormat("en-PH", {
-    style: "currency",
-    currency: "PHP",
-  }).format(amount);
-}
 
 function formatDate(dateString: string): string {
   return new Date(dateString).toLocaleDateString("en-US", {

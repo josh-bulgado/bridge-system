@@ -36,16 +36,24 @@ interface ResidentDataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
   isLoading: boolean;
+  initialStatusFilter?: string;
 }
 
 export function ResidentDataTable<TData, TValue>({
   columns,
   data,
   isLoading,
+  initialStatusFilter = "all",
 }: ResidentDataTableProps<TData, TValue>) {
   const [rowSelection, setRowSelection] = useState({});
   const [columnVisibility, setColumnVisibility] = useState<VisibilityState>({});
-  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>([]);
+  
+  // Set initial filter based on URL parameter
+  const [columnFilters, setColumnFilters] = useState<ColumnFiltersState>(
+    initialStatusFilter !== "all" 
+      ? [{ id: "residentVerificationStatus", value: initialStatusFilter }]
+      : []
+  );
   const [sorting, setSorting] = useState<SortingState>([]);
   const [pagination, setPagination] = useState({
     pageIndex: 0,
