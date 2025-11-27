@@ -30,6 +30,7 @@ builder.Services.AddSingleton<StaffService>();
 builder.Services.AddSingleton<DocumentRequestService>();
 builder.Services.AddSingleton<DocumentTemplateService>();
 builder.Services.AddSingleton<DocumentGenerationService>();
+builder.Services.AddSingleton<DashboardService>();
 
 // Notification service
 builder.Services.AddSingleton<INotificationService, NotificationService>();
