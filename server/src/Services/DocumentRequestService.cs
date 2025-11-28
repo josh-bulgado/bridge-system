@@ -3,6 +3,7 @@ using server.Models;
 using server.DTOs.DocumentRequests;
 using Microsoft.Extensions.Options;
 using server.src.Services;
+using server.Services.PaymentMethodLogic;
 
 namespace server.Services;
 
@@ -268,6 +269,9 @@ Thank you!"
 
         await _documentRequests.UpdateOneAsync(r => r.Id == id, update);
 
+        // Broadcast update to all staff/admin for real-time refresh
+        await _notificationService.BroadcastDocumentRequestUpdate(id);
+
         // Send email notification
         var resident = await _residents.Find(r => r.Id == request.ResidentId).FirstOrDefaultAsync();
         var user = await _users.Find(u => u.ResidentId == request.ResidentId).FirstOrDefaultAsync();
@@ -376,6 +380,9 @@ Thank you!";
 
         await _documentRequests.UpdateOneAsync(r => r.Id == id, update);
 
+        // Broadcast update to all staff/admin for real-time refresh
+        await _notificationService.BroadcastDocumentRequestUpdate(id);
+
         // Send email notification
         var resident = await _residents.Find(r => r.Id == request.ResidentId).FirstOrDefaultAsync();
         var user = await _users.Find(u => u.ResidentId == request.ResidentId).FirstOrDefaultAsync();
@@ -421,20 +428,36 @@ Thank you!"
             throw new Exception("Request not found");
         }
 
+        // Use organized payment method logic to determine new status
+        var newStatus = PaymentMethodValidatorFactory.GetStatusAfterPaymentVerification(
+            request.PaymentMethod,
+            request.Amount,
+            request.Status
+        );
+        
+        var statusHistoryName = PaymentMethodValidatorFactory.GetPaymentVerificationStatusHistoryName(
+            request.PaymentMethod,
+            request.Amount,
+            request.Status
+        );
+
         var update = Builders<DocumentRequest>.Update
-            .Set(r => r.Status, "payment_verified")
+            .Set(r => r.Status, newStatus)
             .Set(r => r.PaymentVerifiedBy, verifiedById)
             .Set(r => r.PaymentVerifiedAt, DateTime.UtcNow)
             .Set(r => r.UpdatedAt, DateTime.UtcNow)
             .Push(r => r.StatusHistory, new StatusHistory
             {
-                Status = "payment_verified",
+                Status = statusHistoryName,
                 ChangedBy = verifiedById,
                 ChangedAt = DateTime.UtcNow,
                 Notes = dto.Notes
             });
 
         await _documentRequests.UpdateOneAsync(r => r.Id == id, update);
+
+        // Broadcast update to all staff/admin for real-time refresh
+        await _notificationService.BroadcastDocumentRequestUpdate(id);
 
         // Send email notification
         var resident = await _residents.Find(r => r.Id == request.ResidentId).FirstOrDefaultAsync();

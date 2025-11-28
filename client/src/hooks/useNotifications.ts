@@ -1,10 +1,9 @@
 import { useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { startConnection, stopConnection, getConnection } from '@/lib/signalr';
+import { startConnection, getConnection } from '@/lib/signalr';
 import type { RealtimeNotification } from '@/types/notification';
-import * as signalR from '@microsoft/signalr';
-import { CACHE_INVALIDATION, QUERY_KEYS } from '@/lib/cache-config';
+import { CACHE_INVALIDATION } from '@/lib/cache-config';
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
@@ -70,6 +69,15 @@ export const useNotifications = () => {
     }
   }, [queryClient]);
 
+  // Handle real-time document request updates (no toast, just refresh data)
+  const handleDocumentRequestUpdate = useCallback((data: { requestId: string; timestamp: Date }) => {
+    console.log('Document request updated:', data.requestId);
+    // Silently invalidate all document request queries to refresh the UI
+    queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.documentRequests() });
+    // Also invalidate stats to update dashboard counts
+    queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.stats() });
+  }, [queryClient]);
+
   useEffect(() => {
     const accessToken = localStorage.getItem('auth_token') || sessionStorage.getItem('auth_token');
     
@@ -85,6 +93,7 @@ export const useNotifications = () => {
         
         if (connection && isMounted) {
           connection.on('ReceiveNotification', handleNotification);
+          connection.on('DocumentRequestUpdated', handleDocumentRequestUpdate);
 
           // Handle reconnecting state
           connection.onreconnecting(() => {
@@ -129,9 +138,10 @@ export const useNotifications = () => {
       const connection = getConnection();
       if (connection) {
         connection.off('ReceiveNotification', handleNotification);
+        connection.off('DocumentRequestUpdated', handleDocumentRequestUpdate);
       }
       // Don't stop connection on unmount - keep it alive for the session
       // stopConnection();
     };
-  }, [handleNotification]);
+  }, [handleNotification, handleDocumentRequestUpdate]);
 };

@@ -26,11 +26,11 @@ export const useStaffDashboard = () => {
     return documentRequests.map(req => ({
       id: req.id,
       trackingNumber: req.trackingNumber,
-      documentType: req.documentType,
+      documentType: req.documentType as 'Barangay Clearance' | 'Certificate of Residency' | 'Certificate of Indigency',
       residentName: req.residentName || 'Unknown Resident',
       purpose: req.purpose,
       amount: req.amount,
-      status: req.status,
+      status: req.status as 'pending' | 'approved' | 'payment_pending' | 'ready_for_generation',
       submittedAt: new Date(req.submittedAt || req.createdAt),
     }));
   }, [documentRequests]);

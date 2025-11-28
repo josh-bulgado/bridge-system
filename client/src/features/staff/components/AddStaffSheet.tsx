@@ -154,7 +154,7 @@ export function AddStaffSheet() {
               />
 
               {/* Role */}
-              <FormField
+              <FormField<AddStaffFormValues>
                 control={form.control}
                 name="role"
                 render={({ field }) => (

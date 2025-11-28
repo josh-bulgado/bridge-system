@@ -29,12 +29,15 @@ export const startConnection = async (accessToken: string) => {
     .build();
 
   connection.onreconnecting(() => {
+    // Reconnecting in progress
   });
 
   connection.onreconnected(() => {
+    // Reconnected successfully
   });
 
-  connection.onclose((error) => {
+  connection.onclose(() => {
+    // Connection closed
   });
 
   try {

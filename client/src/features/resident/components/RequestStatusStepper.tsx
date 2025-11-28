@@ -118,6 +118,24 @@ export function RequestStatusStepper({
     effectiveStatus = "approved";
   }
   
+  // For Cash on Pickup (walk-in), after payment is verified, status stays as "approved" but paymentVerifiedAt is set
+  // We need to map this to show the "payment_verified" step as current or completed
+  if (paymentMethod === "walkin" && currentStatus === "approved" && paymentVerifiedAt) {
+    // Payment has been verified - show as "payment_verified" step
+    effectiveStatus = "payment_verified";
+    console.log('=== RequestStatusStepper: Cash on Pickup Payment Verified ===');
+    console.log('Original Status:', currentStatus);
+    console.log('Effective Status:', effectiveStatus);
+    console.log('paymentVerifiedAt:', paymentVerifiedAt);
+    console.log('=========================================================');
+  } else if (paymentMethod === "walkin" && currentStatus === "approved" && !paymentVerifiedAt) {
+    console.log('=== RequestStatusStepper: Cash on Pickup Awaiting Payment ===');
+    console.log('Status:', currentStatus);
+    console.log('paymentVerifiedAt:', paymentVerifiedAt);
+    console.log('Payment NOT verified yet');
+    console.log('=========================================================');
+  }
+  
   const currentIndex = statusOrder.indexOf(effectiveStatus);
 
   const steps: Step[] = statusOrder.map((status, index) => {

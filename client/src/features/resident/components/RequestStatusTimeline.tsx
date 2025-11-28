@@ -7,6 +7,7 @@ import {
   CircleCheck,
   XCircle,
   Circle,
+  Banknote,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -63,6 +64,11 @@ const getStatusConfig = (status: string, documentFormat?: "hardcopy" | "softcopy
       icon: CheckCircle2,
       color: "bg-sky-500",
       label: "Payment Verified",
+    },
+    payment_received: {
+      icon: Banknote,
+      color: "bg-green-500",
+      label: "Payment Received",
     },
     ready_for_generation: {
       icon: Settings,
@@ -138,6 +144,9 @@ export function RequestStatusTimeline({
               break;
             case "payment_verified":
               description = "Your payment has been verified";
+              break;
+            case "payment_received":
+              description = "Payment received - cash payment collected";
               break;
             case "ready_for_generation":
               description =

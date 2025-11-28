@@ -22,6 +22,9 @@ public interface INotificationService
     Task NotifyDocumentRequestStatusChanged(string userId, string requestId, string status, string documentType);
     Task NotifyVerificationStatusChanged(string userId, string status, string? reason = null);
     Task NotifyPaymentReceived(string userId, string requestId, decimal amount);
+    
+    // Real-time update methods
+    Task BroadcastDocumentRequestUpdate(string requestId);
 }
 
 public class NotificationService : INotificationService
@@ -301,5 +304,25 @@ public class NotificationService : INotificationService
             requestId,
             $"/resident/requests/{requestId}"
         );
+    }
+
+    /// <summary>
+    /// Broadcast document request update to all staff and admin users
+    /// This ensures real-time updates when any user modifies a document request
+    /// </summary>
+    public async Task BroadcastDocumentRequestUpdate(string requestId)
+    {
+        // Broadcast to staff and admin roles so they see updates in real-time
+        await _hubContext.Clients.Group("role_staff").SendAsync("DocumentRequestUpdated", new
+        {
+            requestId = requestId,
+            timestamp = DateTime.UtcNow
+        });
+        
+        await _hubContext.Clients.Group("role_admin").SendAsync("DocumentRequestUpdated", new
+        {
+            requestId = requestId,
+            timestamp = DateTime.UtcNow
+        });
     }
 }

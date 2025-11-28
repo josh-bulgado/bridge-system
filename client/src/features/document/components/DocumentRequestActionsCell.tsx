@@ -22,9 +22,15 @@ import {
   useMarkReadyForPickup,
   useFetchDocumentRequestById,
 } from "../hooks";
+import {
+  canReviewDocuments as canReviewDocumentsUtil,
+  canGenerateDocument,
+  getPaymentMethodChecks,
+  getInitialTab,
+} from "../utils";
 import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
 import { DocumentGenerationModal } from "./DocumentGenerationModal";
-import { DocumentRequestDetailsDialog } from "./DocumentRequestDetailsDialog";
+import { RequestDetailsDialogContainer } from "./request-details";
 import { GeneratedDocumentViewer } from "./GeneratedDocumentViewer";
 import { ApprovePaymentDialog } from "./dialogs/ApprovePaymentDialog";
 import { RejectPaymentDialog } from "./dialogs/RejectPaymentDialog";
@@ -82,32 +88,11 @@ export function DocumentRequestActionsCell({
     completeMutation.isPending ||
     markReadyForPickupMutation.isPending;
 
-  // Determine verification status (use current request data)
-  const isPaymentVerified =
-    currentRequest.paymentVerifiedAt !== undefined &&
-    currentRequest.paymentVerifiedAt !== null;
-  const isWalkinPayment = currentRequest.paymentMethod === "walkin";
-  const isFreeDocument = currentRequest.amount === 0;
-  const isOnlinePayment = currentRequest.paymentMethod === "online";
-  
-  // For walk-in/cash on pickup: Can review documents immediately when pending (not yet reviewed)
-  // For free documents: Can review immediately when pending (not yet reviewed)
-  // For online payment (GCash): Can review documents when status is "payment_verified" AND not yet reviewed
-  const canReviewDocuments = 
-    (isFreeDocument && currentRequest.status === "pending" && !currentRequest.reviewedAt) || 
-    (isWalkinPayment && currentRequest.status === "pending" && !currentRequest.reviewedAt) ||
-    (isOnlinePayment && currentRequest.status === "payment_verified" && !currentRequest.reviewedAt);
-
-  // Check if document can be generated
-  // For free documents: Allow generation when status is "approved" (documents approved, no payment needed)
-  // For GCash/online payments: Allow generation when status is "payment_verified" AND documents are reviewed (both payment and documents approved)
-  // For walk-in payments: Allow generation when status is "approved" AND payment is verified (documents approved, resident came and paid)
-  // Also allow if already in "processing" state
-  const canGenerate =
-    (isFreeDocument && currentRequest.status === "approved") ||
-    (isOnlinePayment && currentRequest.status === "payment_verified" && currentRequest.reviewedAt !== null && currentRequest.reviewedAt !== undefined) ||
-    (isWalkinPayment && currentRequest.status === "approved" && isPaymentVerified) ||
-    currentRequest.status === "processing";
+  // Use organized payment method logic
+  const canReviewDocuments = canReviewDocumentsUtil(currentRequest);
+  const canGenerate = canGenerateDocument(currentRequest);
+  const { isWalkinPayment, isFreeDocument, isOnlinePayment, isPaymentVerified } = 
+    getPaymentMethodChecks(currentRequest);
 
   // Debug logging
   React.useEffect(() => {
@@ -126,7 +111,25 @@ export function DocumentRequestActionsCell({
       console.log('  - reviewedAt !== undefined:', currentRequest.reviewedAt !== undefined);
       console.log('===================================');
     }
-  }, [currentRequest.id, currentRequest.status, currentRequest.reviewedAt, currentRequest.paymentVerifiedAt, isOnlinePayment, canGenerate]);
+    
+    if (isWalkinPayment) {
+      console.log('=== Cash on Pickup Debug ===');
+      console.log('Request ID:', currentRequest.id);
+      console.log('Status:', currentRequest.status);
+      console.log('Payment Method:', currentRequest.paymentMethod);
+      console.log('reviewedAt:', currentRequest.reviewedAt);
+      console.log('paymentVerifiedAt:', currentRequest.paymentVerifiedAt);
+      console.log('isWalkinPayment:', isWalkinPayment);
+      console.log('isPaymentVerified:', isPaymentVerified);
+      console.log('canGenerate:', canGenerate);
+      console.log('Condition Check:');
+      console.log('  - status === "approved":', currentRequest.status === "approved");
+      console.log('  - paymentVerifiedAt !== null:', currentRequest.paymentVerifiedAt !== null);
+      console.log('  - paymentVerifiedAt !== undefined:', currentRequest.paymentVerifiedAt !== undefined);
+      console.log('  - isPaymentVerified:', isPaymentVerified);
+      console.log('===================================');
+    }
+  }, [currentRequest.id, currentRequest.status, currentRequest.reviewedAt, currentRequest.paymentVerifiedAt, isOnlinePayment, isWalkinPayment, isPaymentVerified, canGenerate]);
 
   // Check if generated document is available
   const hasGeneratedDocument =
@@ -145,20 +148,8 @@ export function DocumentRequestActionsCell({
 
   // Reset tab when dialog opens
   const handleViewDetails = () => {
-    // For free documents, go straight to documents tab
-    // For paid documents (online or walk-in), start with appropriate tab based on status
-    if (isFreeDocument) {
-      setActiveTab("documents");
-    } else if (currentRequest.status === "pending") {
-      // Pending status: show payment tab for online, documents tab for walk-in
-      setActiveTab(isWalkinPayment ? "documents" : "payment");
-    } else if (currentRequest.status === "approved" && !isPaymentVerified) {
-      // Approved but payment not verified: show payment tab
-      setActiveTab("payment");
-    } else {
-      // Payment verified or other statuses: show documents tab
-      setActiveTab("documents");
-    }
+    const initialTab = getInitialTab(currentRequest);
+    setActiveTab(initialTab);
     setViewDetailsOpen(true);
   };
 
@@ -177,16 +168,17 @@ export function DocumentRequestActionsCell({
   };
 
   // Payment verification handlers
-  const confirmApprovePayment = () => {
+  const confirmApprovePayment = async () => {
     verifyPaymentMutation.mutate(
       { id: request.id, data: { notes } },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           setApprovePaymentDialogOpen(false);
           setNotes("");
-          setActiveTab("documents");
           // Force refetch to get updated data immediately
-          setTimeout(() => refetchRequest(), 100);
+          await refetchRequest();
+          // Switch to documents tab after data is refreshed
+          setActiveTab("documents");
         },
       },
     );
@@ -209,16 +201,16 @@ export function DocumentRequestActionsCell({
   };
 
   // Document approval handlers
-  const confirmApproveDocument = () => {
+  const confirmApproveDocument = async () => {
     approveMutation.mutate(
       { id: request.id, data: { notes } },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           setApproveDocumentDialogOpen(false);
           setNotes("");
           // Don't close the details dialog immediately - let user see the generate button appear
           // Force refetch to get updated data immediately
-          setTimeout(() => refetchRequest(), 100);
+          await refetchRequest();
         },
       },
     );
@@ -241,27 +233,26 @@ export function DocumentRequestActionsCell({
   };
 
   // Mark as ready for pickup handler
-  const handleMarkReadyForPickup = () => {
+  const handleMarkReadyForPickup = async () => {
     markReadyForPickupMutation.mutate(request.id, {
-      onSuccess: () => {
+      onSuccess: async () => {
         // Refetch to update the button visibility immediately
-        refetchRequest();
+        await refetchRequest();
       },
     });
   };
 
   // Complete request handler
-  const confirmCompleteRequest = () => {
+  const confirmCompleteRequest = async () => {
     completeMutation.mutate(
       { id: request.id, data: { notes } },
       {
-        onSuccess: () => {
+        onSuccess: async () => {
           setCompleteDialogOpen(false);
           setNotes("");
           // Refetch to update the status immediately, then close the dialog
-          refetchRequest().then(() => {
-            setViewDetailsOpen(false);
-          });
+          await refetchRequest();
+          setViewDetailsOpen(false);
         },
       },
     );
@@ -356,8 +347,8 @@ export function DocumentRequestActionsCell({
         </div>
       </TooltipProvider>
 
-      {/* View Details Dialog */}
-      <DocumentRequestDetailsDialog
+      {/* View Details Dialog - Uses payment method-specific dialogs */}
+      <RequestDetailsDialogContainer
         open={viewDetailsOpen}
         onOpenChange={setViewDetailsOpen}
         request={currentRequest}

@@ -1,6 +1,7 @@
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Authorization;
 using server.Services;
+using server.Services.PaymentMethodLogic;
 using server.DTOs.DocumentRequests;
 using System.Security.Claims;
 
@@ -421,24 +422,26 @@ public class DocumentRequestController : ControllerBase
                 return NotFound(new { message = "Document request not found" });
             }
 
-            // Check if request is in a state that allows generation
-            // For paid documents: Require payment_verified or processing status
-            // For free documents: Allow generation from approved status
-            var isFreeDocument = request.Amount == 0;
+            // Use organized payment method logic to validate generation
+            var isPaymentVerified = request.PaymentVerifiedAt.HasValue;
+            var isDocumentReviewed = request.ReviewedAt.HasValue;
+            
             var canGenerate = request.Status == "processing" || 
-                             (isFreeDocument && request.Status == "approved") ||
-                             (!isFreeDocument && request.Status == "payment_verified");
+                             PaymentMethodValidatorFactory.CanGenerateDocument(
+                                 request.PaymentMethod,
+                                 request.Amount,
+                                 request.Status,
+                                 isPaymentVerified,
+                                 isDocumentReviewed
+                             );
             
             if (!canGenerate)
             {
-                if (isFreeDocument)
-                {
-                    return BadRequest(new { message = "Free document requests must be in 'approved' or 'processing' status to generate document" });
-                }
-                else
-                {
-                    return BadRequest(new { message = "Paid document requests must be in 'payment_verified' or 'processing' status to generate document. Please verify payment first." });
-                }
+                var errorMessage = PaymentMethodValidatorFactory.GetCannotGenerateErrorMessage(
+                    request.PaymentMethod,
+                    request.Amount
+                );
+                return BadRequest(new { message = errorMessage });
             }
 
             var previewData = await _documentGenerationService.GeneratePreviewDataAsync(id);
@@ -479,24 +482,26 @@ public class DocumentRequestController : ControllerBase
                 return NotFound(new { message = "Document request not found" });
             }
 
-            // Check if request is in a state that allows generation
-            // For paid documents: Require payment_verified or processing status
-            // For free documents: Allow generation from approved status
-            var isFreeDocument = documentRequest.Amount == 0;
+            // Use organized payment method logic to validate generation
+            var isPaymentVerified = documentRequest.PaymentVerifiedAt.HasValue;
+            var isDocumentReviewed = documentRequest.ReviewedAt.HasValue;
+            
             var canGenerate = documentRequest.Status == "processing" || 
-                             (isFreeDocument && documentRequest.Status == "approved") ||
-                             (!isFreeDocument && documentRequest.Status == "payment_verified");
+                             PaymentMethodValidatorFactory.CanGenerateDocument(
+                                 documentRequest.PaymentMethod,
+                                 documentRequest.Amount,
+                                 documentRequest.Status,
+                                 isPaymentVerified,
+                                 isDocumentReviewed
+                             );
             
             if (!canGenerate)
             {
-                if (isFreeDocument)
-                {
-                    return BadRequest(new { message = "Free document requests must be in 'approved' or 'processing' status to generate document" });
-                }
-                else
-                {
-                    return BadRequest(new { message = "Paid document requests must be in 'payment_verified' or 'processing' status to generate document. Please verify payment first." });
-                }
+                var errorMessage = PaymentMethodValidatorFactory.GetCannotGenerateErrorMessage(
+                    documentRequest.PaymentMethod,
+                    documentRequest.Amount
+                );
+                return BadRequest(new { message = errorMessage });
             }
 
             var userId = GetCurrentUserId();

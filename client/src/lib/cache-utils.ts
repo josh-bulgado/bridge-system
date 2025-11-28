@@ -25,7 +25,7 @@ export async function clearFeatureCache(
   queryClient: QueryClient,
   feature: 'residents' | 'documentRequests' | 'documents' | 'stats'
 ): Promise<void> {
-  const invalidationKey = CACHE_INVALIDATION[feature]();
+  const invalidationKey = CACHE_INVALIDATION[feature]() as readonly string[] | readonly [];
   await queryClient.invalidateQueries({ queryKey: invalidationKey });
 }
 

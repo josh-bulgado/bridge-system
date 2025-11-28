@@ -55,30 +55,28 @@ export function OrderSummary({ selectedDocument, paymentMethod, documentFormat }
                 <span className="font-medium">{selectedDocument.processingTime}</span>
               </div>
 
+              {/* Document Format - Show for all documents when format is selected */}
+              {documentFormat && (
+                <div className="flex items-center gap-2.5 text-sm">
+                  <IconFileText className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Format:</span>
+                  <Badge variant="secondary" className="font-medium">
+                    {documentFormat === "hardcopy" 
+                      ? "Hard Copy (Pick up)" 
+                      : "Soft Copy (PDF)"}
+                  </Badge>
+                </div>
+              )}
+
               {/* Payment Method - Only show if not free */}
               {!isFree && (
-                <>
-                  <div className="flex items-center gap-2.5 text-sm">
-                    <IconCreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
-                    <span className="text-muted-foreground">Payment:</span>
-                    <Badge variant="outline" className="font-medium">
-                      {paymentMethod === "online" ? "GCash" : "Cash on Pickup"}
-                    </Badge>
-                  </div>
-                  
-                  {/* Document Format - Only show if GCash is selected and format is chosen */}
-                  {paymentMethod === "online" && documentFormat && (
-                    <div className="flex items-center gap-2.5 text-sm pl-6">
-                      <IconFileText className="h-4 w-4 text-muted-foreground shrink-0" />
-                      <span className="text-muted-foreground">Format:</span>
-                      <Badge variant="secondary" className="font-medium">
-                        {documentFormat === "hardcopy" 
-                          ? "Hard Copy (Pick up)" 
-                          : "Soft Copy (PDF)"}
-                      </Badge>
-                    </div>
-                  )}
-                </>
+                <div className="flex items-center gap-2.5 text-sm">
+                  <IconCreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
+                  <span className="text-muted-foreground">Payment:</span>
+                  <Badge variant="outline" className="font-medium">
+                    {paymentMethod === "online" ? "GCash" : "Cash on Pickup"}
+                  </Badge>
+                </div>
               )}
             </div>
 

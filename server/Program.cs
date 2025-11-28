@@ -153,11 +153,15 @@ builder.Services.AddAuthorization();
 builder.Services.AddHostedService<AccountCleanupService>();
 
 // Configure Kestrel to listen on the PORT environment variable (for Render/Docker)
-var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
-builder.WebHost.ConfigureKestrel(options =>
+// In Development, use launchSettings.json. In Production, use PORT env variable
+if (!builder.Environment.IsDevelopment())
 {
-    options.ListenAnyIP(int.Parse(port));
-});
+    var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+    builder.WebHost.ConfigureKestrel(options =>
+    {
+        options.ListenAnyIP(int.Parse(port));
+    });
+}
 
 var app = builder.Build();
 

@@ -10,20 +10,33 @@ namespace server.Services
     private readonly string _apiKey;
     private readonly string _fromEmail;
     private readonly string _fromName;
+    private readonly bool _emailEnabled;
 
     public EmailService(IConfiguration configuration, IHttpClientFactory httpClientFactory)
     {
+      // ✅ EMAIL ENABLED: Using new Resend API key account
+      _emailEnabled = configuration.GetValue<bool>("EMAIL_ENABLED", true);
+      
       _apiKey = configuration["RESEND_API_KEY"] ?? throw new ArgumentNullException("RESEND_API_KEY is not configured.");
       _fromEmail = configuration["RESEND_FROM_EMAIL"] ?? "onboarding@resend.dev";
       _fromName = configuration["RESEND_FROM_NAME"] ?? "Bridge System";
 
       _httpClient = httpClientFactory.CreateClient();
-      _httpClient.BaseAddress = new Uri("https://api.resend.com/");
-      _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+      if (_emailEnabled)
+      {
+        _httpClient.BaseAddress = new Uri("https://api.resend.com/");
+        _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", _apiKey);
+      }
     }
 
     public async Task<bool> SendVerificationEmailAsync(string toEmail, string otp)
     {
+      if (!_emailEnabled)
+      {
+        Console.WriteLine($"[EMAIL DISABLED] Verification email to {toEmail} with OTP {otp} - NOT SENT");
+        return true;
+      }
+
       try
       {
         var emailData = new
@@ -224,6 +237,12 @@ namespace server.Services
 
     public async Task<bool> SendPasswordResetEmailAsync(string toEmail, string otp)
     {
+      if (!_emailEnabled)
+      {
+        Console.WriteLine($"[EMAIL DISABLED] Password reset email to {toEmail} with OTP {otp} - NOT SENT");
+        return true;
+      }
+
       try
       {
         var emailData = new
@@ -290,6 +309,12 @@ namespace server.Services
     // Generic email sending method for reminders and notifications
     public async Task<bool> SendEmailAsync(string toEmail, string subject, string htmlBody)
     {
+      if (!_emailEnabled)
+      {
+        Console.WriteLine($"[EMAIL DISABLED] Email to {toEmail} with subject '{subject}' - NOT SENT");
+        return true;
+      }
+
       try
       {
         var emailData = new

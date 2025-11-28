@@ -73,6 +73,17 @@ const formSchema = z
       message: "Please select a document format",
       path: ["documentFormat"],
     },
+  )
+  .refine(
+    (data) => {
+      // Require document format for free documents as well
+      // We'll check this in the component logic based on isFreeDocument
+      return true; // Will be validated in component
+    },
+    {
+      message: "Please select a document format",
+      path: ["documentFormat"],
+    },
   );
 
 type FormValues = z.infer<typeof formSchema>;
@@ -207,6 +218,19 @@ export function DocumentRequestForm({
         });
         return;
       }
+    }
+
+    // Validate document format for free documents
+    if (isFreeDocument && !values.documentFormat) {
+      toast.error("Document format required", {
+        description:
+          "Please select whether you want a hard copy or soft copy.",
+      });
+      form.setError("documentFormat", {
+        type: "manual",
+        message: "Please select a document format",
+      });
+      return;
     }
 
     // For GCash payment, open the payment dialog
@@ -455,6 +479,47 @@ export function DocumentRequestForm({
                 </>
               )}
 
+              {/* Document Format - Show for free documents */}
+              {isFreeDocument && (
+                <>
+                  <Separator className="my-8" />
+
+                  <FormField
+                    control={form.control}
+                    name="documentFormat"
+                    render={({ field }) => (
+                      <FormItem className="space-y-4">
+                        <FormLabel className="text-base font-semibold">Document Format *</FormLabel>
+                        <FormControl>
+                          <RadioGroup
+                            onValueChange={field.onChange}
+                            value={field.value}
+                            className="flex flex-col space-y-3"
+                          >
+                            <div className="flex items-center space-x-3 space-y-0">
+                              <RadioGroupItem value="hardcopy" id="hardcopy-free" />
+                              <Label className="font-normal cursor-pointer" htmlFor="hardcopy-free">
+                                Hard Copy (To be picked up at Barangay Hall)
+                              </Label>
+                            </div>
+                            <div className="flex items-center space-x-3 space-y-0">
+                              <RadioGroupItem value="softcopy" id="softcopy-free" />
+                              <Label className="font-normal cursor-pointer" htmlFor="softcopy-free">
+                                Soft Copy (PDF - Digital delivery)
+                              </Label>
+                            </div>
+                          </RadioGroup>
+                        </FormControl>
+                        <FormDescription className="text-sm">
+                          Choose how you want to receive your document
+                        </FormDescription>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </>
+              )}
+
               {!isFreeDocument && (
                 <>
                   <Separator className="my-8" />
@@ -541,7 +606,8 @@ export function DocumentRequestForm({
                 disabled={
                   isPending ||
                   !form.watch("purpose") ||
-                  needsSupportingDocs
+                  needsSupportingDocs ||
+                  (isFreeDocument && !documentFormat)
                 }
                 className="min-w-[180px]"
               >

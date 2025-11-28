@@ -14,8 +14,8 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, Clock, XCircle } from "lucide-react";
 import { DocumentRequestInfoCard } from "./DocumentRequestInfoCard";
-import { PaymentVerificationTab } from "./PaymentVerificationTab";
-import { SupportingDocumentsTab } from "./SupportingDocumentsTab";
+import { PaymentTabContainer } from "./payment-tabs";
+import { DocumentsTabContainer } from "./document-tabs";
 import type { DocumentRequest } from "../types/documentRequest";
 
 interface DocumentRequestDetailsDialogProps {
@@ -173,20 +173,20 @@ export function DocumentRequestDetailsDialog({
             {showPaymentTab ? (
               <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-muted/50">
                 <TabsTrigger 
-                  value="payment"
-                  className="data-[state=active]:bg-background data-[state=active]:shadow-sm py-3 gap-2 text-sm font-medium transition-all"
-                >
-                  {getTabTriggerIcon(request.status, "payment")}
-                  <span>Payment Verification</span>
-                  {getTabTriggerBadge(request.status, "payment")}
-                </TabsTrigger>
-                <TabsTrigger 
                   value="documents"
                   className="data-[state=active]:bg-background data-[state=active]:shadow-sm py-3 gap-2 text-sm font-medium transition-all"
                 >
                   {getTabTriggerIcon(request.status, "documents")}
                   <span>Supporting Documents</span>
                   {getTabTriggerBadge(request.status, "documents")}
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="payment"
+                  className="data-[state=active]:bg-background data-[state=active]:shadow-sm py-3 gap-2 text-sm font-medium transition-all"
+                >
+                  {getTabTriggerIcon(request.status, "payment")}
+                  <span>Payment Verification</span>
+                  {getTabTriggerBadge(request.status, "payment")}
                 </TabsTrigger>
               </TabsList>
             ) : (
@@ -202,23 +202,9 @@ export function DocumentRequestDetailsDialog({
               </TabsList>
             )}
 
-            {/* Tab 1: Payment Verification - Only for paid documents with online payment */}
-            {showPaymentTab && (
-              <TabsContent value="payment">
-                <PaymentVerificationTab
-                  request={request}
-                  isPaymentVerified={isPaymentVerified}
-                  isProcessing={isProcessing}
-                  onApprovePayment={onApprovePayment}
-                  onRejectPayment={onRejectPayment}
-                  onImagePreview={onImagePreview}
-                />
-              </TabsContent>
-            )}
-
-            {/* Tab 2: Supporting Documents */}
+            {/* Tab 1: Supporting Documents */}
             <TabsContent value="documents">
-              <SupportingDocumentsTab
+              <DocumentsTabContainer
                 request={request}
                 canReviewDocuments={canReviewDocuments}
                 canGenerate={canGenerate}
@@ -229,6 +215,20 @@ export function DocumentRequestDetailsDialog({
                 onImagePreview={onImagePreview}
               />
             </TabsContent>
+
+            {/* Tab 2: Payment Verification - Only for paid documents */}
+            {showPaymentTab && (
+              <TabsContent value="payment">
+                <PaymentTabContainer
+                  request={request}
+                  isPaymentVerified={isPaymentVerified}
+                  isProcessing={isProcessing}
+                  onApprovePayment={onApprovePayment}
+                  onRejectPayment={onRejectPayment}
+                  onImagePreview={onImagePreview}
+                />
+              </TabsContent>
+            )}
           </Tabs>
         </div>
       </DialogContent>
