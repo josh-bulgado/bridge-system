@@ -162,7 +162,7 @@ const StaffDashboard = () => {
               </div>
             </div>
             <Button
-              onClick={() => handleStatClick("pending")}
+              onClick={() => navigate("/staff/doc-requests")}
               className="bg-amber-600 hover:bg-amber-700 text-white border-0 shrink-0 dark:bg-amber-600 dark:hover:bg-amber-700"
             >
               Review Now
