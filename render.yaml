@@ -1,0 +1,37 @@
+services:
+  - type: web
+    name: bridge-system-api
+    runtime: docker
+    env: docker
+    region: singapore
+    plan: free
+    healthCheckPath: /health
+    dockerfilePath: ./server/Dockerfile
+    dockerContext: ./server
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      - key: ASPNETCORE_URLS
+        value: http://0.0.0.0:8080
+      - key: PORT
+        value: 8080
+      - key: JWT_KEY
+        sync: false
+      - key: MONGODB_URI
+        sync: false
+      - key: RESEND_API_KEY
+        sync: false
+      - key: RESEND_FROM_EMAIL
+        value: noreply@bridgesystem.abrdns.com
+      - key: RESEND_FROM_NAME
+        value: Bridge System
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: CLOUDINARY_CLOUD_NAME
+        sync: false
+      - key: CLOUDINARY_API_KEY
+        sync: false
+      - key: CLOUDINARY_API_SECRET
+        sync: false
+      - key: ALLOWED_ORIGINS
+        value: https://bridge-system.vercel.app,http://localhost:5173

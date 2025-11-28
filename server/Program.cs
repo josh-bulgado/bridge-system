@@ -83,17 +83,16 @@ builder.Services.AddSwaggerGen(options =>
 builder.Services.AddSignalR();
 
 
-// CORS - Allow multiple local development ports with security headers
+// CORS - Allow origins from environment variable (supports production + development)
+var allowedOriginsString = Environment.GetEnvironmentVariable("ALLOWED_ORIGINS") 
+    ?? "http://localhost:5173,http://localhost:5174,http://localhost:5175,http://localhost:5176";
+var allowedOrigins = allowedOriginsString.Split(',', StringSplitOptions.RemoveEmptyEntries);
+
 builder.Services.AddCors(options =>
 {
     options.AddPolicy("_myAllowSpecificOrigins", policy =>
     {
-        policy.WithOrigins(
-                "http://localhost:5173",
-                "http://localhost:5174",
-                "http://localhost:5175",
-                "http://localhost:5176"
-              )
+        policy.WithOrigins(allowedOrigins)
               .AllowAnyHeader()
               .AllowAnyMethod()
               .AllowCredentials()
@@ -153,6 +152,13 @@ builder.Services.AddAuthorization();
 // Register background services
 builder.Services.AddHostedService<AccountCleanupService>();
 
+// Configure Kestrel to listen on the PORT environment variable (for Render/Docker)
+var port = Environment.GetEnvironmentVariable("PORT") ?? "8080";
+builder.WebHost.ConfigureKestrel(options =>
+{
+    options.ListenAnyIP(int.Parse(port));
+});
+
 var app = builder.Build();
 
 // Security Headers Middleware
@@ -173,14 +179,17 @@ app.Use(async (context, next) =>
     // 🔒 Cross-Origin-Opener-Policy: Allow Google OAuth popup to work
     context.Response.Headers["Cross-Origin-Opener-Policy"] = "same-origin-allow-popups";
 
-    // Content Security Policy
+    // Content Security Policy - Dynamic for production
+    var frontendUrl = Environment.GetEnvironmentVariable("FRONTEND_URL") ?? "http://localhost:5173";
+    var currentHost = context.Request.Host.ToString();
+    
     context.Response.Headers["Content-Security-Policy"] =
         "default-src 'self'; " +
         "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://accounts.google.com; " +
         "style-src 'self' 'unsafe-inline'; " +
-        "img-src 'self' data: https:; " +
+        "img-src 'self' data: https: blob:; " +
         "font-src 'self' data:; " +
-        "connect-src 'self' http://localhost:* ws://localhost:* https://accounts.google.com https://www.googleapis.com; " +
+        $"connect-src 'self' {frontendUrl} https://{currentHost} wss://{currentHost} http://localhost:* ws://localhost:* https://accounts.google.com https://www.googleapis.com https://res.cloudinary.com; " +
         "frame-src https://accounts.google.com;";
 
     // Remove server header
@@ -198,5 +207,13 @@ app.MapControllers();
 
 // Map SignalR hub
 app.MapHub<NotificationHub>("/notificationHub");
+
+// Health check endpoint (for Render and monitoring)
+app.MapGet("/health", () => Results.Ok(new 
+{ 
+    status = "healthy", 
+    timestamp = DateTime.UtcNow,
+    environment = app.Environment.EnvironmentName
+}));
 
 app.Run();
