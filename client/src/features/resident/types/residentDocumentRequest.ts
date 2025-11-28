@@ -15,6 +15,7 @@ export interface ResidentCreateDocumentRequest {
   purpose: string;
   additionalDetails?: string;
   paymentMethod: "online" | "walkin";
+  documentFormat?: "hardcopy" | "softcopy"; // For online payments
   paymentProof?: string; // For GCash reference number
   supportingDocuments?: string[]; // URLs from file upload
 }

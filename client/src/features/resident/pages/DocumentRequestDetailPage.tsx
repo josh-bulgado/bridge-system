@@ -128,9 +128,42 @@ export default function DocumentRequestDetailPage() {
           <CardTitle>Request Progress</CardTitle>
         </CardHeader>
         <CardContent>
-          <RequestStatusStepper currentStatus={request.status} />
+          <RequestStatusStepper 
+            currentStatus={request.status} 
+            documentFormat={request.documentFormat}
+          />
         </CardContent>
       </Card>
+
+      {/* Download Button for Soft Copy */}
+      {request.documentFormat === "softcopy" && 
+       (request.status === "ready_for_pickup" || request.status === "completed") && 
+       request.generatedDocumentUrl && (
+        <Card className="border-green-200 bg-green-50">
+          <CardContent className="pt-6">
+            <div className="flex flex-col items-center gap-4 text-center">
+              <div className="flex h-12 w-12 items-center justify-center rounded-full bg-green-500">
+                <Download className="h-6 w-6 text-white" />
+              </div>
+              <div>
+                <h3 className="font-semibold text-green-900">
+                  Your Document is Ready!
+                </h3>
+                <p className="text-sm text-green-700 mt-1">
+                  Click the button below to download your PDF document
+                </p>
+              </div>
+              <Button
+                onClick={() => window.open(request.generatedDocumentUrl, "_blank")}
+                className="bg-green-600 hover:bg-green-700"
+              >
+                <Download className="mr-2 h-4 w-4" />
+                Download PDF
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Request Information */}
       <div className="grid gap-6 md:grid-cols-2">
@@ -290,6 +323,7 @@ export default function DocumentRequestDetailPage() {
                 createdAt={request.createdAt}
                 updatedAt={request.updatedAt}
                 statusHistory={request.statusHistory}
+                documentFormat={request.documentFormat}
               />
             </CardContent>
           </Card>

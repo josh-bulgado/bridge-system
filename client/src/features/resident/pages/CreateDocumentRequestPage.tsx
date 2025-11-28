@@ -17,6 +17,9 @@ const CreateDocumentRequestPage = () => {
   const [paymentMethod, setPaymentMethod] = useState<"online" | "walkin">(
     "walkin",
   );
+  const [documentFormat, setDocumentFormat] = useState<"hardcopy" | "softcopy" | undefined>(
+    undefined,
+  );
 
   return (
     <div className="flex flex-col space-y-6">
@@ -46,6 +49,7 @@ const CreateDocumentRequestPage = () => {
               <DocumentRequestForm
                 onDocumentSelect={setSelectedDocument}
                 onPaymentMethodChange={setPaymentMethod}
+                onDocumentFormatChange={setDocumentFormat}
                 preSelectedDocumentId={preSelectedDocumentId}
               />
             </CardContent>
@@ -58,6 +62,7 @@ const CreateDocumentRequestPage = () => {
             <OrderSummary
               selectedDocument={selectedDocument}
               paymentMethod={paymentMethod}
+              documentFormat={documentFormat}
             />
           </div>
         </div>

@@ -39,6 +39,7 @@ export interface DocumentRequest {
   
   // Payment Information
   paymentMethod: PaymentMethod;
+  documentFormat?: 'hardcopy' | 'softcopy';
   amount: number;
   paymentProof?: string;
   paymentReferenceNumber?: string;
@@ -78,6 +79,7 @@ export interface CreateDocumentRequestRequest {
   purpose: string;
   additionalDetails?: string;
   paymentMethod: PaymentMethod;
+  documentFormat?: 'hardcopy' | 'softcopy';
   paymentProof?: string;
   paymentReferenceNumber?: string;
   supportingDocuments?: string[];

@@ -7,7 +7,9 @@ import { Link } from "react-router-dom";
 import { formatCurrency, formatDate } from "@/lib/format";
 
 // Status badge styling
-const getStatusBadge = (status: string) => {
+const getStatusBadge = (status: string, documentFormat?: "hardcopy" | "softcopy") => {
+  const isSoftCopy = documentFormat === "softcopy";
+  
   const statusConfig: Record<string, { className: string; label: string }> = {
     pending: {
       className: "bg-yellow-500/15 text-yellow-700 hover:bg-yellow-500/25 dark:bg-yellow-500/10 dark:text-yellow-400",
@@ -35,7 +37,7 @@ const getStatusBadge = (status: string) => {
     },
     ready_for_pickup: {
       className: "bg-cyan-500/15 text-cyan-700 hover:bg-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-400",
-      label: "Ready for Pickup"
+      label: isSoftCopy ? "Ready for Download" : "Ready for Pickup"
     },
     completed: {
       className: "bg-green-500/15 text-green-700 hover:bg-green-500/25 dark:bg-green-500/10 dark:text-green-400",
@@ -103,7 +105,7 @@ export const columns: ColumnDef<DocumentRequest>[] = [
   {
     accessorKey: "status",
     header: "Status",
-    cell: ({ row }) => getStatusBadge(row.original.status),
+    cell: ({ row }) => getStatusBadge(row.original.status, row.original.documentFormat),
     filterFn: (row, id, value: string) => {
       if (value === "all") return true;
       const status = row.getValue<string>(id);

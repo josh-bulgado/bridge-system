@@ -72,13 +72,14 @@ export function SupportingDocumentsTab({
     }
 
     if (request.status === "ready_for_pickup") {
+      const isSoftCopy = request.documentFormat === "softcopy";
       return (
         <Badge
           variant="default"
           className="h-8 bg-indigo-600 px-3 text-sm font-medium"
         >
           <CheckCircle className="mr-1.5 h-4 w-4" />
-          Ready for Pickup
+          {isSoftCopy ? "Ready for Download" : "Ready for Pickup"}
         </Badge>
       );
     }

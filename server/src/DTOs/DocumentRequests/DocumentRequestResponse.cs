@@ -20,6 +20,7 @@ public class DocumentRequestResponse
 
     // Payment Information
     public string PaymentMethod { get; set; } = string.Empty;
+    public string? DocumentFormat { get; set; }
     public decimal Amount { get; set; }
     public string? PaymentProof { get; set; }
     public string? PaymentReferenceNumber { get; set; }

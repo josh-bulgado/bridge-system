@@ -9,6 +9,7 @@ interface Step {
 
 interface RequestStatusStepperProps {
   currentStatus: string;
+  documentFormat?: "hardcopy" | "softcopy";
 }
 
 const statusOrder = [
@@ -21,19 +22,26 @@ const statusOrder = [
   "completed",
 ];
 
-const statusLabels: Record<string, string> = {
-  pending: "Submitted",
-  approved: "Approved",
-  payment_pending: "Payment Pending", // Still keep for edge cases
-  payment_verified: "Payment Verified",
-  ready_for_generation: "Ready for Generation",
-  processing: "Processing",
-  ready_for_pickup: "Ready for Pickup",
-  completed: "Completed",
+const getStatusLabel = (status: string, documentFormat?: "hardcopy" | "softcopy"): string => {
+  const isSoftCopy = documentFormat === "softcopy";
+  
+  const baseLabels: Record<string, string> = {
+    pending: "Submitted",
+    approved: "Approved",
+    payment_pending: "Payment Pending",
+    payment_verified: "Payment Verified",
+    ready_for_generation: "Ready for Generation",
+    processing: "Processing",
+    ready_for_pickup: isSoftCopy ? "Ready for Download" : "Ready for Pickup",
+    completed: "Completed",
+  };
+  
+  return baseLabels[status] || status;
 };
 
 export function RequestStatusStepper({
   currentStatus,
+  documentFormat,
 }: RequestStatusStepperProps) {
   // Handle cancelled and rejected states
   if (currentStatus === "cancelled" || currentStatus === "rejected") {
@@ -71,7 +79,7 @@ export function RequestStatusStepper({
     }
 
     return {
-      label: statusLabels[status] || status,
+      label: getStatusLabel(status, documentFormat),
       status: stepStatus,
     };
   });

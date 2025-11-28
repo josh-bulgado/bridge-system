@@ -7,6 +7,7 @@ import type { Document } from "@/features/document/types/document";
 interface OrderSummaryProps {
   selectedDocument: Document | null;
   paymentMethod: "online" | "walkin";
+  documentFormat?: "hardcopy" | "softcopy";
 }
 
 function formatCurrency(amount: number): string {
@@ -16,7 +17,7 @@ function formatCurrency(amount: number): string {
   }).format(amount);
 }
 
-export function OrderSummary({ selectedDocument, paymentMethod }: OrderSummaryProps) {
+export function OrderSummary({ selectedDocument, paymentMethod, documentFormat }: OrderSummaryProps) {
   const isFree = selectedDocument ? selectedDocument.price === 0 : false;
 
   return (
@@ -56,13 +57,28 @@ export function OrderSummary({ selectedDocument, paymentMethod }: OrderSummaryPr
 
               {/* Payment Method - Only show if not free */}
               {!isFree && (
-                <div className="flex items-center gap-2 text-sm">
-                  <IconCreditCard className="h-4 w-4 text-muted-foreground" />
-                  <span className="text-muted-foreground">Payment:</span>
-                  <Badge variant="outline">
-                    {paymentMethod === "online" ? "GCash" : "Cash on Pickup"}
-                  </Badge>
-                </div>
+                <>
+                  <div className="flex items-center gap-2 text-sm">
+                    <IconCreditCard className="h-4 w-4 text-muted-foreground" />
+                    <span className="text-muted-foreground">Payment:</span>
+                    <Badge variant="outline">
+                      {paymentMethod === "online" ? "GCash" : "Cash on Pickup"}
+                    </Badge>
+                  </div>
+                  
+                  {/* Document Format - Only show if GCash is selected and format is chosen */}
+                  {paymentMethod === "online" && documentFormat && (
+                    <div className="flex items-center gap-2 text-sm pl-6">
+                      <IconFileText className="h-4 w-4 text-muted-foreground" />
+                      <span className="text-muted-foreground">Format:</span>
+                      <Badge variant="secondary">
+                        {documentFormat === "hardcopy" 
+                          ? "Hard Copy (Pick up)" 
+                          : "Soft Copy (PDF)"}
+                      </Badge>
+                    </div>
+                  )}
+                </>
               )}
             </div>
 

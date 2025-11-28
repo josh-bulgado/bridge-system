@@ -45,6 +45,7 @@ const formSchema = z
     customPurpose: z.string().optional(),
     additionalDetails: z.string().optional(),
     paymentMethod: z.enum(["online", "walkin"]).optional(),
+    documentFormat: z.enum(["hardcopy", "softcopy"]).optional(),
     paymentProof: z.string().optional(),
     supportingDocuments: z.array(z.string()).optional(),
   })
@@ -59,6 +60,19 @@ const formSchema = z
       message: "Please specify your purpose",
       path: ["customPurpose"],
     },
+  )
+  .refine(
+    (data) => {
+      // Require document format if payment method is online
+      if (data.paymentMethod === "online" && !data.documentFormat) {
+        return false;
+      }
+      return true;
+    },
+    {
+      message: "Please select a document format",
+      path: ["documentFormat"],
+    },
   );
 
 type FormValues = z.infer<typeof formSchema>;
@@ -66,12 +80,14 @@ type FormValues = z.infer<typeof formSchema>;
 interface DocumentRequestFormProps {
   onDocumentSelect: (document: Document | null) => void;
   onPaymentMethodChange: (method: "online" | "walkin") => void;
+  onDocumentFormatChange?: (format: "hardcopy" | "softcopy" | undefined) => void;
   preSelectedDocumentId?: string;
 }
 
 export function DocumentRequestForm({
   onDocumentSelect,
   onPaymentMethodChange,
+  onDocumentFormatChange,
   preSelectedDocumentId,
 }: DocumentRequestFormProps) {
   const navigate = useNavigate();
@@ -96,17 +112,19 @@ export function DocumentRequestForm({
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      documentId: "",
+      documentId: preSelectedDocumentId || "",
       purpose: "",
       customPurpose: "",
       additionalDetails: "",
       paymentMethod: "walkin",
+      documentFormat: undefined,
       paymentProof: "",
       supportingDocuments: [],
     },
   });
 
   const paymentMethod = form.watch("paymentMethod");
+  const documentFormat = form.watch("documentFormat");
   const purpose = form.watch("purpose");
   const documentId = form.watch("documentId");
   const supportingDocuments = form.watch("supportingDocuments");
@@ -135,6 +153,13 @@ export function DocumentRequestForm({
     onPaymentMethodChange(paymentMethod);
   }, [paymentMethod, onPaymentMethodChange]);
 
+  // Update parent when document format changes
+  useEffect(() => {
+    if (onDocumentFormatChange) {
+      onDocumentFormatChange(documentFormat);
+    }
+  }, [documentFormat, onDocumentFormatChange]);
+
   // Show custom purpose field when "other" is selected
   useEffect(() => {
     setShowCustomPurpose(purpose === "other");
@@ -142,13 +167,20 @@ export function DocumentRequestForm({
 
   // Auto-select document if preSelectedDocumentId is provided
   useEffect(() => {
-    if (preSelectedDocumentId && documents.length > 0) {
+    if (preSelectedDocumentId && documents.length > 0 && !loadingDocuments) {
       const docExists = documents.find((d: Document) => d.id === preSelectedDocumentId);
-      if (docExists) {
-        form.setValue("documentId", preSelectedDocumentId);
+      if (docExists && form.getValues("documentId") !== preSelectedDocumentId) {
+        // Use setTimeout to ensure the Select component is fully rendered
+        setTimeout(() => {
+          form.setValue("documentId", preSelectedDocumentId, { 
+            shouldValidate: true,
+            shouldDirty: true,
+            shouldTouch: true 
+          });
+        }, 0);
       }
     }
-  }, [preSelectedDocumentId, documents, form]);
+  }, [preSelectedDocumentId, documents, loadingDocuments, form]);
 
   const handleFormSubmit = (values: FormValues) => {
     if (!user?.residentId) {
@@ -211,6 +243,7 @@ export function DocumentRequestForm({
         purpose: finalPurpose,
         additionalDetails: values.additionalDetails,
         paymentMethod: paymentMethod,
+        documentFormat: values.documentFormat,
         paymentProof: receiptUrl || values.paymentProof,
         paymentReferenceNumber: referenceNumber,
         supportingDocuments: values.supportingDocuments,
@@ -235,6 +268,7 @@ export function DocumentRequestForm({
       customPurpose: "",
       additionalDetails: "",
       paymentMethod: "walkin",
+      documentFormat: undefined,
       paymentProof: "",
       supportingDocuments: [],
     });
@@ -246,6 +280,9 @@ export function DocumentRequestForm({
     // Notify parent components
     onDocumentSelect(null);
     onPaymentMethodChange("walkin");
+    if (onDocumentFormatChange) {
+      onDocumentFormatChange(undefined);
+    }
   };
 
   const handleConfirmPayment = (
@@ -451,6 +488,43 @@ export function DocumentRequestForm({
                       </FormItem>
                     )}
                   />
+
+                  {/* Document Format - Only show when GCash is selected */}
+                  {paymentMethod === "online" && (
+                    <FormField
+                      control={form.control}
+                      name="documentFormat"
+                      render={({ field }) => (
+                        <FormItem className="space-y-3">
+                          <FormLabel>Document Format *</FormLabel>
+                          <FormControl>
+                            <RadioGroup
+                              onValueChange={field.onChange}
+                              value={field.value}
+                              className="flex flex-col space-y-1"
+                            >
+                              <div className="flex items-center space-y-0 space-x-3">
+                                <RadioGroupItem value="hardcopy" id="hardcopy" />
+                                <Label className="font-normal" htmlFor="hardcopy">
+                                  Hard Copy (To be picked up at Barangay Hall)
+                                </Label>
+                              </div>
+                              <div className="flex items-center space-y-0 space-x-3">
+                                <RadioGroupItem value="softcopy" id="softcopy" />
+                                <Label className="font-normal" htmlFor="softcopy">
+                                  Soft Copy (PDF - Digital delivery)
+                                </Label>
+                              </div>
+                            </RadioGroup>
+                          </FormControl>
+                          <FormDescription>
+                            Choose how you want to receive your document
+                          </FormDescription>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  )}
 
                   <Separator />
                 </>

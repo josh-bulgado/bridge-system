@@ -167,6 +167,7 @@ public class DocumentRequestService
             Purpose = dto.Purpose,
             AdditionalDetails = dto.AdditionalDetails,
             PaymentMethod = dto.PaymentMethod,
+            DocumentFormat = dto.DocumentFormat,
             Amount = document.Price, // Snapshot current price
             PaymentProof = dto.PaymentProof,
             PaymentReferenceNumber = dto.PaymentReferenceNumber,
@@ -592,6 +593,7 @@ Barangay Office"
                 Purpose = request.Purpose,
                 AdditionalDetails = request.AdditionalDetails,
                 PaymentMethod = request.PaymentMethod,
+                DocumentFormat = request.DocumentFormat,
                 Amount = request.Amount,
                 PaymentProof = request.PaymentProof,
                 PaymentReferenceNumber = request.PaymentReferenceNumber,

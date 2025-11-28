@@ -76,6 +76,8 @@ export function DocumentRequestDetailsDialog({
   };
 
   const getTabTriggerBadge = (status: string, type: "payment" | "documents") => {
+    const isSoftCopy = request.documentFormat === "softcopy";
+    
     if (type === "payment" && isPaymentVerified) {
       return (
         <Badge variant="default" className="ml-auto bg-green-600 text-[10px] px-1.5 py-0 h-5">
@@ -109,7 +111,7 @@ export function DocumentRequestDetailsDialog({
     if (status === "ready_for_pickup") {
       return (
         <Badge variant="default" className="ml-auto bg-indigo-600 text-[10px] px-1.5 py-0 h-5">
-          Ready for Pickup
+          {isSoftCopy ? "Ready for Download" : "Ready for Pickup"}
         </Badge>
       );
     }

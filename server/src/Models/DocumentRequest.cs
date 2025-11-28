@@ -39,6 +39,15 @@ public class DocumentRequest
     [BsonElement("paymentMethod")]
     public string PaymentMethod { get; set; } = "online"; // online, walkin
 
+    [BsonElement("documentFormat")]
+    [BsonIgnoreIfNull]
+    public string? DocumentFormat { get; set; } // hardcopy, softcopy - for online payments
+
+    // Legacy field - kept for backward compatibility with old database records
+    [BsonElement("deliveryMethod")]
+    [BsonIgnoreIfNull]
+    public string? DeliveryMethod { get; set; }
+
     [BsonElement("amount")]
     public decimal Amount { get; set; }
 

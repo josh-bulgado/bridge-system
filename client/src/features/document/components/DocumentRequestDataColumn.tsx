@@ -29,7 +29,8 @@ function formatDateTime(dateString: string): string {
   });
 }
 
-function getStatusBadge(status: DocumentRequest["status"]) {
+function getStatusBadge(status: DocumentRequest["status"], documentFormat?: "hardcopy" | "softcopy") {
+  const isSoftCopy = documentFormat === "softcopy";
   switch (status) {
     case "pending":
       return (
@@ -100,7 +101,7 @@ function getStatusBadge(status: DocumentRequest["status"]) {
           variant="outline"
           className="border-0 bg-cyan-500/15 text-cyan-700 hover:bg-cyan-500/25 dark:bg-cyan-500/10 dark:text-cyan-400 dark:hover:bg-cyan-500/20"
         >
-          Ready for Pickup
+          {isSoftCopy ? "Ready for Download" : "Ready for Pickup"}
         </Badge>
       );
     case "completed":
@@ -231,7 +232,7 @@ export const columns: ColumnDef<DocumentRequest>[] = [
           <Tooltip>
             <TooltipTrigger asChild>
               <div className="cursor-help capitalize">
-                {getStatusBadge(request.status)}
+                {getStatusBadge(request.status, request.documentFormat)}
               </div>
             </TooltipTrigger>
             <TooltipContent>

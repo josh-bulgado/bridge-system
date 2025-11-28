@@ -21,6 +21,10 @@ public class CreateDocumentRequestRequest
     [RegularExpression("^(online|walkin)$", ErrorMessage = "Payment method must be either 'online' or 'walkin'")]
     public string PaymentMethod { get; set; } = "online";
 
+    // Document format (hardcopy or softcopy) - Optional, mainly for online payments
+    [RegularExpression("^(hardcopy|softcopy)$", ErrorMessage = "Document format must be either 'hardcopy' or 'softcopy'")]
+    public string? DocumentFormat { get; set; }
+
     // For online payments - Cloudinary URL of payment proof (GCash screenshot)
     public string? PaymentProof { get; set; }
 

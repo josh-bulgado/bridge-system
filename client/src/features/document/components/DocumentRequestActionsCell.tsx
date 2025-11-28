@@ -262,7 +262,11 @@ export function DocumentRequestActionsCell({
                   <Package className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Mark as Ready for Pickup</TooltipContent>
+              <TooltipContent>
+                {request.documentFormat === "softcopy" 
+                  ? "Mark as Ready for Download" 
+                  : "Mark as Ready for Pickup"}
+              </TooltipContent>
             </Tooltip>
           )}
 
@@ -278,7 +282,7 @@ export function DocumentRequestActionsCell({
                   <CheckCircle className="size-4" />
                 </Button>
               </TooltipTrigger>
-              <TooltipContent>Mark as Completed (Picked Up)</TooltipContent>
+              <TooltipContent>Mark as Completed</TooltipContent>
             </Tooltip>
           )}
         </div>

@@ -31,62 +31,70 @@ interface RequestStatusTimelineProps {
   createdAt: string;
   updatedAt: string;
   statusHistory?: StatusHistoryItem[];
+  documentFormat?: "hardcopy" | "softcopy";
 }
 
-const statusConfig: Record<
-  string,
-  { icon: any; color: string; label: string }
-> = {
-  pending: {
-    icon: FileText,
-    color: "bg-slate-500",
-    label: "Request Submitted",
-  },
-  approved: {
-    icon: CheckCircle2,
-    color: "bg-blue-500",
-    label: "Request Approved",
-  },
-  payment_pending: {
-    icon: CreditCard,
-    color: "bg-blue-500",
-    label: "Awaiting Payment",
-  },
-  payment_verified: {
-    icon: CheckCircle2,
-    color: "bg-sky-500",
-    label: "Payment Verified",
-  },
-  ready_for_generation: {
-    icon: Settings,
-    color: "bg-purple-500",
-    label: "Ready for Generation",
-  },
-  processing: {
-    icon: Settings,
-    color: "bg-indigo-500",
-    label: "Processing Document",
-  },
-  ready_for_pickup: {
-    icon: CheckCircle2,
-    color: "bg-cyan-500",
-    label: "Ready for Pickup",
-  },
-  completed: {
-    icon: CircleCheck,
-    color: "bg-emerald-600",
-    label: "Completed",
-  },
-  cancelled: {
-    icon: XCircle,
-    color: "bg-orange-500",
-    label: "Request Cancelled",
-  },
-  rejected: {
-    icon: XCircle,
-    color: "bg-red-500",
-    label: "Request Rejected",
-  },
+const getStatusConfig = (status: string, documentFormat?: "hardcopy" | "softcopy") => {
+  const isSoftCopy = documentFormat === "softcopy";
+  
+  const configs: Record<string, { icon: any; color: string; label: string }> = {
+    pending: {
+      icon: FileText,
+      color: "bg-slate-500",
+      label: "Request Submitted",
+    },
+    approved: {
+      icon: CheckCircle2,
+      color: "bg-blue-500",
+      label: "Request Approved",
+    },
+    payment_pending: {
+      icon: CreditCard,
+      color: "bg-blue-500",
+      label: "Awaiting Payment",
+    },
+    payment_verified: {
+      icon: CheckCircle2,
+      color: "bg-sky-500",
+      label: "Payment Verified",
+    },
+    ready_for_generation: {
+      icon: Settings,
+      color: "bg-purple-500",
+      label: "Ready for Generation",
+    },
+    processing: {
+      icon: Settings,
+      color: "bg-indigo-500",
+      label: "Processing Document",
+    },
+    ready_for_pickup: {
+      icon: CheckCircle2,
+      color: "bg-cyan-500",
+      label: isSoftCopy ? "Ready for Download" : "Ready for Pickup",
+    },
+    completed: {
+      icon: CircleCheck,
+      color: "bg-emerald-600",
+      label: "Completed",
+    },
+    cancelled: {
+      icon: XCircle,
+      color: "bg-orange-500",
+      label: "Request Cancelled",
+    },
+    rejected: {
+      icon: XCircle,
+      color: "bg-red-500",
+      label: "Request Rejected",
+    },
+  };
+  
+  return configs[status] || {
+    icon: Circle,
+    color: "bg-gray-500",
+    label: status,
+  };
 };
 
 export function RequestStatusTimeline({
@@ -94,6 +102,7 @@ export function RequestStatusTimeline({
   createdAt,
   updatedAt,
   statusHistory,
+  documentFormat,
 }: RequestStatusTimelineProps) {
   // Build comprehensive timeline from status history
   const timelineEvents: TimelineEvent[] =
@@ -176,11 +185,7 @@ export function RequestStatusTimeline({
 
       <div className="relative space-y-6">
         {sortedEvents.map((event, index) => {
-          const config = statusConfig[event.status] || {
-            icon: Circle,
-            color: "bg-gray-500",
-            label: event.status,
-          };
+          const config = getStatusConfig(event.status, documentFormat);
           const Icon = config.icon;
           const isLast = index === sortedEvents.length - 1;
 
