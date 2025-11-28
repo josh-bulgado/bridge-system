@@ -270,7 +270,7 @@ export const RegistrationForm = () => {
                   >
                     {isLoading ? (
                       <>
-                        <Spinner className="h-4 w-4 animate-spin" />
+                        <Spinner />
                         Creating...
                       </>
                     ) : (

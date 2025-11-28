@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState, useEffect } from "react";
 import {
   Dialog,
@@ -321,6 +322,7 @@ export function DocumentGenerationModal({
               <div className="space-y-2">
                 <Label htmlFor="PURPOSE">Purpose</Label>
                 <Input
+                  className="capitalize"
                   id="PURPOSE"
                   value={editedData.PURPOSE || ""}
                   onChange={(e) => handleFieldChange("PURPOSE", e.target.value)}

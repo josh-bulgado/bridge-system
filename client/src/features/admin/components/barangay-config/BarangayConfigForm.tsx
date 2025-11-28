@@ -42,7 +42,7 @@ interface BarangayConfigFormProps {
     option: AddressOption
   ) => void;
   onLogoSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  displayQrCode: string | null;
+  displayQrCode?: string | null;
   isUploadingQr: boolean;
   onQrCodeSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onQrCodeRemove: () => void;

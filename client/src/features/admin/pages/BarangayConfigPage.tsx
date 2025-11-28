@@ -20,7 +20,10 @@ import {
   useSaveBarangayConfig,
   useUploadBarangayLogo,
 } from "../hooks";
-import { BarangayConfigView, BarangayConfigForm } from "../components/barangay-config";
+import {
+  BarangayConfigView,
+  BarangayConfigForm,
+} from "../components/barangay-config";
 import { cleanBarangayName } from "../utils/barangayNameFormatter";
 
 interface AddressOption {
@@ -33,13 +36,15 @@ const BarangayConfigPage: React.FC = () => {
   const [isEditMode, setIsEditMode] = useState(false);
 
   // Hooks
-  const { data: existingConfig, isLoading: isLoadingConfig } = useFetchBarangayConfig();
+  const { data: existingConfig, isLoading: isLoadingConfig } =
+    useFetchBarangayConfig();
   const saveMutation = useSaveBarangayConfig();
-  const { logoPreview, isUploading, handleLogoUpload } = useUploadBarangayLogo();
-  const { 
-    logoPreview: qrCodePreview, 
-    isUploading: isUploadingQr, 
-    handleLogoUpload: handleQrCodeUpload 
+  const { logoPreview, isUploading, handleLogoUpload } =
+    useUploadBarangayLogo();
+  const {
+    logoPreview: qrCodePreview,
+    isUploading: isUploadingQr,
+    handleLogoUpload: handleQrCodeUpload,
   } = useUploadBarangayLogo();
 
   // Form
@@ -74,7 +79,9 @@ const BarangayConfigPage: React.FC = () => {
   // Address options state
   const [regionOptions, setRegionOptions] = useState<AddressOption[]>([]);
   const [provinceOptions, setProvinceOptions] = useState<AddressOption[]>([]);
-  const [municipalityOptions, setMunicipalityOptions] = useState<AddressOption[]>([]);
+  const [municipalityOptions, setMunicipalityOptions] = useState<
+    AddressOption[]
+  >([]);
   const [barangayOptions, setBarangayOptions] = useState<AddressOption[]>([]);
 
   // Loading states
@@ -95,7 +102,7 @@ const BarangayConfigPage: React.FC = () => {
         regionData.map((region: any) => ({
           code: region.region_code,
           name: region.region_name,
-        }))
+        })),
       );
     };
     loadRegions();
@@ -118,30 +125,36 @@ const BarangayConfigPage: React.FC = () => {
       // Load address dropdowns based on existing data
       const loadExistingAddressOptions = async () => {
         if (existingConfig.address.regionCode) {
-          const provinceData = await provinces(existingConfig.address.regionCode);
+          const provinceData = await provinces(
+            existingConfig.address.regionCode,
+          );
           setProvinceOptions(
             provinceData.map((province: any) => ({
               code: province.province_code,
               name: province.province_name,
-            }))
+            })),
           );
 
           if (existingConfig.address.provinceCode) {
-            const municipalityData = await cities(existingConfig.address.provinceCode);
+            const municipalityData = await cities(
+              existingConfig.address.provinceCode,
+            );
             setMunicipalityOptions(
               municipalityData.map((municipality: any) => ({
                 code: municipality.city_code,
                 name: municipality.city_name,
-              }))
+              })),
             );
 
             if (existingConfig.address.municipalityCode) {
-              const barangayData = await barangays(existingConfig.address.municipalityCode);
+              const barangayData = await barangays(
+                existingConfig.address.municipalityCode,
+              );
               setBarangayOptions(
                 barangayData.map((barangay: any) => ({
                   code: barangay.brgy_code,
                   name: barangay.brgy_name,
-                }))
+                })),
               );
             }
           }
@@ -166,7 +179,7 @@ const BarangayConfigPage: React.FC = () => {
           provinceData.map((province: any) => ({
             code: province.province_code,
             name: province.province_name,
-          }))
+          })),
         );
       } finally {
         setIsLoadingProvinces(false);
@@ -190,7 +203,7 @@ const BarangayConfigPage: React.FC = () => {
           municipalityData.map((municipality: any) => ({
             code: municipality.city_code,
             name: municipality.city_name,
-          }))
+          })),
         );
       } finally {
         setIsLoadingMunicipalities(false);
@@ -214,7 +227,7 @@ const BarangayConfigPage: React.FC = () => {
           barangayData.map((barangay: any) => ({
             code: barangay.brgy_code,
             name: barangay.brgy_name,
-          }))
+          })),
         );
       } finally {
         setIsLoadingBarangays(false);
@@ -226,7 +239,7 @@ const BarangayConfigPage: React.FC = () => {
   // Handle address selection
   const handleAddressSelect = (
     type: "region" | "province" | "municipality" | "barangay",
-    option: AddressOption
+    option: AddressOption,
   ) => {
     switch (type) {
       case "region":
@@ -313,7 +326,7 @@ const BarangayConfigPage: React.FC = () => {
         barangayName: cleanBarangayName(data.address.barangayName),
       },
     };
-    
+
     await saveMutation.mutateAsync(cleanedData);
     setIsEditMode(false);
   };
@@ -358,7 +371,7 @@ const BarangayConfigPage: React.FC = () => {
   }
 
   return (
-    <div className="container  max-w-7xl ">
+    <div className="container">
       <div className="mb-6 flex items-center justify-between">
         <div>
           <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100">

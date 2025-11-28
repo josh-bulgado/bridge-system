@@ -32,8 +32,7 @@ const RegisterPage = () => {
           <RegistrationFeaturesList />
         </div>
       </div>
-      <div className="flex w-full flex-col justify-center pb-4 lg:w-1/2 items-center">
-        <ThemeSwitcherMultiButton />
+      <div className="flex w-full flex-col items-center justify-center pb-4 lg:w-1/2">
         <BridgeIcon responsive="hideOnLg" />
 
         <RegistrationForm />

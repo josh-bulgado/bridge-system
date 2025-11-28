@@ -1,4 +1,3 @@
-import * as React from "react";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { CheckCircle, XCircle, Clock } from "lucide-react";
@@ -23,15 +22,20 @@ export function PaymentVerificationTab({
   onImagePreview,
 }: PaymentVerificationTabProps) {
   return (
-    <div className="space-y-6 mt-6">
+    <div className="mt-6 space-y-6">
       {/* Status Header */}
-      <div className="flex items-center justify-between pb-4 border-b">
+      <div className="flex items-center justify-between border-b pb-4">
         <div className="space-y-1">
           <h3 className="text-lg font-semibold">GCash Payment</h3>
-          <p className="text-sm text-muted-foreground">Review and verify the payment details below</p>
+          <p className="text-muted-foreground text-sm">
+            Review and verify the payment details below
+          </p>
         </div>
         {isPaymentVerified ? (
-          <Badge variant="default" className="bg-green-600 h-8 px-3 text-sm font-medium">
+          <Badge
+            variant="default"
+            className="h-8 bg-green-600 px-3 text-sm font-medium"
+          >
             <CheckCircle className="mr-1.5 h-4 w-4" />
             Payment Verified
           </Badge>
@@ -52,24 +56,22 @@ export function PaymentVerificationTab({
 
       {/* Action Buttons */}
       {!isPaymentVerified && (
-        <div className="flex gap-4 pt-6 border-t">
+        <div className="flex justify-end gap-4">
           <Button
             onClick={onApprovePayment}
             disabled={isProcessing}
-            className="flex-1 h-11 bg-green-600 hover:bg-green-700 font-semibold"
             size="lg"
           >
-            <CheckCircle className="mr-2 h-5 w-5" />
+            <CheckCircle size={20}/>
             Approve Payment
           </Button>
           <Button
             onClick={onRejectPayment}
             disabled={isProcessing}
             variant="destructive"
-            className="flex-1 h-11 font-semibold"
             size="lg"
           >
-            <XCircle className="mr-2 h-5 w-5" />
+            <XCircle className="" size={20} />
             Reject Payment
           </Button>
         </div>

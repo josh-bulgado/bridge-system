@@ -24,67 +24,79 @@ import {
   FileStack,
 } from "lucide-react";
 import BridgeIcon from "@/components/bridge-icon";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
-const adminData = {
-  user: {
-    name: "Admin User",
-    email: "admin@example.com",
-    avatar: "/avatars/admin.jpg",
+const navMainItems = [
+  {
+    title: "Dashboard",
+    url: "/admin",
+    icon: LayoutDashboard,
   },
-  navMain: [
-    {
-      title: "Dashboard",
-      url: "/admin",
-      icon: LayoutDashboard,
-    },
-    {
-      title: "Resident Management",
-      url: "/admin/resident-management",
-      icon: Users,
-    },
-    {
-      title: "Staff Management",
-      url: "/admin/staff-management",
-      icon: UserCog,
-    },
-    {
-      title: "Document Requests",
-      url: "/admin/doc-requests",
-      icon: FileStack,
-    },
-    {
-      title: "Document Configuration",
-      url: "/admin/config/document",
-      icon: FileText,
-    },
-    {
-      title: "Barangay Configuration",
-      url: "/admin/config/barangay",
-      icon: Building2,
-    },
-  ],
-  navSecondary: [
-    {
-      title: "Settings",
-      url: "/admin/settings",
-      icon: Settings,
-    },
-    {
-      title: "Get Help",
-      url: "/admin/help",
-      icon: HelpCircle,
-    },
-    {
-      title: "Search",
-      url: "/admin/search",
-      icon: Search,
-    },
-  ],
-};
+  {
+    title: "Resident Management",
+    url: "/admin/resident-management",
+    icon: Users,
+  },
+  {
+    title: "Staff Management",
+    url: "/admin/staff-management",
+    icon: UserCog,
+  },
+  {
+    title: "Document Requests",
+    url: "/admin/doc-requests",
+    icon: FileStack,
+  },
+  {
+    title: "Document Configuration",
+    url: "/admin/config/document",
+    icon: FileText,
+  },
+  {
+    title: "Barangay Configuration",
+    url: "/admin/config/barangay",
+    icon: Building2,
+  },
+];
+
+const navSecondaryItems = [
+  {
+    title: "Settings",
+    url: "/admin/settings",
+    icon: Settings,
+  },
+  {
+    title: "Get Help",
+    url: "/admin/help",
+    icon: HelpCircle,
+  },
+  {
+    title: "Search",
+    url: "/admin/search",
+    icon: Search,
+  },
+];
 
 export const AdminSidebar = React.memo(function AdminSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
+  const { data: user } = useAuth();
+
+  // Format user data for NavUser component
+  const userName =
+    user?.fullName ||
+    (user?.firstName && user?.lastName
+      ? `${user.firstName} ${user.lastName}`
+      : "Admin User");
+
+  const userEmail = user?.email || "admin@example.com";
+
+  const userData = {
+    name: userName,
+    email: userEmail,
+    // Use user's avatar if available, otherwise initials will be shown
+  };
+
   return (
     <Sidebar
       collapsible="icon"
@@ -107,11 +119,11 @@ export const AdminSidebar = React.memo(function AdminSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="will-change-auto">
-        <NavMain items={adminData.navMain} />
-        <NavSecondary items={adminData.navSecondary} className="mt-auto" />
+        <NavMain items={navMainItems} />
+        <NavSecondary items={navSecondaryItems} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={adminData.user} />
+        <NavUser user={userData} />
       </SidebarFooter>
     </Sidebar>
   );

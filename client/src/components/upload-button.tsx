@@ -1,7 +1,8 @@
-import { Button } from '@/components/ui/button';
-import type { UploadHookControl } from '@better-upload/client';
-import { Loader2, Upload } from 'lucide-react';
-import { useId } from 'react';
+import { Button } from "@/components/ui/button";
+import type { UploadHookControl } from "@better-upload/client";
+import { Upload } from "lucide-react";
+import { useId } from "react";
+import { Spinner } from "./ui/spinner";
 
 type UploadButtonProps = {
   control: UploadHookControl<false>;
@@ -9,7 +10,7 @@ type UploadButtonProps = {
   accept?: string;
   metadata?: Record<string, unknown>;
   uploadOverride?: (
-    ...args: Parameters<UploadHookControl<false>['upload']>
+    ...args: Parameters<UploadHookControl<false>["upload"]>
   ) => void;
 
   // Add any additional props you need.
@@ -40,13 +41,13 @@ export function UploadButton({
                 upload(e.target.files[0], { metadata });
               }
             }
-            e.target.value = '';
+            e.target.value = "";
           }}
         />
       </label>
       {isPending ? (
         <>
-          <Loader2 className="size-4 animate-spin" />
+          <Spinner />
           Upload file
         </>
       ) : (
