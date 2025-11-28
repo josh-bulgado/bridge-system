@@ -249,9 +249,9 @@ export default function ResidentDetailsModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-h-[90vh] max-w-7xl p-0 overflow-hidden">
+      <DialogContent className="max-h-[90vh] max-w-7xl p-0 flex flex-col">
         {/* Header with Status Badge */}
-        <DialogHeader className="bg-muted/30 border-b px-6 py-4">
+        <DialogHeader className="bg-muted/30 border-b px-6 py-4 shrink-0">
           <div className="flex items-start gap-4">
             <div className="flex-1">
               <DialogTitle className="text-xl font-semibold">
@@ -269,10 +269,10 @@ export default function ResidentDetailsModal({
         </DialogHeader>
 
         {/* Tabs for Current Submission and History */}
-        <Tabs defaultValue="current" className="flex flex-col overflow-hidden">
+        <Tabs defaultValue="current" className="flex flex-col min-h-0 flex-1">
           {/* Tabs List */}
           {hasHistory && (
-            <div className="bg-muted/20 border-b px-6 py-2">
+            <div className="bg-muted/20 border-b px-6 py-2 shrink-0">
               <TabsList className="grid w-[400px] grid-cols-2">
                 <TabsTrigger value="current">Current Submission</TabsTrigger>
                 <TabsTrigger value="history">Submission History</TabsTrigger>
@@ -281,18 +281,11 @@ export default function ResidentDetailsModal({
           )}
 
           {/* Current Submission Tab */}
-          <TabsContent value="current" className="m-0 flex-1 overflow-hidden">
-            <div
-              className={cn(
-                "flex overflow-hidden",
-                canApproveReject
-                  ? "max-h-[calc(90vh-200px)]"
-                  : "max-h-[calc(90vh-140px)]",
-              )}
-            >
+          <TabsContent value="current" className="m-0 flex flex-col min-h-0 flex-1">
+            <div className="flex min-h-0 flex-1 overflow-hidden">
               {/* Left Column - Resident Details */}
-              <ScrollArea className="w-1/2 border-r">
-                <div className="space-y-4 px-6 py-4">
+              <div className="w-1/2 border-r overflow-auto">
+                <div className="space-y-4 px-6 py-4 pb-6">
                   {/* Personal Information */}
                   <div>
                     <Label className="mb-3 block text-sm font-medium">
@@ -434,10 +427,10 @@ export default function ResidentDetailsModal({
                     )}
                   </div>
                 </div>
-              </ScrollArea>
+              </div>
 
               {/* Right side - Proof of Residency for Current Submission */}
-              <div className="bg-muted/20 flex w-1/2 flex-col overflow-hidden">
+              <div className="bg-muted/20 flex w-1/2 flex-col min-h-0 overflow-hidden">
                 <div className="bg-muted/30 flex shrink-0 items-center justify-between border-b px-6 py-3">
                   <div className="flex items-center gap-2">
                     <Label className="text-sm font-semibold">
@@ -471,9 +464,9 @@ export default function ResidentDetailsModal({
                     </Button>
                   )}
                 </div>
-                <div className="min-h-0 flex-1 overflow-auto">
+                <div className="flex-1 overflow-auto">
                   {displayResident.proofOfResidency ? (
-                    <div className="h-full">
+                    <div className="min-h-[600px] p-4">
                       <InlineDocumentViewer
                         title={formatProofOfResidencyType(
                           displayResident.proofOfResidencyType,
@@ -486,7 +479,7 @@ export default function ResidentDetailsModal({
                       />
                     </div>
                   ) : (
-                    <div className="flex h-full items-center justify-center">
+                    <div className="flex h-full items-center justify-center min-h-[400px]">
                       <p className="text-muted-foreground text-sm">
                         No proof of residency submitted yet.
                       </p>
@@ -495,10 +488,35 @@ export default function ResidentDetailsModal({
                 </div>
               </div>
             </div>
+
+            {/* Action Buttons for Current Submission - Inside Tab */}
+            {canApproveReject && (
+              <div className="bg-muted/30 flex items-center justify-end gap-3 border-t px-6 py-4 shrink-0">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
+                  onClick={handleRejectClick}
+                  disabled={isRejecting || isApproving}
+                >
+                  <UserX className="mr-1.5 size-4" />
+                  Reject
+                </Button>
+                <Button
+                  size="sm"
+                  className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
+                  onClick={handleApprove}
+                  disabled={isApproving || isRejecting}
+                >
+                  <UserCheck className="mr-1.5 size-4" />
+                  {isApproving ? "Approving..." : "Approve"}
+                </Button>
+              </div>
+            )}
           </TabsContent>
 
           {/* History Tab */}
-          <TabsContent value="history" className="m-0 flex-1 overflow-hidden">
+          <TabsContent value="history" className="m-0 flex-1 min-h-0">
             <ScrollArea className="h-full">
               <div className="space-y-2 px-6 py-4">
                 {displayResident.verificationHistory &&
@@ -544,31 +562,6 @@ export default function ResidentDetailsModal({
             </ScrollArea>
           </TabsContent>
         </Tabs>
-
-        {/* Action Buttons Footer */}
-        {canApproveReject && (
-          <div className="bg-muted/30 flex items-center justify-end gap-3 border-t px-6 py-4">
-            <Button
-              variant="outline"
-              size="sm"
-              className="text-red-600 hover:bg-red-50 hover:text-red-700 dark:hover:bg-red-950"
-              onClick={handleRejectClick}
-              disabled={isRejecting || isApproving}
-            >
-              <UserX className="mr-1.5 size-4" />
-              Reject
-            </Button>
-            <Button
-              size="sm"
-              className="bg-green-600 hover:bg-green-700 dark:bg-green-700 dark:hover:bg-green-800"
-              onClick={handleApprove}
-              disabled={isApproving || isRejecting}
-            >
-              <UserCheck className="mr-1.5 size-4" />
-              {isApproving ? "Approving..." : "Approve"}
-            </Button>
-          </div>
-        )}
       </DialogContent>
 
       {/* Reject Verification Dialog */}

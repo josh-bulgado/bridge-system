@@ -8,12 +8,16 @@ export const useStaffDashboard = () => {
   const statsQuery = useQuery({
     queryKey: ['staff-dashboard-stats'],
     queryFn: staffDashboardService.getStats,
-    staleTime: 60000, // Cache for 1 minute
+    staleTime: 30000, // Cache for 30 seconds (reduced for more frequent updates)
+    refetchInterval: 30000, // Auto-refetch every 30 seconds
     refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 
-  // Fetch all document requests
-  const { data: documentRequests, isLoading: requestsLoading, error: requestsError } = useFetchDocumentRequests({});
+  // Fetch all document requests with auto-refresh
+  const { data: documentRequests, isLoading: requestsLoading, error: requestsError } = useFetchDocumentRequests({
+    refetchInterval: 30000, // Auto-refetch every 30 seconds
+  });
 
   // Transform document requests to match Request type
   const requests: Request[] = useMemo(() => {
@@ -38,8 +42,11 @@ export const useStaffDashboard = () => {
     requests,
     requestsLoading,
     requestsError,
-    refetch: () => {
-      statsQuery.refetch();
+    refetch: async () => {
+      await Promise.all([
+        statsQuery.refetch(),
+        // Refetch is handled by the hook automatically
+      ]);
     },
   };
 };

@@ -84,49 +84,67 @@ export function RecentActivityFeed({
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Recent Activity</CardTitle>
-        <CardDescription>Latest staff actions and updates</CardDescription>
+    <Card className="border-muted/50">
+      <CardHeader className="pb-4">
+        <div className="flex items-baseline justify-between">
+          <div>
+            <CardTitle className="text-xl">Recent Activity</CardTitle>
+            <CardDescription className="text-sm mt-1">
+              Latest staff actions and updates
+            </CardDescription>
+          </div>
+        </div>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-6">
         <ScrollArea className="h-[400px] pr-4">
           {activities.length === 0 ? (
-            <div className="flex flex-col items-center justify-center py-8 text-center">
-              <FileText className="mb-3 h-12 w-12 text-gray-400" />
+            <div className="flex flex-col items-center justify-center py-12 text-center">
+              <FileText className="mb-3 h-12 w-12 text-muted-foreground/40" />
               <p className="text-muted-foreground text-sm">
                 No recent activity
               </p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {activities.map((activity) => (
+            <div className="space-y-1">
+              {activities.map((activity, index) => (
                 <div
                   key={activity.id}
-                  className="flex items-start gap-4 border-b pb-4 last:border-0"
+                  className={clsx(
+                    "flex items-start gap-4 py-4 px-3 -mx-3 rounded-lg transition-colors hover:bg-muted/40",
+                    index !== activities.length - 1 && "border-b border-border/40"
+                  )}
                 >
-                  <div className="mt-1">{getActionIcon(activity.action)}</div>
-                  <div className="flex-1 space-y-1">
+                  <div className="rounded-lg bg-muted/50 p-2 mt-0.5 shrink-0">
+                    {getActionIcon(activity.action)}
+                  </div>
+                  <div className="flex-1 min-w-0 space-y-2">
                     <div className="flex flex-wrap items-center gap-2">
-                      <span className="font-medium">{activity.staffName}</span>
+                      <span className="font-semibold text-foreground">
+                        {activity.staffName}
+                      </span>
                       <Badge
                         variant="outline"
                         className={clsx(
                           getActionColor(activity.action),
-                          "capitalize",
+                          "capitalize text-xs font-medium"
                         )}
                       >
                         {activity.action}
                       </Badge>
                     </div>
-                    <p className="text-muted-foreground text-sm">
-                      <span className="font-medium">
+                    <p className="text-sm leading-tight">
+                      <span className="font-medium text-foreground">
                         {activity.residentName}
-                      </span>{" "}
-                      - {activity.documentType}
+                      </span>
+                      <span className="text-muted-foreground"> • </span>
+                      <span className="text-muted-foreground">
+                        {activity.documentType}
+                      </span>
                     </p>
-                    <div className="text-muted-foreground flex items-center gap-2 text-xs">
-                      <span>{activity.trackingNumber}</span>
+                    <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                      <span className="font-mono">
+                        {activity.trackingNumber}
+                      </span>
                       <span>•</span>
                       <span>
                         {formatDistanceToNow(new Date(activity.timestamp), {

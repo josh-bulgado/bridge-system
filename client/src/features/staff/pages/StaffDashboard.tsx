@@ -95,24 +95,24 @@ const StaffDashboard = () => {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-8 pb-8">
       {/* Header */}
-      <div className="space-y-2">
-        <h1 className="text-3xl font-bold text-gray-900 dark:text-gray-100">
+      <div className="space-y-1">
+        <h1 className="text-3xl font-bold tracking-tight text-gray-900 dark:text-gray-100">
           Staff Dashboard
         </h1>
-        <p className="text-gray-600 dark:text-gray-400">
+        <p className="text-base text-muted-foreground">
           Manage document requests and processing
         </p>
       </div>
 
       {/* Statistics Cards */}
-      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-4">
+      <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-4">
         <StatCard
           title="Total Requests"
           value={stats?.totalRequests.count || 0}
           change={stats?.totalRequests.change}
-          icon={<FileText className="h-6 w-6" />}
+          icon={<FileText className="h-5 w-5" />}
           color="green"
           onClick={() => handleStatClick("all")}
         />
@@ -120,7 +120,7 @@ const StaffDashboard = () => {
           title="Pending Review"
           value={stats?.pendingReview.count || 0}
           change={stats?.pendingReview.change}
-          icon={<Clock className="h-6 w-6" />}
+          icon={<Clock className="h-5 w-5" />}
           color="amber"
           onClick={() => handleStatClick("pending")}
         />
@@ -128,7 +128,7 @@ const StaffDashboard = () => {
           title="Payment Verification"
           value={stats?.paymentVerification.count || 0}
           change={stats?.paymentVerification.change}
-          icon={<CreditCard className="h-6 w-6" />}
+          icon={<CreditCard className="h-5 w-5" />}
           color="emerald"
           onClick={() => handleStatClick("payment_pending")}
         />
@@ -136,7 +136,7 @@ const StaffDashboard = () => {
           title="Ready for Generation"
           value={stats?.readyForGeneration.count || 0}
           change={stats?.readyForGeneration.change}
-          icon={<FileCheck className="h-6 w-6" />}
+          icon={<FileCheck className="h-5 w-5" />}
           color="teal"
           onClick={() => handleStatClick("ready_for_generation")}
         />
@@ -144,12 +144,14 @@ const StaffDashboard = () => {
 
       {/* Quick Actions Alert */}
       {(stats?.pendingReview.count || 0) > 0 && (
-        <div className="rounded-lg border border-amber-200 bg-amber-50 p-4 dark:border-amber-800 dark:bg-amber-950/50">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-3">
-              <AlertCircle className="h-5 w-5 text-amber-600 dark:text-amber-400" />
-              <div>
-                <h3 className="font-semibold text-amber-900 dark:text-amber-100">
+        <div className="rounded-xl border border-amber-200 bg-amber-50 p-5 dark:border-amber-800/80 dark:bg-amber-950/30 transition-colors">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+            <div className="flex items-start gap-4">
+              <div className="rounded-lg bg-amber-100 p-2.5 dark:bg-amber-900/50 shrink-0">
+                <AlertCircle className="h-5 w-5 text-amber-700 dark:text-amber-400" />
+              </div>
+              <div className="space-y-1">
+                <h3 className="font-semibold text-amber-900 dark:text-amber-100 leading-none">
                   Pending Reviews
                 </h3>
                 <p className="text-sm text-amber-700 dark:text-amber-300">
@@ -161,8 +163,7 @@ const StaffDashboard = () => {
             </div>
             <Button
               onClick={() => handleStatClick("pending")}
-              variant="outline"
-              className="border-amber-300 hover:bg-amber-100 dark:border-amber-700 dark:hover:bg-amber-900/50"
+              className="bg-amber-600 hover:bg-amber-700 text-white border-0 shrink-0 dark:bg-amber-600 dark:hover:bg-amber-700"
             >
               Review Now
             </Button>
@@ -171,58 +172,64 @@ const StaffDashboard = () => {
       )}
 
       {/* Quick Actions - Full Width for Better Focus */}
-      <Card>
-        <CardContent >
-          <div className="flex items-center justify-between mb-4">
-            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100">Quick Actions</h3>
-            <span className="text-sm text-muted-foreground">
-              {(stats?.paymentVerification.count || 0) + (stats?.readyForGeneration.count || 0)} pending tasks
-            </span>
+      <Card className="border-muted/50">
+        <CardContent className="p-6">
+          <div className="flex items-baseline justify-between mb-6">
+            <div>
+              <h2 className="text-xl font-semibold text-gray-900 dark:text-gray-100">
+                Quick Actions
+              </h2>
+              <p className="text-sm text-muted-foreground mt-1">
+                {(stats?.paymentVerification.count || 0) + (stats?.readyForGeneration.count || 0)} pending tasks
+              </p>
+            </div>
           </div>
-          <div className="grid gap-3 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             {/* Payment Verification Action */}
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 h-auto py-5 hover:bg-emerald-50 dark:hover:bg-emerald-950/20 hover:border-emerald-300 dark:hover:border-emerald-800 transition-all"
+            <button
               onClick={() => navigate("/staff/payment-verification")}
+              className="group relative flex items-start gap-4 rounded-xl border border-muted/50 bg-card p-5 text-left transition-all hover:border-emerald-300 hover:bg-emerald-50/50 hover:shadow-sm active:scale-[0.98] dark:hover:border-emerald-800 dark:hover:bg-emerald-950/20"
             >
-              <div className="rounded-full p-2.5 bg-emerald-100 dark:bg-emerald-950/50">
+              <div className="rounded-xl bg-emerald-100 p-3 transition-colors group-hover:bg-emerald-200 dark:bg-emerald-950/50 dark:group-hover:bg-emerald-900/50 shrink-0">
                 <CreditCard className="h-5 w-5 text-emerald-600 dark:text-emerald-400" />
               </div>
-              <div className="flex-1 text-left">
-                <div className="font-semibold text-base">Payment Verification</div>
-                <div className="text-sm text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-base mb-1.5 leading-tight">
+                  Payment Verification
+                </div>
+                <div className="text-sm text-muted-foreground leading-tight">
                   {stats?.paymentVerification.count || 0} pending {(stats?.paymentVerification.count || 0) === 1 ? 'payment' : 'payments'}
                 </div>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </Button>
+              <ArrowRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 absolute top-5 right-5" />
+            </button>
 
             {/* Document Generation Action */}
-            <Button
-              variant="outline"
-              className="w-full justify-start gap-3 h-auto py-5 hover:bg-teal-50 dark:hover:bg-teal-950/20 hover:border-teal-300 dark:hover:border-teal-800 transition-all"
+            <button
               onClick={() => navigate("/staff/document-generation")}
+              className="group relative flex items-start gap-4 rounded-xl border border-muted/50 bg-card p-5 text-left transition-all hover:border-teal-300 hover:bg-teal-50/50 hover:shadow-sm active:scale-[0.98] dark:hover:border-teal-800 dark:hover:bg-teal-950/20"
             >
-              <div className="rounded-full p-2.5 bg-teal-100 dark:bg-teal-950/50">
+              <div className="rounded-xl bg-teal-100 p-3 transition-colors group-hover:bg-teal-200 dark:bg-teal-950/50 dark:group-hover:bg-teal-900/50 shrink-0">
                 <FileCheck className="h-5 w-5 text-teal-600 dark:text-teal-400" />
               </div>
-              <div className="flex-1 text-left">
-                <div className="font-semibold text-base">Document Generation</div>
-                <div className="text-sm text-muted-foreground">
+              <div className="flex-1 min-w-0">
+                <div className="font-semibold text-base mb-1.5 leading-tight">
+                  Document Generation
+                </div>
+                <div className="text-sm text-muted-foreground leading-tight">
                   {stats?.readyForGeneration.count || 0} ready to generate
                 </div>
               </div>
-              <ArrowRight className="h-4 w-4 text-muted-foreground" />
-            </Button>
+              <ArrowRight className="h-4 w-4 text-muted-foreground/50 transition-transform group-hover:translate-x-0.5 absolute top-5 right-5" />
+            </button>
           </div>
         </CardContent>
       </Card>
 
       {/* Document Requests Section */}
-      <div className="space-y-4">
+      <div className="space-y-6">
         <div className="flex items-center justify-between">
-          <h2 className="text-2xl font-semibold text-gray-900 dark:text-gray-100">
+          <h2 className="text-2xl font-semibold tracking-tight text-gray-900 dark:text-gray-100">
             Document Requests
           </h2>
           <Button
@@ -239,7 +246,7 @@ const StaffDashboard = () => {
         </div>
 
         {/* Search and Filters */}
-        <div className="flex flex-col gap-4 sm:flex-row">
+        <div className="flex flex-col gap-3 sm:flex-row">
           <div className="relative flex-1">
             <Search className="absolute top-1/2 left-3 h-4 w-4 -translate-y-1/2 text-gray-400" />
             <Input
@@ -270,14 +277,14 @@ const StaffDashboard = () => {
 
         {/* Request Cards Grid */}
         {requestsLoading ? (
-          <div className="grid gap-4 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-2">
             {[...Array(4)].map((_, i) => (
               <Skeleton key={i} className="h-64 rounded-xl" />
             ))}
           </div>
         ) : filteredRequests.length > 0 ? (
           <>
-            <div className="grid gap-4 md:grid-cols-2">
+            <div className="grid gap-6 md:grid-cols-2">
               {displayedRequests.map((request) => (
                 <RequestCard
                   key={request.id}
@@ -289,17 +296,17 @@ const StaffDashboard = () => {
 
             {/* View All Requests Button - Navigate to full page */}
             {hasMore && (
-              <div className="flex flex-col items-center gap-2 pt-4">
+              <div className="flex flex-col items-center gap-3 pt-6">
                 <Button
                   variant="outline"
                   size="lg"
                   onClick={() => navigate("/staff/doc-requests")}
-                  className="gap-2"
+                  className="gap-2 min-w-[200px]"
                 >
                   View All Requests ({filteredRequests.length})
                   <ArrowRight className="h-4 w-4" />
                 </Button>
-                <p className="text-muted-foreground text-xs">
+                <p className="text-muted-foreground text-xs text-center">
                   Showing {displayedRequests.length} of{" "}
                   {filteredRequests.length} request
                   {filteredRequests.length !== 1 ? "s" : ""} • View full list

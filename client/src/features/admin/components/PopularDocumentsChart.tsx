@@ -47,27 +47,29 @@ export function PopularDocumentsChart({ documents, isLoading }: PopularDocuments
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle>Popular Documents</CardTitle>
-        <CardDescription>Most requested document types</CardDescription>
+    <Card className="border-muted/50">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl">Popular Documents</CardTitle>
+        <CardDescription className="text-sm">
+          Most requested document types
+        </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent className="pb-6">
         {documents.length === 0 ? (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <FileText className="h-12 w-12 text-gray-400 mb-3" />
+          <div className="flex flex-col items-center justify-center py-16 text-center">
+            <FileText className="h-12 w-12 text-muted-foreground/40 mb-3" />
             <p className="text-sm text-muted-foreground">No document requests yet</p>
           </div>
         ) : (
-          <ChartContainer config={chartConfig} className="h-[300px] w-full">
+          <ChartContainer config={chartConfig} className="h-[320px] w-full">
             <BarChart
               data={documents}
               layout="vertical"
               margin={{
                 left: 0,
-                right: 16,
-                top: 0,
-                bottom: 0,
+                right: 32,
+                top: 5,
+                bottom: 5,
               }}
             >
               <XAxis type="number" hide />
@@ -76,20 +78,31 @@ export function PopularDocumentsChart({ documents, isLoading }: PopularDocuments
                 type="category"
                 tickLine={false}
                 axisLine={false}
-                width={120}
-                tickFormatter={(value) => value.length > 15 ? value.slice(0, 15) + "..." : value}
+                width={140}
+                tick={{ fontSize: 12 }}
+                className="text-muted-foreground"
+                tickFormatter={(value) => {
+                  if (value.length > 18) {
+                    return value.slice(0, 18) + "...";
+                  }
+                  return value;
+                }}
               />
               <ChartTooltip
-                cursor={false}
+                cursor={{ fill: "rgba(0,0,0,0.05)" }}
                 content={
                   <ChartTooltipContent
                     hideLabel
+                    className="min-w-[200px]"
                     formatter={(value, name, item) => (
-                      <div className="flex items-center gap-2">
-                        <div className="flex flex-col">
-                          <span className="font-medium">{item.payload.documentType}</span>
+                      <div className="flex flex-col gap-1">
+                        <span className="font-semibold text-foreground">
+                          {item.payload.documentType}
+                        </span>
+                        <div className="flex items-center gap-2 text-sm">
+                          <span className="font-medium text-foreground">{value} requests</span>
                           <span className="text-muted-foreground">
-                            {value} requests ({item.payload.percentage}%)
+                            ({item.payload.percentage}%)
                           </span>
                         </div>
                       </div>
@@ -100,7 +113,8 @@ export function PopularDocumentsChart({ documents, isLoading }: PopularDocuments
               <Bar
                 dataKey="count"
                 fill="var(--color-count)"
-                radius={[0, 4, 4, 0]}
+                radius={[0, 6, 6, 0]}
+                maxBarSize={32}
               />
             </BarChart>
           </ChartContainer>

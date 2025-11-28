@@ -1,7 +1,6 @@
 import * as React from "react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -17,9 +16,6 @@ import {
   Users,
   UserCog,
   FileText,
-  Settings,
-  HelpCircle,
-  Search,
   Building2,
   FileStack,
 } from "lucide-react";
@@ -56,24 +52,6 @@ const navMainItems = [
     title: "Barangay Configuration",
     url: "/admin/config/barangay",
     icon: Building2,
-  },
-];
-
-const navSecondaryItems = [
-  {
-    title: "Settings",
-    url: "/admin/settings",
-    icon: Settings,
-  },
-  {
-    title: "Get Help",
-    url: "/admin/help",
-    icon: HelpCircle,
-  },
-  {
-    title: "Search",
-    url: "/admin/search",
-    icon: Search,
   },
 ];
 
@@ -120,7 +98,6 @@ export const AdminSidebar = React.memo(function AdminSidebar({
       </SidebarHeader>
       <SidebarContent className="will-change-auto">
         <NavMain items={navMainItems} />
-        <NavSecondary items={navSecondaryItems} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

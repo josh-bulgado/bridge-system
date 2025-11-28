@@ -7,13 +7,19 @@ interface UseFetchDocumentRequestsParams {
   residentId?: string;
   page?: number;
   pageSize?: number;
+  refetchInterval?: number;
 }
 
 export const useFetchDocumentRequests = (params?: UseFetchDocumentRequestsParams) => {
+  const { refetchInterval, ...queryParams } = params || {};
+  
   return useQuery({
-    queryKey: QUERY_KEYS.documentRequestList(params),
-    queryFn: () => fetchDocumentRequests(params),
+    queryKey: QUERY_KEYS.documentRequestList(queryParams),
+    queryFn: () => fetchDocumentRequests(queryParams),
     staleTime: CACHE_STRATEGIES.DOCUMENT_REQUESTS.staleTime,
     gcTime: CACHE_STRATEGIES.DOCUMENT_REQUESTS.gcTime,
+    refetchInterval: refetchInterval,
+    refetchOnWindowFocus: true,
+    refetchOnMount: true,
   });
 };

@@ -2,13 +2,10 @@ import * as React from "react";
 import {
   LayoutDashboard,
   Users,
-  Settings,
-  HelpCircle,
   FileStack,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -37,19 +34,6 @@ const navMainItems = [
     title: "Document Requests",
     url: "/staff/doc-requests",
     icon: FileStack,
-  },
-];
-
-const navSecondaryItems = [
-  {
-    title: "Settings",
-    url: "/staff/settings",
-    icon: Settings,
-  },
-  {
-    title: "Get Help",
-    url: "/staff/help",
-    icon: HelpCircle,
   },
 ];
 
@@ -95,7 +79,6 @@ export function StaffSidebar({
       </SidebarHeader>
       <SidebarContent className="will-change-auto">
         <NavMain items={navMainItems} />
-        <NavSecondary items={navSecondaryItems} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

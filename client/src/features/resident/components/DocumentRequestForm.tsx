@@ -532,33 +532,26 @@ export function DocumentRequestForm({
             </>
           )}
 
-          {/* Submit Button */}
-          <div className="flex justify-end gap-4">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => navigate("/resident/requests")}
-              disabled={isPending}
-            >
-              Cancel
-            </Button>
-            <Button
-              type="submit"
-              disabled={
-                isPending ||
-                !selectedDocument ||
-                !form.watch("purpose") ||
-                needsSupportingDocs
-              }
-            >
-              {isPending && (
-                <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
-              )}
-              {!isFreeDocument && paymentMethod === "online"
-                ? "Pay Now"
-                : "Submit Request"}
-            </Button>
-          </div>
+          {/* Submit Button - Only show if document is selected */}
+          {selectedDocument && (
+            <div className="flex justify-end">
+              <Button
+                type="submit"
+                disabled={
+                  isPending ||
+                  !form.watch("purpose") ||
+                  needsSupportingDocs
+                }
+              >
+                {isPending && (
+                  <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />
+                )}
+                {!isFreeDocument && paymentMethod === "online"
+                  ? "Pay Now"
+                  : "Submit Request"}
+              </Button>
+            </div>
+          )}
         </form>
       </Form>
 

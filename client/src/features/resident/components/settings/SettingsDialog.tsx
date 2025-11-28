@@ -9,13 +9,14 @@ import { VerificationStatusSection } from "./VerificationStatusSection";
 import { GeneralSection } from "./GeneralSection";
 import { Lock, CheckCircle, UserCircle, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/features/auth/hooks/useAuth";
 
 interface SettingsDialogProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
-const sections = [
+const allSections = [
   { id: "general", label: "General", icon: Settings },
   { id: "security", label: "Security", icon: Lock },
   { id: "verification", label: "Verification", icon: CheckCircle },
@@ -25,6 +26,15 @@ const sections = [
 export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
   const [activeSection, setActiveSection] = useState<string>("general");
   const [showSidebar, setShowSidebar] = useState(true);
+  const { data: user } = useAuth();
+
+  // Filter sections based on user role - hide verification tab for admin and staff
+  const sections = allSections.filter(section => {
+    if (section.id === "verification" && (user?.role === "admin" || user?.role === "staff")) {
+      return false;
+    }
+    return true;
+  });
 
   const renderContent = () => {
     switch (activeSection) {

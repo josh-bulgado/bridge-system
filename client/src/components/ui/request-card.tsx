@@ -121,113 +121,109 @@ export const RequestCard: React.FC<RequestCardProps> = ({
   return (
     <Card
       className={cn(
-        "group transition-all duration-200 hover:shadow-lg hover:shadow-gray-200/50 dark:hover:shadow-gray-900/50",
-        onClick && "cursor-pointer hover:scale-[1.02] active:scale-[0.98]",
+        "group transition-all duration-200 border-muted/50",
+        "hover:shadow-md hover:border-primary/30",
+        onClick && "cursor-pointer active:scale-[0.98]",
         className,
       )}
       onClick={() => onClick?.(request.id)}
     >
       <CardContent className="p-6">
-        <div className="flex flex-col space-y-4 lg:flex-row lg:space-y-0 lg:space-x-6">
-          {/* Left Column - Main Information */}
-          <div className="min-w-0 flex-1">
-            {/* Header with Document Type and Status */}
-            <div className="mb-3 flex flex-col space-y-2 sm:flex-row sm:items-center sm:justify-between sm:space-y-0">
-              <h3 className="truncate text-lg font-bold text-gray-900 dark:text-gray-100">
-                {request.documentType}
-              </h3>
-              <div className="flex items-center gap-2">
-                {isPaid && (
-                  <Badge className="border-green-200 bg-green-100 text-green-800 dark:border-green-800 dark:bg-green-950/50 dark:text-green-400">
-                    <CheckCircle2 className="mr-1 h-3 w-3" />
-                    PAID
-                  </Badge>
-                )}
-                <Badge className={cn("border", status.color)}>
-                  <StatusIcon className="mr-1 h-3 w-3" />
-                  {status.label}
+        <div className="space-y-5">
+          {/* Header with Document Type and Status */}
+          <div className="flex items-start justify-between gap-4">
+            <h3 className="text-lg font-semibold text-gray-900 dark:text-gray-100 leading-tight">
+              {request.documentType}
+            </h3>
+            <div className="flex items-center gap-2 shrink-0">
+              {isPaid && (
+                <Badge className="border-green-200 bg-green-100 text-green-800 dark:border-green-800 dark:bg-green-950/50 dark:text-green-400 text-xs font-medium px-2 py-0.5">
+                  <CheckCircle2 className="mr-1 h-3 w-3" />
+                  PAID
                 </Badge>
-              </div>
-            </div>
-
-            {/* Metadata Grid */}
-            <div className="mb-4 grid grid-cols-1 gap-3 sm:grid-cols-2">
-              <div>
-                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                  Tracking Number
-                </p>
-                <p className="mt-1 font-mono text-sm text-gray-900 dark:text-gray-100">
-                  {request.trackingNumber}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                  Resident
-                </p>
-                <p className="mt-1 text-sm font-medium text-gray-900 dark:text-gray-100">
-                  {request.residentName}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                  Purpose
-                </p>
-                <p className="mt-1 line-clamp-2 text-sm text-gray-700 capitalize dark:text-gray-300">
-                  {request.purpose}
-                </p>
-              </div>
-
-              <div>
-                <p className="text-xs font-medium tracking-wide text-gray-500 uppercase dark:text-gray-400">
-                  Amount
-                </p>
-                <p className="mt-1 text-sm font-bold text-green-600 dark:text-green-400">
-                  {formatCurrency(request.amount)}
-                </p>
-              </div>
-            </div>
-
-            {/* Timestamp */}
-            <div className="flex items-center text-xs text-gray-500 dark:text-gray-400">
-              <Clock className="mr-1 h-3 w-3" />
-              Submitted {getRelativeTime(request.submittedAt)}
+              )}
+              <Badge className={cn("border text-xs font-medium px-2.5 py-0.5", status.color)}>
+                <StatusIcon className="mr-1 h-3 w-3" />
+                {status.label}
+              </Badge>
             </div>
           </div>
 
-          {/* Right Column - Actions (only show if approve/reject needed) */}
-          {showApproveReject && (
-            <div className="flex flex-col justify-between lg:min-w-[200px]">
-              <div className="flex flex-col space-y-2">
-                <Button
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent card click
-                    onApprove!(request.id);
-                  }}
-                  className="flex flex-1 items-center justify-center gap-2 bg-green-600 text-white hover:bg-green-700"
-                >
-                  <Check className="h-4 w-4" />
-                  Approve
-                </Button>
-
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={(e) => {
-                    e.stopPropagation(); // Prevent card click
-                    onReject!(request.id);
-                  }}
-                  className="flex flex-1 items-center justify-center gap-2 border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:border-red-700 dark:hover:bg-red-950/50"
-                >
-                  <X className="h-4 w-4" />
-                  Reject
-                </Button>
-              </div>
+          {/* Metadata Grid */}
+          <div className="grid grid-cols-2 gap-x-6 gap-y-4">
+            <div>
+              <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1.5">
+                Tracking Number
+              </p>
+              <p className="font-mono text-sm font-medium text-gray-900 dark:text-gray-100">
+                {request.trackingNumber}
+              </p>
             </div>
-          )}
+
+            <div>
+              <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1.5">
+                Resident
+              </p>
+              <p className="text-sm font-medium text-gray-900 dark:text-gray-100">
+                {request.residentName}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1.5">
+                Purpose
+              </p>
+              <p className="line-clamp-2 text-sm text-gray-700 dark:text-gray-300 capitalize">
+                {request.purpose}
+              </p>
+            </div>
+
+            <div>
+              <p className="text-xs font-semibold tracking-wider text-muted-foreground uppercase mb-1.5">
+                Amount
+              </p>
+              <p className="text-sm font-bold text-green-600 dark:text-green-400">
+                {formatCurrency(request.amount)}
+              </p>
+            </div>
+          </div>
+
+          {/* Timestamp */}
+          <div className="flex items-center text-xs text-muted-foreground pt-1 border-t border-muted/50">
+            <Clock className="mr-1.5 h-3.5 w-3.5" />
+            Submitted {getRelativeTime(request.submittedAt)}
+          </div>
         </div>
+
+        {/* Actions (only show if approve/reject needed) */}
+        {showApproveReject && (
+          <div className="flex gap-2 pt-4 border-t border-muted/50 mt-4">
+            <Button
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
+                onApprove!(request.id);
+              }}
+              className="flex-1 bg-green-600 text-white hover:bg-green-700"
+            >
+              <Check className="mr-1.5 h-4 w-4" />
+              Approve
+            </Button>
+
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={(e) => {
+                e.stopPropagation(); // Prevent card click
+                onReject!(request.id);
+              }}
+              className="flex-1 border-red-200 text-red-600 hover:border-red-300 hover:bg-red-50 dark:border-red-800 dark:text-red-400 dark:hover:border-red-700 dark:hover:bg-red-950/50"
+            >
+              <X className="mr-1.5 h-4 w-4" />
+              Reject
+            </Button>
+          </div>
+        )}
       </CardContent>
     </Card>
   );

@@ -35,33 +35,40 @@ export function StatCard({
   };
 
   const getChangeIcon = (change: number) => {
-    if (change > 0) return <ArrowUp className="h-4 w-4" />;
-    if (change < 0) return <ArrowDown className="h-4 w-4" />;
-    return <Minus className="h-4 w-4" />;
+    if (change > 0) return <ArrowUp className="h-3.5 w-3.5" />;
+    if (change < 0) return <ArrowDown className="h-3.5 w-3.5" />;
+    return <Minus className="h-3.5 w-3.5" />;
   };
 
   return (
     <Card
       className={cn(
-        "transition-all hover:shadow-lg",
-        onClick && "cursor-pointer hover:scale-105"
+        "transition-all duration-200 hover:shadow-md border-muted/50",
+        onClick && "cursor-pointer hover:border-primary/30 active:scale-[0.98]"
       )}
       onClick={onClick}
     >
-      <CardContent >
-        <div className="flex items-center justify-between">
-          <div className="flex-1">
-            <p className="text-sm font-medium text-muted-foreground">{title}</p>
-            <p className="mt-2 text-3xl font-bold">{value}</p>
+      <CardContent className="p-6">
+        <div className="flex items-start justify-between gap-4">
+          <div className="flex-1 space-y-3">
+            <p className="text-sm font-medium text-muted-foreground leading-none">
+              {title}
+            </p>
+            <p className="text-3xl font-bold tracking-tight leading-none">
+              {value}
+            </p>
             {change !== undefined && (
-              <div className={cn("mt-2 flex items-center gap-1 text-sm font-medium", getChangeColor(change))}>
+              <div className={cn(
+                "flex items-center gap-1.5 text-xs font-semibold",
+                getChangeColor(change)
+              )}>
                 {getChangeIcon(change)}
                 <span>{Math.abs(change)}%</span>
-                <span className="text-xs text-muted-foreground">vs last month</span>
+                <span className="font-normal text-muted-foreground">vs last month</span>
               </div>
             )}
           </div>
-          <div className={cn("rounded-full p-3", colorClasses[color])}>
+          <div className={cn("rounded-xl p-3 shrink-0", colorClasses[color])}>
             {icon}
           </div>
         </div>
