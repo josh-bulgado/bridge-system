@@ -32,6 +32,7 @@ interface RequestStatusTimelineProps {
   updatedAt: string;
   statusHistory?: StatusHistoryItem[];
   documentFormat?: "hardcopy" | "softcopy";
+  amount?: number;
 }
 
 const getStatusConfig = (status: string, documentFormat?: "hardcopy" | "softcopy") => {
@@ -47,6 +48,11 @@ const getStatusConfig = (status: string, documentFormat?: "hardcopy" | "softcopy
       icon: CheckCircle2,
       color: "bg-blue-500",
       label: "Request Approved",
+    },
+    documents_approved: {
+      icon: CheckCircle2,
+      color: "bg-green-500",
+      label: "Documents Approved",
     },
     payment_pending: {
       icon: CreditCard,
@@ -103,7 +109,11 @@ export function RequestStatusTimeline({
   updatedAt,
   statusHistory,
   documentFormat,
+  amount = 0,
 }: RequestStatusTimelineProps) {
+  // Determine if document is free (no payment required)
+  const isFree = amount === 0;
+  
   // Build comprehensive timeline from status history
   const timelineEvents: TimelineEvent[] =
     statusHistory && statusHistory.length > 0
@@ -119,6 +129,9 @@ export function RequestStatusTimeline({
               break;
             case "approved":
               description = "Your request has been approved by staff";
+              break;
+            case "documents_approved":
+              description = "Your supporting documents have been reviewed and approved";
               break;
             case "payment_pending":
               description = "Please complete the payment to proceed";
@@ -179,15 +192,24 @@ export function RequestStatusTimeline({
     return new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime();
   });
 
+  // Filter out payment-related events if document is free
+  const filteredEvents = isFree
+    ? sortedEvents.filter(
+        (event) =>
+          event.status !== "payment_pending" &&
+          event.status !== "payment_verified"
+      )
+    : sortedEvents;
+
   return (
     <div className="space-y-4">
       <h3 className="text-lg font-semibold">Request Timeline</h3>
 
       <div className="relative space-y-6">
-        {sortedEvents.map((event, index) => {
+        {filteredEvents.map((event, index) => {
           const config = getStatusConfig(event.status, documentFormat);
           const Icon = config.icon;
-          const isLast = index === sortedEvents.length - 1;
+          const isLast = index === filteredEvents.length - 1;
 
           return (
             <div key={index} className="relative flex gap-4">

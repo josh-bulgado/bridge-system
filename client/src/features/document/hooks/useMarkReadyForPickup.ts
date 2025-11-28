@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import api from "@/lib/api";
 import type { DocumentRequest } from "../types/documentRequest";
+import { CACHE_INVALIDATION } from "@/lib/cache-config";
 
 export function useMarkReadyForPickup() {
   const queryClient = useQueryClient();
@@ -14,7 +15,7 @@ export function useMarkReadyForPickup() {
       return data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documentRequests"] });
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.documentRequests() });
       toast.success("Document marked as ready for pickup");
     },
     onError: (error: any) => {

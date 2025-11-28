@@ -26,14 +26,14 @@ export function GeneratedDocumentViewer({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-6xl max-h-[90vh] p-0">
-        <DialogHeader className="px-6 py-4 border-b">
+      <DialogContent className="max-w-7xl h-[95vh] p-0 flex flex-col">
+        <DialogHeader className="px-6 py-3 border-b shrink-0">
           <DialogTitle>Generated Document - {request.documentType}</DialogTitle>
           <DialogDescription>
             Tracking Number: <code className="text-xs font-mono font-semibold">{request.trackingNumber}</code>
           </DialogDescription>
         </DialogHeader>
-        <div className="h-[75vh]">
+        <div className="flex-1 overflow-hidden min-h-0">
           <InlineDocumentViewer
             title={`${request.documentType} - ${request.residentName}`}
             url={request.generatedDocumentUrl}
@@ -41,26 +41,29 @@ export function GeneratedDocumentViewer({
             fileType="application/pdf"
           />
         </div>
-        <div className="px-6 py-4 border-t bg-muted/30 flex items-center justify-between">
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-            <CheckCircle className="h-4 w-4 text-green-600" />
-            <span>Generated on {request.generatedAt ? new Date(request.generatedAt).toLocaleDateString("en-PH", {
-              month: "short",
-              day: "numeric", 
-              year: "numeric",
-              hour: "2-digit",
-              minute: "2-digit"
-            }) : "N/A"}</span>
-            {request.generatedByName && (
-              <>
-                <span>by</span>
-                <span className="font-medium">{request.generatedByName}</span>
-              </>
-            )}
+        <div className="px-6 py-3 border-t bg-muted/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 shrink-0">
+          <div className="flex items-center gap-2 text-sm text-muted-foreground flex-wrap">
+            <CheckCircle className="h-4 w-4 text-green-600 shrink-0" />
+            <div className="flex items-center gap-2 flex-wrap">
+              <span>Generated on {request.generatedAt ? new Date(request.generatedAt).toLocaleDateString("en-PH", {
+                month: "short",
+                day: "numeric", 
+                year: "numeric",
+                hour: "2-digit",
+                minute: "2-digit"
+              }) : "N/A"}</span>
+              {request.generatedByName && (
+                <>
+                  <span>by</span>
+                  <span className="font-medium break-all">{request.generatedByName}</span>
+                </>
+              )}
+            </div>
           </div>
           <Button
             variant="outline"
             size="sm"
+            className="shrink-0 w-full sm:w-auto"
             onClick={() => window.open(request.generatedDocumentUrl, '_blank')}
           >
             <Download className="mr-2 h-4 w-4" />

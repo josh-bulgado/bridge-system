@@ -422,9 +422,23 @@ public class DocumentRequestController : ControllerBase
             }
 
             // Check if request is in a state that allows generation
-            if (request.Status != "approved" && request.Status != "payment_verified" && request.Status != "processing")
+            // For paid documents: Require payment_verified or processing status
+            // For free documents: Allow generation from approved status
+            var isFreeDocument = request.Amount == 0;
+            var canGenerate = request.Status == "processing" || 
+                             (isFreeDocument && request.Status == "approved") ||
+                             (!isFreeDocument && request.Status == "payment_verified");
+            
+            if (!canGenerate)
             {
-                return BadRequest(new { message = "Request must be in 'approved', 'payment_verified', or 'processing' status to generate document" });
+                if (isFreeDocument)
+                {
+                    return BadRequest(new { message = "Free document requests must be in 'approved' or 'processing' status to generate document" });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Paid document requests must be in 'payment_verified' or 'processing' status to generate document. Please verify payment first." });
+                }
             }
 
             var previewData = await _documentGenerationService.GeneratePreviewDataAsync(id);
@@ -466,9 +480,23 @@ public class DocumentRequestController : ControllerBase
             }
 
             // Check if request is in a state that allows generation
-            if (documentRequest.Status != "approved" && documentRequest.Status != "payment_verified" && documentRequest.Status != "processing")
+            // For paid documents: Require payment_verified or processing status
+            // For free documents: Allow generation from approved status
+            var isFreeDocument = documentRequest.Amount == 0;
+            var canGenerate = documentRequest.Status == "processing" || 
+                             (isFreeDocument && documentRequest.Status == "approved") ||
+                             (!isFreeDocument && documentRequest.Status == "payment_verified");
+            
+            if (!canGenerate)
             {
-                return BadRequest(new { message = "Request must be in 'approved', 'payment_verified', or 'processing' status to generate document" });
+                if (isFreeDocument)
+                {
+                    return BadRequest(new { message = "Free document requests must be in 'approved' or 'processing' status to generate document" });
+                }
+                else
+                {
+                    return BadRequest(new { message = "Paid document requests must be in 'payment_verified' or 'processing' status to generate document. Please verify payment first." });
+                }
             }
 
             var userId = GetCurrentUserId();

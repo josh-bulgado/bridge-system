@@ -2,6 +2,7 @@
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import api from "@/lib/api";
 import { toast } from "sonner";
+import { CACHE_INVALIDATION } from "@/lib/cache-config";
 
 interface CompleteDocumentRequestData {
   notes?: string;
@@ -22,7 +23,7 @@ export const useCompleteDocumentRequest = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["documentRequests"] });
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.documentRequests() });
       toast.success("Request marked as completed", {
         description: "The resident has successfully picked up their document.",
       });

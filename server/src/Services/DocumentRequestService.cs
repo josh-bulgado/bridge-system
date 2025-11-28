@@ -2,6 +2,7 @@ using MongoDB.Driver;
 using server.Models;
 using server.DTOs.DocumentRequests;
 using Microsoft.Extensions.Options;
+using server.src.Services;
 
 namespace server.Services;
 
@@ -13,11 +14,13 @@ public class DocumentRequestService
     private readonly IMongoCollection<User> _users;
     private readonly EmailService _emailService;
     private readonly DocumentService _documentService;
+    private readonly INotificationService _notificationService;
 
     public DocumentRequestService(
         MongoDBContext context,
         EmailService emailService,
-        DocumentService documentService)
+        DocumentService documentService,
+        INotificationService notificationService)
     {
         _documentRequests = context.GetCollection<DocumentRequest>("documentRequests");
         _residents = context.GetCollection<Resident>("residents");
@@ -25,6 +28,7 @@ public class DocumentRequestService
         _users = context.GetCollection<User>("users");
         _emailService = emailService;
         _documentService = documentService;
+        _notificationService = notificationService;
     }
 
     // Generate unique tracking number
@@ -216,6 +220,13 @@ Thank you!"
             );
         }
 
+        // Send real-time notification to staff and admin roles
+        await _notificationService.NotifyDocumentRequestCreated(
+            request.Id!,
+            $"{resident.FirstName} {resident.LastName}",
+            document.Name
+        );
+
         return (await GetRequestByIdAsync(request.Id!))!;
     }
 
@@ -228,20 +239,28 @@ Thank you!"
             throw new Exception("Request not found");
         }
 
-        if (request.Status != "pending")
+        // Allow approval when status is "pending" (for walk-in/free documents) 
+        // OR "payment_verified" (for online payments after payment verification)
+        if (request.Status != "pending" && request.Status != "payment_verified")
         {
-            throw new Exception("Only pending requests can be approved");
+            throw new Exception("Only pending or payment_verified requests can be approved");
         }
 
+        // Determine new status based on payment method and current status:
+        // - For GCash/online payments with payment already verified: Keep status as "payment_verified" (both payment and documents approved)
+        // - For walk-in/cash on pickup: Change to "approved" (documents approved, waiting for resident to arrive for payment)
+        // - For free documents: Change to "approved" (documents approved, ready to generate)
+        var newStatus = request.Status == "payment_verified" ? "payment_verified" : "approved";
+
         var update = Builders<DocumentRequest>.Update
-            .Set(r => r.Status, "approved")
+            .Set(r => r.Status, newStatus)
             .Set(r => r.ReviewedBy, approvedById)
             .Set(r => r.ReviewedAt, DateTime.UtcNow)
             .Set(r => r.Notes, dto.Notes)
             .Set(r => r.UpdatedAt, DateTime.UtcNow)
             .Push(r => r.StatusHistory, new StatusHistory
             {
-                Status = "approved",
+                Status = newStatus == "payment_verified" ? "documents_approved" : "approved",
                 ChangedBy = approvedById,
                 ChangedAt = DateTime.UtcNow,
                 Notes = dto.Notes
@@ -256,10 +275,50 @@ Thank you!"
 
         if (user != null && resident != null && document != null)
         {
-            await _emailService.SendEmailAsync(
-                user.Email,
-                "Document Request Approved",
-                $@"Dear {resident.FirstName} {resident.LastName},
+            // Different email content based on payment method
+            string emailBody;
+            string emailSubject;
+            
+            if (request.PaymentMethod == "walkin")
+            {
+                // Cash on pickup: Documents approved, resident needs to come to barangay hall
+                emailSubject = "Documents Approved - Visit Barangay Hall";
+                emailBody = $@"Dear {resident.FirstName} {resident.LastName},
+
+Your supporting documents have been approved!
+
+Tracking Number: {request.TrackingNumber}
+Document Type: {document.Name}
+Amount: ₱{request.Amount}
+
+Next Steps:
+Please visit the barangay hall during office hours to:
+1. Pay the document fee (₱{request.Amount})
+2. Receive your processed document
+
+Thank you!";
+            }
+            else if (request.Status == "payment_verified")
+            {
+                // GCash: Both payment and documents approved, ready for generation
+                emailSubject = "Payment & Documents Approved - Document Being Processed";
+                emailBody = $@"Dear {resident.FirstName} {resident.LastName},
+
+Great news! Your payment and supporting documents have been approved.
+
+Tracking Number: {request.TrackingNumber}
+Document Type: {document.Name}
+Amount Paid: ₱{request.Amount}
+
+Your document is now being processed and will be ready soon. You will receive another notification once it's ready for pickup/download.
+
+Thank you!";
+            }
+            else
+            {
+                // Free documents or default
+                emailSubject = "Document Request Approved";
+                emailBody = $@"Dear {resident.FirstName} {resident.LastName},
 
 Your document request has been approved!
 
@@ -267,12 +326,23 @@ Tracking Number: {request.TrackingNumber}
 Document Type: {document.Name}
 Amount: ₱{request.Amount}
 
-Next Steps:
-{(request.PaymentMethod == "online" 
-    ? "Please proceed with the payment and upload your payment proof." 
-    : "Please visit the barangay hall to complete the payment and processing.")}
+Your document is now being processed. You will receive another notification once it's ready.
 
-Thank you!"
+Thank you!";
+            }
+
+            await _emailService.SendEmailAsync(
+                user.Email,
+                emailSubject,
+                emailBody
+            );
+
+            // Send real-time notification to resident
+            await _notificationService.NotifyDocumentRequestStatusChanged(
+                user.Id!,
+                request.Id!,
+                newStatus == "payment_verified" ? "processing" : "approved",
+                document.Name
             );
         }
 
@@ -329,6 +399,14 @@ If you have any questions, please contact the barangay office.
 
 Thank you!"
             );
+
+            // Send real-time notification to resident
+            await _notificationService.NotifyDocumentRequestStatusChanged(
+                user.Id!,
+                request.Id!,
+                "rejected",
+                document.Name
+            );
         }
 
         return (await GetRequestByIdAsync(id))!;
@@ -379,6 +457,14 @@ Amount Paid: ₱{request.Amount}
 You will receive another notification once your document is ready for pickup/download.
 
 Thank you!"
+            );
+
+            // Send real-time notification to resident
+            await _notificationService.NotifyDocumentRequestStatusChanged(
+                user.Id!,
+                request.Id!,
+                "processing",
+                document.Name
             );
         }
 
@@ -439,6 +525,14 @@ Please visit the barangay office during office hours to claim your document. Bri
 
 Thank you!"
                 );
+
+                // Send real-time notification to resident
+                await _notificationService.NotifyDocumentRequestStatusChanged(
+                    user.Id!,
+                    request.Id!,
+                    "ready_for_pickup",
+                    document.Name
+                );
             }
         }
         else if (dto.Status == "completed")
@@ -462,6 +556,14 @@ Document Type: {document.Name}
 Please visit the barangay office during office hours to claim your document.
 
 Thank you!"
+                );
+
+                // Send real-time notification to resident
+                await _notificationService.NotifyDocumentRequestStatusChanged(
+                    user.Id!,
+                    request.Id!,
+                    "completed",
+                    document.Name
                 );
             }
         }
@@ -519,6 +621,14 @@ Thank you for using our barangay document request system!
 
 Best regards,
 Barangay Office"
+            );
+
+            // Send real-time notification to resident
+            await _notificationService.NotifyDocumentRequestStatusChanged(
+                user.Id!,
+                request.Id!,
+                "completed",
+                document.Name
             );
         }
 

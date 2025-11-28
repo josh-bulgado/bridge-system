@@ -3,6 +3,7 @@ import documentGenerationService from "../services/documentGenerationService";
 import type { GenerateDocumentResponse } from "../services/documentGenerationService";
 import { toast } from "sonner";
 import { AxiosError } from "axios";
+import { CACHE_INVALIDATION } from "@/lib/cache-config";
 
 interface GenerateDocumentParams {
   documentRequestId: string;
@@ -17,9 +18,8 @@ export const useGenerateDocument = () => {
       documentGenerationService.generateDocument(documentRequestId, data),
     onSuccess: (data) => {
       toast.success(data.message || "Document generated successfully");
-      // Invalidate queries to refresh the document request list
-      queryClient.invalidateQueries({ queryKey: ["documentRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["documentRequest"] });
+      // Invalidate all document request queries (list, detail, my requests)
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.documentRequests() });
     },
     onError: (error: AxiosError<any>) => {
       const message = error.response?.data?.message || error.message || "Failed to generate document";

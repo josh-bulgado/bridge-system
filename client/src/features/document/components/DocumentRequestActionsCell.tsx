@@ -20,6 +20,7 @@ import {
   useVerifyPayment,
   useCompleteDocumentRequest,
   useMarkReadyForPickup,
+  useFetchDocumentRequestById,
 } from "../hooks";
 import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
 import { DocumentGenerationModal } from "./DocumentGenerationModal";
@@ -65,6 +66,15 @@ export function DocumentRequestActionsCell({
   const completeMutation = useCompleteDocumentRequest();
   const markReadyForPickupMutation = useMarkReadyForPickup();
 
+  // Fetch real-time data when dialog is open
+  const { data: liveRequest, refetch: refetchRequest } = useFetchDocumentRequestById(
+    request.id,
+    viewDetailsOpen // Only fetch when dialog is open
+  );
+
+  // Use live data if available, otherwise use prop data
+  const currentRequest = liveRequest || request;
+
   const isProcessing =
     approveMutation.isPending ||
     rejectMutation.isPending ||
@@ -72,37 +82,83 @@ export function DocumentRequestActionsCell({
     completeMutation.isPending ||
     markReadyForPickupMutation.isPending;
 
-  // Determine verification status
+  // Determine verification status (use current request data)
   const isPaymentVerified =
-    request.paymentVerifiedAt !== undefined &&
-    request.paymentVerifiedAt !== null;
-  const isWalkinPayment = request.paymentMethod === "walkin";
-  const canReviewDocuments = isPaymentVerified || isWalkinPayment;
+    currentRequest.paymentVerifiedAt !== undefined &&
+    currentRequest.paymentVerifiedAt !== null;
+  const isWalkinPayment = currentRequest.paymentMethod === "walkin";
+  const isFreeDocument = currentRequest.amount === 0;
+  const isOnlinePayment = currentRequest.paymentMethod === "online";
+  
+  // For walk-in/cash on pickup: Can review documents immediately when pending (not yet reviewed)
+  // For free documents: Can review immediately when pending (not yet reviewed)
+  // For online payment (GCash): Can review documents when status is "payment_verified" AND not yet reviewed
+  const canReviewDocuments = 
+    (isFreeDocument && currentRequest.status === "pending" && !currentRequest.reviewedAt) || 
+    (isWalkinPayment && currentRequest.status === "pending" && !currentRequest.reviewedAt) ||
+    (isOnlinePayment && currentRequest.status === "payment_verified" && !currentRequest.reviewedAt);
 
   // Check if document can be generated
+  // For free documents: Allow generation when status is "approved" (documents approved, no payment needed)
+  // For GCash/online payments: Allow generation when status is "payment_verified" AND documents are reviewed (both payment and documents approved)
+  // For walk-in payments: Allow generation when status is "approved" AND payment is verified (documents approved, resident came and paid)
+  // Also allow if already in "processing" state
   const canGenerate =
-    request.status === "approved" ||
-    request.status === "payment_verified" ||
-    request.status === "processing";
+    (isFreeDocument && currentRequest.status === "approved") ||
+    (isOnlinePayment && currentRequest.status === "payment_verified" && currentRequest.reviewedAt !== null && currentRequest.reviewedAt !== undefined) ||
+    (isWalkinPayment && currentRequest.status === "approved" && isPaymentVerified) ||
+    currentRequest.status === "processing";
+
+  // Debug logging
+  React.useEffect(() => {
+    if (isOnlinePayment) {
+      console.log('=== GCash Generate Button Debug ===');
+      console.log('Request ID:', currentRequest.id);
+      console.log('Status:', currentRequest.status);
+      console.log('Payment Method:', currentRequest.paymentMethod);
+      console.log('reviewedAt:', currentRequest.reviewedAt);
+      console.log('paymentVerifiedAt:', currentRequest.paymentVerifiedAt);
+      console.log('isOnlinePayment:', isOnlinePayment);
+      console.log('canGenerate:', canGenerate);
+      console.log('Condition Check:');
+      console.log('  - status === "payment_verified":', currentRequest.status === "payment_verified");
+      console.log('  - reviewedAt !== null:', currentRequest.reviewedAt !== null);
+      console.log('  - reviewedAt !== undefined:', currentRequest.reviewedAt !== undefined);
+      console.log('===================================');
+    }
+  }, [currentRequest.id, currentRequest.status, currentRequest.reviewedAt, currentRequest.paymentVerifiedAt, isOnlinePayment, canGenerate]);
 
   // Check if generated document is available
   const hasGeneratedDocument =
-    request.generatedDocumentUrl &&
-    (request.status === "processing" ||
-      request.status === "ready_for_pickup" ||
-      request.status === "completed");
+    currentRequest.generatedDocumentUrl &&
+    (currentRequest.status === "processing" ||
+      currentRequest.status === "ready_for_pickup" ||
+      currentRequest.status === "completed");
   
   // Check if can mark as ready for pickup (after document generation)
   const canMarkReadyForPickup = 
-    request.status === "processing" && 
-    request.generatedDocumentUrl;
+    currentRequest.status === "processing" && 
+    currentRequest.generatedDocumentUrl;
   
   // Check if request can be completed (marked as picked up)
-  const canComplete = request.status === "ready_for_pickup";
+  const canComplete = currentRequest.status === "ready_for_pickup";
 
   // Reset tab when dialog opens
   const handleViewDetails = () => {
-    setActiveTab(isWalkinPayment ? "documents" : "payment");
+    // For free documents, go straight to documents tab
+    // For paid documents (online or walk-in), start with appropriate tab based on status
+    if (isFreeDocument) {
+      setActiveTab("documents");
+    } else if (currentRequest.status === "pending") {
+      // Pending status: show payment tab for online, documents tab for walk-in
+      setActiveTab(isWalkinPayment ? "documents" : "payment");
+    } else if (currentRequest.status === "approved" && !isPaymentVerified) {
+      // Approved but payment not verified: show payment tab
+      setActiveTab("payment");
+    } else {
+      // Payment verified or other statuses: show documents tab
+      setActiveTab("documents");
+    }
     setViewDetailsOpen(true);
   };
 
@@ -129,6 +185,8 @@ export function DocumentRequestActionsCell({
           setApprovePaymentDialogOpen(false);
           setNotes("");
           setActiveTab("documents");
+          // Force refetch to get updated data immediately
+          setTimeout(() => refetchRequest(), 100);
         },
       },
     );
@@ -158,7 +216,9 @@ export function DocumentRequestActionsCell({
         onSuccess: () => {
           setApproveDocumentDialogOpen(false);
           setNotes("");
-          setViewDetailsOpen(false);
+          // Don't close the details dialog immediately - let user see the generate button appear
+          // Force refetch to get updated data immediately
+          setTimeout(() => refetchRequest(), 100);
         },
       },
     );
@@ -182,7 +242,12 @@ export function DocumentRequestActionsCell({
 
   // Mark as ready for pickup handler
   const handleMarkReadyForPickup = () => {
-    markReadyForPickupMutation.mutate(request.id);
+    markReadyForPickupMutation.mutate(request.id, {
+      onSuccess: () => {
+        // Refetch to update the button visibility immediately
+        refetchRequest();
+      },
+    });
   };
 
   // Complete request handler
@@ -193,7 +258,10 @@ export function DocumentRequestActionsCell({
         onSuccess: () => {
           setCompleteDialogOpen(false);
           setNotes("");
-          setViewDetailsOpen(false);
+          // Refetch to update the status immediately, then close the dialog
+          refetchRequest().then(() => {
+            setViewDetailsOpen(false);
+          });
         },
       },
     );
@@ -292,7 +360,7 @@ export function DocumentRequestActionsCell({
       <DocumentRequestDetailsDialog
         open={viewDetailsOpen}
         onOpenChange={setViewDetailsOpen}
-        request={request}
+        request={currentRequest}
         isPaymentVerified={isPaymentVerified}
         isWalkinPayment={isWalkinPayment}
         canReviewDocuments={canReviewDocuments}
@@ -388,16 +456,16 @@ export function DocumentRequestActionsCell({
       <GeneratedDocumentViewer
         open={pdfPreviewOpen}
         onOpenChange={setPdfPreviewOpen}
-        request={request}
+        request={currentRequest}
       />
 
       {/* Complete Request Dialog */}
       <CompleteRequestDialog
         open={completeDialogOpen}
         onOpenChange={setCompleteDialogOpen}
-        residentName={request.residentName}
-        trackingNumber={request.trackingNumber}
-        documentType={request.documentType}
+        residentName={currentRequest.residentName}
+        trackingNumber={currentRequest.trackingNumber}
+        documentType={currentRequest.documentType}
         notes={notes}
         onNotesChange={setNotes}
         onConfirm={confirmCompleteRequest}

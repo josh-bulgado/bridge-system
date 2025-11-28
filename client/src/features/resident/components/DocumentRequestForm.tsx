@@ -300,21 +300,21 @@ export function DocumentRequestForm({
       <Form {...form}>
         <form
           onSubmit={form.handleSubmit(handleFormSubmit)}
-          className="space-y-6"
+          className="space-y-7"
         >
           {/* Document Type Selection */}
           <FormField
             control={form.control}
             name="documentId"
             render={({ field }) => (
-              <FormItem>
-                <FormLabel>Document Type *</FormLabel>
+              <FormItem className="space-y-3">
+                <FormLabel className="text-base font-semibold">Document Type *</FormLabel>
                 <Select
                   onValueChange={field.onChange}
                   value={field.value}
                 >
                   <FormControl>
-                    <SelectTrigger>
+                    <SelectTrigger className="h-11">
                       <SelectValue placeholder="Select document type" />
                     </SelectTrigger>
                   </FormControl>
@@ -337,7 +337,7 @@ export function DocumentRequestForm({
                     )}
                   </SelectContent>
                 </Select>
-                <FormDescription>
+                <FormDescription className="text-sm">
                   Select the type of document you want to request
                 </FormDescription>
                 <FormMessage />
@@ -348,21 +348,21 @@ export function DocumentRequestForm({
           {/* Only show remaining fields if a document is selected */}
           {selectedDocument && (
             <>
-              <Separator />
+              <Separator className="my-8" />
 
               {/* Purpose Selection */}
               <FormField
                 control={form.control}
                 name="purpose"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Purpose *</FormLabel>
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-base font-semibold">Purpose *</FormLabel>
                     <Select
                       onValueChange={field.onChange}
                       defaultValue={field.value}
                     >
                       <FormControl>
-                        <SelectTrigger>
+                        <SelectTrigger className="h-11">
                           <SelectValue placeholder="Select purpose" />
                         </SelectTrigger>
                       </FormControl>
@@ -374,7 +374,7 @@ export function DocumentRequestForm({
                         ))}
                       </SelectContent>
                     </Select>
-                    <FormDescription>
+                    <FormDescription className="text-sm">
                       Why do you need this document?
                     </FormDescription>
                     <FormMessage />
@@ -388,11 +388,12 @@ export function DocumentRequestForm({
                   control={form.control}
                   name="customPurpose"
                   render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Please specify *</FormLabel>
+                    <FormItem className="space-y-3">
+                      <FormLabel className="text-base font-semibold">Please specify *</FormLabel>
                       <FormControl>
                         <Textarea
                           placeholder="Enter your specific purpose..."
+                          className="min-h-[100px] resize-none"
                           {...field}
                         />
                       </FormControl>
@@ -407,15 +408,16 @@ export function DocumentRequestForm({
                 control={form.control}
                 name="additionalDetails"
                 render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Additional Details (Optional)</FormLabel>
+                  <FormItem className="space-y-3">
+                    <FormLabel className="text-base font-semibold">Additional Details (Optional)</FormLabel>
                     <FormControl>
                       <Textarea
                         placeholder="Any additional information..."
+                        className="min-h-[120px] resize-none"
                         {...field}
                       />
                     </FormControl>
-                    <FormDescription>
+                    <FormDescription className="text-sm">
                       Provide any additional information that may be helpful
                     </FormDescription>
                     <FormMessage />
@@ -426,14 +428,14 @@ export function DocumentRequestForm({
               {/* Supporting Documents - Only show if document has requirements */}
               {selectedDocument && selectedDocument.requirements.length > 0 && (
                 <>
-                  <Separator />
+                  <Separator className="my-8" />
 
                   <FormField
                     control={form.control}
                     name="supportingDocuments"
                     render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Supporting Documents *</FormLabel>
+                      <FormItem className="space-y-3">
+                        <FormLabel className="text-base font-semibold">Supporting Documents *</FormLabel>
                         <FormControl>
                           <MultiFileUploadZone
                             onUploadComplete={(urls) => field.onChange(urls)}
@@ -441,7 +443,7 @@ export function DocumentRequestForm({
                             maxSize={10 * 1024 * 1024} // 10MB
                           />
                         </FormControl>
-                        <FormDescription>
+                        <FormDescription className="text-sm">
                           Upload the required documents listed in the order
                           summary (Images only: PNG, JPG, JPEG - max 5 files,
                           10MB each)
@@ -455,30 +457,30 @@ export function DocumentRequestForm({
 
               {!isFreeDocument && (
                 <>
-                  <Separator />
+                  <Separator className="my-8" />
 
                   {/* Payment Method */}
                   <FormField
                     control={form.control}
                     name="paymentMethod"
                     render={({ field }) => (
-                      <FormItem className="space-y-3">
-                        <FormLabel>Payment Method *</FormLabel>
+                      <FormItem className="space-y-4">
+                        <FormLabel className="text-base font-semibold">Payment Method *</FormLabel>
                         <FormControl>
                           <RadioGroup
                             onValueChange={field.onChange}
                             defaultValue={field.value}
-                            className="flex flex-col space-y-1"
+                            className="flex flex-col space-y-3"
                           >
-                            <div className="flex items-center space-y-0 space-x-3">
+                            <div className="flex items-center space-x-3 space-y-0">
                               <RadioGroupItem value="online" id="online" />
-                              <Label className="font-normal" htmlFor="online">
+                              <Label className="font-normal cursor-pointer" htmlFor="online">
                                 GCash (Pay Now)
                               </Label>
                             </div>
-                            <div className="flex items-center space-y-0 space-x-3">
+                            <div className="flex items-center space-x-3 space-y-0">
                               <RadioGroupItem value="walkin" id="walkin" />
-                              <Label className="font-normal" htmlFor="walkin">
+                              <Label className="font-normal cursor-pointer" htmlFor="walkin">
                                 Cash on Pickup (Pay at Barangay Hall)
                               </Label>
                             </div>
@@ -495,29 +497,29 @@ export function DocumentRequestForm({
                       control={form.control}
                       name="documentFormat"
                       render={({ field }) => (
-                        <FormItem className="space-y-3">
-                          <FormLabel>Document Format *</FormLabel>
+                        <FormItem className="space-y-4">
+                          <FormLabel className="text-base font-semibold">Document Format *</FormLabel>
                           <FormControl>
                             <RadioGroup
                               onValueChange={field.onChange}
                               value={field.value}
-                              className="flex flex-col space-y-1"
+                              className="flex flex-col space-y-3"
                             >
-                              <div className="flex items-center space-y-0 space-x-3">
+                              <div className="flex items-center space-x-3 space-y-0">
                                 <RadioGroupItem value="hardcopy" id="hardcopy" />
-                                <Label className="font-normal" htmlFor="hardcopy">
+                                <Label className="font-normal cursor-pointer" htmlFor="hardcopy">
                                   Hard Copy (To be picked up at Barangay Hall)
                                 </Label>
                               </div>
-                              <div className="flex items-center space-y-0 space-x-3">
+                              <div className="flex items-center space-x-3 space-y-0">
                                 <RadioGroupItem value="softcopy" id="softcopy" />
-                                <Label className="font-normal" htmlFor="softcopy">
+                                <Label className="font-normal cursor-pointer" htmlFor="softcopy">
                                   Soft Copy (PDF - Digital delivery)
                                 </Label>
                               </div>
                             </RadioGroup>
                           </FormControl>
-                          <FormDescription>
+                          <FormDescription className="text-sm">
                             Choose how you want to receive your document
                           </FormDescription>
                           <FormMessage />
@@ -525,8 +527,6 @@ export function DocumentRequestForm({
                       )}
                     />
                   )}
-
-                  <Separator />
                 </>
               )}
             </>
@@ -534,14 +534,16 @@ export function DocumentRequestForm({
 
           {/* Submit Button - Only show if document is selected */}
           {selectedDocument && (
-            <div className="flex justify-end">
+            <div className="flex justify-end pt-2">
               <Button
                 type="submit"
+                size="lg"
                 disabled={
                   isPending ||
                   !form.watch("purpose") ||
                   needsSupportingDocs
                 }
+                className="min-w-[180px]"
               >
                 {isPending && (
                   <IconLoader2 className="mr-2 h-4 w-4 animate-spin" />

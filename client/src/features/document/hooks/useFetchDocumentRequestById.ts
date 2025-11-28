@@ -9,5 +9,9 @@ export const useFetchDocumentRequestById = (id: string, enabled = true) => {
     enabled: !!id && enabled,
     staleTime: CACHE_STRATEGIES.DOCUMENT_REQUEST_DETAIL.staleTime,
     gcTime: CACHE_STRATEGIES.DOCUMENT_REQUEST_DETAIL.gcTime,
+    // Refetch every 2 seconds when the query is enabled (dialog is open)
+    refetchInterval: enabled ? 2000 : false,
+    // Don't refetch on window focus when dialog is open (polling handles it)
+    refetchOnWindowFocus: !enabled,
   });
 };

@@ -10,24 +10,57 @@ interface Step {
 interface RequestStatusStepperProps {
   currentStatus: string;
   documentFormat?: "hardcopy" | "softcopy";
+  amount?: number;
+  paymentMethod?: string;
+  paymentVerifiedAt?: string;
+  reviewedAt?: string;
 }
 
-const statusOrder = [
-  "pending",
-  "approved",
-  "payment_verified",
-  "ready_for_generation",
-  "processing",
-  "ready_for_pickup",
-  "completed",
-];
+const getStatusOrder = (isFree: boolean, paymentMethod?: string, isWalkIn?: boolean) => {
+  if (isFree) {
+    // For free documents, skip payment_verified step
+    return [
+      "pending",
+      "approved",
+      "processing",
+      "ready_for_pickup",
+      "completed",
+    ];
+  }
+  
+  // For GCash/Online payments: payment verified first, then documents approved
+  if (paymentMethod === "online") {
+    return [
+      "pending",
+      "payment_verified",
+      "approved", // This represents "documents approved" step
+      "processing",
+      "ready_for_pickup",
+      "completed",
+    ];
+  }
+  
+  // For Walk-in payments: documents approved first, then payment verified
+  return [
+    "pending",
+    "approved",
+    "payment_verified",
+    "processing",
+    "ready_for_pickup",
+    "completed",
+  ];
+};
 
-const getStatusLabel = (status: string, documentFormat?: "hardcopy" | "softcopy"): string => {
+const getStatusLabel = (
+  status: string, 
+  documentFormat?: "hardcopy" | "softcopy",
+  paymentMethod?: string
+): string => {
   const isSoftCopy = documentFormat === "softcopy";
   
   const baseLabels: Record<string, string> = {
     pending: "Submitted",
-    approved: "Approved",
+    approved: paymentMethod === "online" ? "Documents Approved" : "Approved",
     payment_pending: "Payment Pending",
     payment_verified: "Payment Verified",
     ready_for_generation: "Ready for Generation",
@@ -42,7 +75,15 @@ const getStatusLabel = (status: string, documentFormat?: "hardcopy" | "softcopy"
 export function RequestStatusStepper({
   currentStatus,
   documentFormat,
+  amount = 0,
+  paymentMethod,
+  paymentVerifiedAt,
+  reviewedAt,
 }: RequestStatusStepperProps) {
+  // Determine if document is free (no payment required)
+  const isFree = amount === 0;
+  const isOnlinePayment = paymentMethod === "online";
+  
   // Handle cancelled and rejected states
   if (currentStatus === "cancelled" || currentStatus === "rejected") {
     return (
@@ -67,7 +108,17 @@ export function RequestStatusStepper({
     );
   }
 
-  const currentIndex = statusOrder.indexOf(currentStatus);
+  const statusOrder = getStatusOrder(isFree, paymentMethod);
+  
+  // For GCash payments, after documents are approved, status stays as "payment_verified" but reviewedAt is set
+  // We need to map this to show the "approved" step as completed
+  let effectiveStatus = currentStatus;
+  if (isOnlinePayment && currentStatus === "payment_verified" && reviewedAt) {
+    // Both payment verified and documents approved - show as "approved" step
+    effectiveStatus = "approved";
+  }
+  
+  const currentIndex = statusOrder.indexOf(effectiveStatus);
 
   const steps: Step[] = statusOrder.map((status, index) => {
     let stepStatus: Step["status"] = "pending";
@@ -79,7 +130,7 @@ export function RequestStatusStepper({
     }
 
     return {
-      label: getStatusLabel(status, documentFormat),
+      label: getStatusLabel(status, documentFormat, paymentMethod),
       status: stepStatus,
     };
   });

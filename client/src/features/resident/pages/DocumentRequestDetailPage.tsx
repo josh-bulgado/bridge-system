@@ -35,6 +35,17 @@ const statusColors: Record<string, string> = {
   rejected: "bg-red-500",
 };
 
+// Helper function to format payment method display
+const formatPaymentMethod = (method: string) => {
+  if (method === "walkin" || method === "walk-in") {
+    return "Cash";
+  }
+  if (method === "online") {
+    return "GCash";
+  }
+  return method.charAt(0).toUpperCase() + method.slice(1);
+};
+
 export default function DocumentRequestDetailPage() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -131,6 +142,10 @@ export default function DocumentRequestDetailPage() {
           <RequestStatusStepper 
             currentStatus={request.status} 
             documentFormat={request.documentFormat}
+            amount={request.amount}
+            paymentMethod={request.paymentMethod}
+            paymentVerifiedAt={request.paymentVerifiedAt}
+            reviewedAt={request.reviewedAt}
           />
         </CardContent>
       </Card>
@@ -243,6 +258,37 @@ export default function DocumentRequestDetailPage() {
             </CardContent>
           </Card>
 
+          {/* Rejection Reason Card - Show only if rejected */}
+          {request.status === "rejected" && request.rejectionReason && (
+            <Card className="border-red-200 bg-red-50 dark:border-red-900 dark:bg-red-950">
+              <CardHeader>
+                <CardTitle className="text-red-900 dark:text-red-100">
+                  Rejection Reason
+                </CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                <div className="rounded-lg bg-white/50 dark:bg-black/20 p-4">
+                  <p className="text-sm text-red-900 dark:text-red-100">
+                    {request.rejectionReason}
+                  </p>
+                </div>
+                {request.notes && (
+                  <>
+                    <Separator className="bg-red-200 dark:bg-red-900" />
+                    <div>
+                      <p className="text-muted-foreground text-sm mb-2">
+                        Additional Notes
+                      </p>
+                      <p className="text-sm text-red-800 dark:text-red-200">
+                        {request.notes}
+                      </p>
+                    </div>
+                  </>
+                )}
+              </CardContent>
+            </Card>
+          )}
+
           {/* Payment Info Card */}
           <Card>
             <CardHeader>
@@ -267,8 +313,8 @@ export default function DocumentRequestDetailPage() {
                   <p className="text-muted-foreground text-sm">
                     Payment Method
                   </p>
-                  <p className="font-medium capitalize">
-                    {request.paymentMethod}
+                  <p className="font-medium">
+                    {formatPaymentMethod(request.paymentMethod)}
                   </p>
                 </div>
               </div>
@@ -324,6 +370,7 @@ export default function DocumentRequestDetailPage() {
                 updatedAt={request.updatedAt}
                 statusHistory={request.statusHistory}
                 documentFormat={request.documentFormat}
+                amount={request.amount}
               />
             </CardContent>
           </Card>

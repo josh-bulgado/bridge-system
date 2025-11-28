@@ -22,30 +22,31 @@ const CreateDocumentRequestPage = () => {
   );
 
   return (
-    <div className="flex flex-col space-y-6">
-      <div className="flex items-center gap-3">
-        <div className="bg-primary/10 flex h-12 w-12 items-center justify-center rounded-lg">
-          <IconFileText className="text-primary h-6 w-6" />
+    <div className="flex flex-col space-y-8 pb-8">
+      {/* Header */}
+      <div className="flex items-center gap-4">
+        <div className="bg-primary/10 flex h-14 w-14 items-center justify-center rounded-xl shrink-0">
+          <IconFileText className="text-primary h-7 w-7" />
         </div>
-        <div>
+        <div className="space-y-1">
           <h1 className="text-3xl font-bold tracking-tight">
             Request New Document
           </h1>
-          <p className="text-muted-foreground">
+          <p className="text-base text-muted-foreground">
             Fill out the form below to request a barangay document
           </p>
         </div>
       </div>
 
       {/* 2-Column Layout */}
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-8 lg:grid-cols-3">
         {/* Left Column - Form (2/3 width on large screens) */}
         <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Request Details</CardTitle>
+          <Card className="border-muted/50">
+            <CardHeader className="pb-4">
+              <CardTitle className="text-xl">Request Details</CardTitle>
             </CardHeader>
-            <CardContent>
+            <CardContent className="pt-6">
               <DocumentRequestForm
                 onDocumentSelect={setSelectedDocument}
                 onPaymentMethodChange={setPaymentMethod}
@@ -69,7 +70,7 @@ const CreateDocumentRequestPage = () => {
       </div>
 
       {/* Mobile: Fixed bottom summary button */}
-      <div className="bg-background fixed right-0 bottom-0 left-0 border-t p-4 lg:hidden">
+      <div className="bg-background fixed right-0 bottom-0 left-0 border-t p-4 lg:hidden z-50">
         <Button className="w-full" size="lg">
           View Summary & Submit
         </Button>

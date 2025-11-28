@@ -23,7 +23,6 @@ import { useFetchResidentById } from "../../staff/hooks";
 import { RejectVerificationDialog } from "./RejectVerificationDialog";
 import { DocumentViewer } from "@/components/ui/document-viewer";
 import { InlineDocumentViewer } from "@/components/ui/inline-document-viewer";
-import { cn } from "@/lib/utils";
 import { usePreloadResidentDocuments } from "../hooks/usePreloadResidentDocuments";
 import { type ResidentListItem } from "../services/residentService";
 
@@ -464,9 +463,9 @@ export default function ResidentDetailsModal({
                     </Button>
                   )}
                 </div>
-                <div className="flex-1 overflow-auto">
+                <div className="flex-1 overflow-auto p-4">
                   {displayResident.proofOfResidency ? (
-                    <div className="min-h-[600px] p-4">
+                    <div className="h-full min-h-[700px]">
                       <InlineDocumentViewer
                         title={formatProofOfResidencyType(
                           displayResident.proofOfResidencyType,
@@ -728,9 +727,9 @@ export default function ResidentDetailsModal({
                           </Button>
                         )}
                       </div>
-                      <div className="min-h-0 flex-1 overflow-auto">
+                      <div className="min-h-0 flex-1 overflow-auto p-4">
                         {entry.proofOfResidency ? (
-                          <div className="h-full">
+                          <div className="h-full min-h-[700px]">
                             <InlineDocumentViewer
                               title={formatProofOfResidencyType(
                                 entry.proofOfResidencyType,
@@ -743,7 +742,7 @@ export default function ResidentDetailsModal({
                             />
                           </div>
                         ) : (
-                          <div className="flex h-full items-center justify-center">
+                          <div className="flex h-full items-center justify-center min-h-[400px]">
                             <p className="text-muted-foreground text-sm">
                               No proof of residency submitted.
                             </p>

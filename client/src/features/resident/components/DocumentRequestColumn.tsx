@@ -47,6 +47,10 @@ const getStatusBadge = (status: string, documentFormat?: "hardcopy" | "softcopy"
       className: "bg-red-500/15 text-red-700 hover:bg-red-500/25 dark:bg-red-500/10 dark:text-red-400",
       label: "Rejected"
     },
+    cancelled: {
+      className: "bg-gray-500/15 text-gray-700 hover:bg-gray-500/25 dark:bg-gray-500/10 dark:text-gray-400",
+      label: "Cancelled"
+    },
   };
 
   const config = statusConfig[status] || statusConfig.pending;

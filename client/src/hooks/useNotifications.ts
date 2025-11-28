@@ -4,6 +4,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { startConnection, stopConnection, getConnection } from '@/lib/signalr';
 import type { RealtimeNotification } from '@/types/notification';
 import * as signalR from '@microsoft/signalr';
+import { CACHE_INVALIDATION, QUERY_KEYS } from '@/lib/cache-config';
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();
@@ -42,6 +43,14 @@ export const useNotifications = () => {
     // Invalidate notification queries to update the notification bell
     queryClient.invalidateQueries({ queryKey: ['notifications'] });
     queryClient.invalidateQueries({ queryKey: ['notifications', 'unread-count'] });
+    
+    // If document request notification, invalidate document request queries
+    if (category === 'document_request') {
+      // Invalidate all document request queries (list, detail, my requests)
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.documentRequests() });
+      // Also invalidate stats to update dashboard counts
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.stats() });
+    }
     
     // If verification status changed, invalidate verification status query
     if (category === 'verification') {

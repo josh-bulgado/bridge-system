@@ -21,27 +21,27 @@ export function OrderSummary({ selectedDocument, paymentMethod, documentFormat }
   const isFree = selectedDocument ? selectedDocument.price === 0 : false;
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-lg">Order Summary</CardTitle>
+    <Card className="border-muted/50">
+      <CardHeader className="pb-4">
+        <CardTitle className="text-xl">Order Summary</CardTitle>
       </CardHeader>
-      <CardContent className="space-y-4">
+      <CardContent className="space-y-5">
         {/* Document Info */}
         {selectedDocument ? (
           <>
-            <div className="space-y-3">
+            <div className="space-y-4">
               <div className="flex items-start gap-3">
-                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-primary/10">
-                  <IconFileText className="h-5 w-5 text-primary" />
+                <div className="flex h-12 w-12 items-center justify-center rounded-xl bg-primary/10 shrink-0">
+                  <IconFileText className="h-6 w-6 text-primary" />
                 </div>
-                <div className="flex-1">
-                  <p className="font-medium">{selectedDocument.name}</p>
+                <div className="flex-1 min-w-0">
+                  <p className="font-semibold leading-tight">{selectedDocument.name}</p>
                   {selectedDocument.requirements.length > 0 ? (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground mt-1">
                       {selectedDocument.requirements.length} requirement(s)
                     </p>
                   ) : (
-                    <p className="text-sm text-muted-foreground">
+                    <p className="text-sm text-muted-foreground mt-1">
                       No requirements needed
                     </p>
                   )}
@@ -49,8 +49,8 @@ export function OrderSummary({ selectedDocument, paymentMethod, documentFormat }
               </div>
 
               {/* Processing Time */}
-              <div className="flex items-center gap-2 text-sm">
-                <IconClock className="h-4 w-4 text-muted-foreground" />
+              <div className="flex items-center gap-2.5 text-sm">
+                <IconClock className="h-4 w-4 text-muted-foreground shrink-0" />
                 <span className="text-muted-foreground">Processing:</span>
                 <span className="font-medium">{selectedDocument.processingTime}</span>
               </div>
@@ -58,20 +58,20 @@ export function OrderSummary({ selectedDocument, paymentMethod, documentFormat }
               {/* Payment Method - Only show if not free */}
               {!isFree && (
                 <>
-                  <div className="flex items-center gap-2 text-sm">
-                    <IconCreditCard className="h-4 w-4 text-muted-foreground" />
+                  <div className="flex items-center gap-2.5 text-sm">
+                    <IconCreditCard className="h-4 w-4 text-muted-foreground shrink-0" />
                     <span className="text-muted-foreground">Payment:</span>
-                    <Badge variant="outline">
+                    <Badge variant="outline" className="font-medium">
                       {paymentMethod === "online" ? "GCash" : "Cash on Pickup"}
                     </Badge>
                   </div>
                   
                   {/* Document Format - Only show if GCash is selected and format is chosen */}
                   {paymentMethod === "online" && documentFormat && (
-                    <div className="flex items-center gap-2 text-sm pl-6">
-                      <IconFileText className="h-4 w-4 text-muted-foreground" />
+                    <div className="flex items-center gap-2.5 text-sm pl-6">
+                      <IconFileText className="h-4 w-4 text-muted-foreground shrink-0" />
                       <span className="text-muted-foreground">Format:</span>
-                      <Badge variant="secondary">
+                      <Badge variant="secondary" className="font-medium">
                         {documentFormat === "hardcopy" 
                           ? "Hard Copy (Pick up)" 
                           : "Soft Copy (PDF)"}
@@ -87,13 +87,13 @@ export function OrderSummary({ selectedDocument, paymentMethod, documentFormat }
               <>
                 <Separator />
 
-                <div className="space-y-2">
-                  <p className="text-sm font-medium">Requirements:</p>
-                  <ul className="space-y-1">
+                <div className="space-y-2.5">
+                  <p className="text-sm font-semibold">Requirements:</p>
+                  <ul className="space-y-2">
                     {selectedDocument.requirements.map((req, index) => (
-                      <li key={index} className="text-sm text-muted-foreground flex items-start gap-2">
-                        <span className="text-primary">•</span>
-                        <span>{req}</span>
+                      <li key={index} className="text-sm text-muted-foreground flex items-start gap-2.5">
+                        <span className="text-primary text-base leading-none">•</span>
+                        <span className="leading-snug">{req}</span>
                       </li>
                     ))}
                   </ul>
@@ -104,39 +104,37 @@ export function OrderSummary({ selectedDocument, paymentMethod, documentFormat }
             )}
 
             {/* Price Breakdown */}
-            <div className="space-y-3">
-              <div className="flex justify-between text-sm">
+            <div className="space-y-4">
+              <div className="flex justify-between items-center text-sm">
                 <span className="text-muted-foreground">Document Fee</span>
                 {isFree ? (
-                  <Badge variant="secondary" className="bg-green-500/15 text-green-700 hover:bg-green-500/25">
+                  <Badge variant="secondary" className="bg-green-500/15 text-green-700 hover:bg-green-500/25 font-semibold">
                     FREE
                   </Badge>
                 ) : (
-                  <span className="font-medium">{formatCurrency(selectedDocument.price)}</span>
+                  <span className="font-semibold">{formatCurrency(selectedDocument.price)}</span>
                 )}
               </div>
               
               {!isFree && paymentMethod === "online" && (
-                <div className="flex justify-between text-sm">
+                <div className="flex justify-between items-center text-sm">
                   <span className="text-muted-foreground">Processing Fee</span>
-                  <span className="font-medium">₱0.00</span>
+                  <span className="font-semibold">₱0.00</span>
                 </div>
               )}
 
               <Separator />
 
-              <div className="flex justify-between">
-                <span className="font-semibold">Total Amount</span>
+              <div className="flex justify-between items-center">
+                <span className="text-base font-semibold">Total Amount</span>
                 {isFree ? (
-                  <div className="flex items-center gap-2">
-                    <Badge variant="secondary" className="bg-green-500/15 text-green-700 hover:bg-green-500/25 text-lg px-3 py-1">
-                      FREE
-                    </Badge>
-                  </div>
+                  <Badge variant="secondary" className="bg-green-500/15 text-green-700 hover:bg-green-500/25 text-lg px-3 py-1 font-bold">
+                    FREE
+                  </Badge>
                 ) : (
-                  <div className="flex items-center gap-1">
-                    <IconCurrencyPeso className="h-5 w-5 text-primary" />
-                    <span className="text-2xl font-bold text-primary">
+                  <div className="flex items-center gap-0.5">
+                    <IconCurrencyPeso className="h-6 w-6 text-primary" />
+                    <span className="text-3xl font-bold text-primary leading-none">
                       {selectedDocument.price.toFixed(2)}
                     </span>
                   </div>
@@ -145,21 +143,30 @@ export function OrderSummary({ selectedDocument, paymentMethod, documentFormat }
             </div>
 
             {/* Info Box */}
-            <div className="rounded-lg bg-muted/50 p-3 text-xs text-muted-foreground">
-              <p className="font-medium mb-1">Important:</p>
-              <ul className="list-inside list-disc space-y-1">
-                <li>Double-check all information before submitting</li>
-                <li>You will receive email notifications on status updates</li>
-                <li>Processing time may vary depending on the complexity</li>
+            <div className="rounded-xl bg-muted/40 p-4 text-xs text-muted-foreground border border-muted/50">
+              <p className="font-semibold mb-2 text-foreground">Important:</p>
+              <ul className="space-y-1.5 leading-relaxed">
+                <li className="flex items-start gap-2">
+                  <span className="text-primary text-base leading-none">•</span>
+                  <span>Double-check all information before submitting</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary text-base leading-none">•</span>
+                  <span>You will receive email notifications on status updates</span>
+                </li>
+                <li className="flex items-start gap-2">
+                  <span className="text-primary text-base leading-none">•</span>
+                  <span>Processing time may vary depending on the complexity</span>
+                </li>
               </ul>
             </div>
           </>
         ) : (
-          <div className="flex flex-col items-center justify-center py-8 text-center">
-            <div className="flex h-16 w-16 items-center justify-center rounded-full bg-muted">
-              <IconFileText className="h-8 w-8 text-muted-foreground" />
+          <div className="flex flex-col items-center justify-center py-12 text-center">
+            <div className="flex h-20 w-20 items-center justify-center rounded-full bg-muted/50">
+              <IconFileText className="h-10 w-10 text-muted-foreground/60" />
             </div>
-            <p className="mt-4 text-sm text-muted-foreground">
+            <p className="mt-4 text-sm text-muted-foreground leading-relaxed">
               Select a document type to see the summary
             </p>
           </div>

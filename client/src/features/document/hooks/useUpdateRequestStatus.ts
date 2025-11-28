@@ -2,6 +2,7 @@ import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { updateRequestStatus } from "../services/documentRequestService";
 import { toast } from "sonner";
 import type { UpdateStatusRequest } from "../types/documentRequest";
+import { CACHE_INVALIDATION } from "@/lib/cache-config";
 
 export const useUpdateRequestStatus = () => {
   const queryClient = useQueryClient();
@@ -10,9 +11,8 @@ export const useUpdateRequestStatus = () => {
     mutationFn: ({ id, data }: { id: string; data: UpdateStatusRequest }) =>
       updateRequestStatus(id, data),
     onSuccess: (data) => {
-      // Invalidate and refetch
-      queryClient.invalidateQueries({ queryKey: ["documentRequests"] });
-      queryClient.invalidateQueries({ queryKey: ["documentRequest", data.id] });
+      // Invalidate all document request queries
+      queryClient.invalidateQueries({ queryKey: CACHE_INVALIDATION.documentRequests() });
       
       toast.success("Status Updated", {
         description: `Request ${data.trackingNumber} status has been updated to ${data.status}.`,

@@ -55,13 +55,22 @@ export function DocumentRequestDetailsDialog({
   onGenerateDocument,
   onImagePreview,
 }: DocumentRequestDetailsDialogProps) {
+  const isFreeDocument = request.amount === 0;
+  // Show payment tab for all paid documents (both online and walk-in)
+  // Only free documents skip the payment tab
+  const showPaymentTab = !isFreeDocument;
+  
   const getTabTriggerIcon = (status: string, type: "payment" | "documents") => {
     if (type === "payment") {
-      return isPaymentVerified ? (
-        <CheckCircle className="h-4 w-4 text-green-600" />
-      ) : (
-        <Clock className="h-4 w-4 text-muted-foreground" />
-      );
+      // Payment tab: Check if payment is verified
+      if (isPaymentVerified) {
+        return <CheckCircle className="h-4 w-4 text-green-600" />;
+      }
+      // For approved status without payment (walk-in awaiting payment)
+      if (status === "approved") {
+        return <Clock className="h-4 w-4 text-blue-600" />;
+      }
+      return <Clock className="h-4 w-4 text-muted-foreground" />;
     }
     
     // Documents tab icon
@@ -78,12 +87,23 @@ export function DocumentRequestDetailsDialog({
   const getTabTriggerBadge = (status: string, type: "payment" | "documents") => {
     const isSoftCopy = request.documentFormat === "softcopy";
     
-    if (type === "payment" && isPaymentVerified) {
-      return (
-        <Badge variant="default" className="ml-auto bg-green-600 text-[10px] px-1.5 py-0 h-5">
-          Verified
-        </Badge>
-      );
+    if (type === "payment") {
+      if (isPaymentVerified) {
+        return (
+          <Badge variant="default" className="ml-auto bg-green-600 text-[10px] px-1.5 py-0 h-5">
+            Verified
+          </Badge>
+        );
+      }
+      // For approved status without payment (walk-in awaiting payment)
+      if (status === "approved") {
+        return (
+          <Badge variant="secondary" className="ml-auto border-blue-500/50 bg-blue-500/10 text-blue-700 dark:text-blue-400 text-[10px] px-1.5 py-0 h-5">
+            Awaiting Payment
+          </Badge>
+        );
+      }
+      return null;
     }
     
     // Documents tab badges
@@ -148,9 +168,9 @@ export function DocumentRequestDetailsDialog({
         <div className="space-y-6">
           <DocumentRequestInfoCard request={request} />
 
-          {/* Two-Step Verification Tabs (or single tab for walkin) */}
+          {/* Two-Step Verification Tabs (or single tab for walkin/free) */}
           <Tabs value={activeTab} onValueChange={onTabChange} className="w-full">
-            {!isWalkinPayment && (
+            {showPaymentTab ? (
               <TabsList className="grid w-full grid-cols-2 h-auto p-1 bg-muted/50">
                 <TabsTrigger 
                   value="payment"
@@ -169,19 +189,32 @@ export function DocumentRequestDetailsDialog({
                   {getTabTriggerBadge(request.status, "documents")}
                 </TabsTrigger>
               </TabsList>
+            ) : (
+              <TabsList className="grid w-full grid-cols-1 h-auto p-1 bg-muted/50">
+                <TabsTrigger 
+                  value="documents"
+                  className="data-[state=active]:bg-background data-[state=active]:shadow-sm py-3 gap-2 text-sm font-medium transition-all"
+                >
+                  {getTabTriggerIcon(request.status, "documents")}
+                  <span>Supporting Documents</span>
+                  {getTabTriggerBadge(request.status, "documents")}
+                </TabsTrigger>
+              </TabsList>
             )}
 
-            {/* Tab 1: Payment Verification */}
-            <TabsContent value="payment">
-              <PaymentVerificationTab
-                request={request}
-                isPaymentVerified={isPaymentVerified}
-                isProcessing={isProcessing}
-                onApprovePayment={onApprovePayment}
-                onRejectPayment={onRejectPayment}
-                onImagePreview={onImagePreview}
-              />
-            </TabsContent>
+            {/* Tab 1: Payment Verification - Only for paid documents with online payment */}
+            {showPaymentTab && (
+              <TabsContent value="payment">
+                <PaymentVerificationTab
+                  request={request}
+                  isPaymentVerified={isPaymentVerified}
+                  isProcessing={isProcessing}
+                  onApprovePayment={onApprovePayment}
+                  onRejectPayment={onRejectPayment}
+                  onImagePreview={onImagePreview}
+                />
+              </TabsContent>
+            )}
 
             {/* Tab 2: Supporting Documents */}
             <TabsContent value="documents">

@@ -207,7 +207,7 @@ public class NotificationService : INotificationService
             "info",
             "document_request",
             requestId,
-            $"/staff/requests/{requestId}"
+            $"/staff/doc-requests"
         );
 
         await SendToRole(
@@ -217,7 +217,7 @@ public class NotificationService : INotificationService
             "info",
             "document_request",
             requestId,
-            $"/admin/requests/{requestId}"
+            $"/admin/doc-requests"
         );
     }
 

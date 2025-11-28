@@ -44,10 +44,7 @@ export function InlineDocumentViewer({
   // Fetch signed URL from backend
   useEffect(() => {
     const fetchSignedUrl = async () => {
-      console.log('InlineDocumentViewer props:', { publicId, residentId, url, fileType });
-      
       if (!publicId || !residentId) {
-        console.warn('Missing publicId or residentId, trying to use stored URL');
         // Use stored URL if no publicId/residentId
         if (url && url.startsWith('http')) {
           setSignedUrl(url);
