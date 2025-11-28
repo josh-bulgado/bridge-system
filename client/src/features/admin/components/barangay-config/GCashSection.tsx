@@ -10,7 +10,7 @@ import { Spinner } from "@/components/ui/spinner";
 interface GCashSectionProps {
   register: UseFormRegister<BarangayConfigFormData>;
   errors: FieldErrors<BarangayConfigFormData>;
-  displayQrCode: string | null;
+  displayQrCode?: string | null;
   onQrCodeSelect: (e: React.ChangeEvent<HTMLInputElement>) => void;
   onQrCodeRemove: () => void;
   isUploadingQr: boolean;

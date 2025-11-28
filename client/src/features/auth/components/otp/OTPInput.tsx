@@ -1,4 +1,9 @@
-import { useRef, useEffect, type KeyboardEvent, type ClipboardEvent } from "react";
+import {
+  useRef,
+  useEffect,
+  type KeyboardEvent,
+  type ClipboardEvent,
+} from "react";
 
 interface OTPInputProps {
   length?: number;
@@ -100,7 +105,9 @@ export const OTPInput = ({
       {Array.from({ length }, (_, index) => (
         <input
           key={index}
-          ref={(el) => (inputRefs.current[index] = el)}
+          ref={(el) => {
+            inputRefs.current[index] = el;
+          }}
           type="text"
           inputMode="numeric"
           maxLength={1}
@@ -108,7 +115,7 @@ export const OTPInput = ({
           onChange={(e) => handleInputChange(index, e.target.value)}
           onKeyDown={(e) => handleKeyDown(index, e)}
           onPaste={index === 0 ? handlePaste : undefined}
-          className={`h-12 w-12 sm:h-14 sm:w-14 rounded-lg border-2 bg-background text-center text-xl sm:text-2xl font-semibold transition-all duration-200 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:scale-105 disabled:cursor-not-allowed disabled:opacity-50 ${getInputBorderColor()}`}
+          className={`bg-background focus-visible:ring-ring h-12 w-12 rounded-lg border-2 text-center text-xl font-semibold transition-all duration-200 focus-visible:scale-105 focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none disabled:cursor-not-allowed disabled:opacity-50 sm:h-14 sm:w-14 sm:text-2xl ${getInputBorderColor()}`}
           disabled={disabled}
           aria-label={`Digit ${index + 1}`}
         />

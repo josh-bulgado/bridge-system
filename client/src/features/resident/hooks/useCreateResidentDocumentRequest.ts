@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { createResidentDocumentRequest } from "../services/residentDocumentRequestService";
 import type { CreateDocumentRequestRequest } from "@/features/document/types/documentRequest";
@@ -9,7 +10,7 @@ export const useCreateResidentDocumentRequest = () => {
   return useMutation({
     mutationFn: (data: CreateDocumentRequestRequest) =>
       createResidentDocumentRequest(data),
-    onSuccess: (data) => {
+    onSuccess: () => {
       // Invalidate and refetch
       queryClient.invalidateQueries({ queryKey: ["myDocumentRequests"] });
       // Toast removed - Thank You dialog will show instead

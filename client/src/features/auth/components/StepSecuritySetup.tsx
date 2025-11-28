@@ -1,5 +1,5 @@
 import { useFormContext } from "react-hook-form";
-import { Check, AlertCircle, Shield } from "lucide-react";
+import { Check, AlertCircle } from "lucide-react";
 import {
   FormControl,
   FormField,
@@ -52,7 +52,7 @@ const StepSecuritySetup = () => {
                     autoFocus
                   />
                 </FormControl>
-                <div className="min-h-[20px] text-sm">
+                <div className="min-h-5 text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -89,7 +89,7 @@ const StepSecuritySetup = () => {
                     placeholder=""
                   />
                 </FormControl>
-                <div className="min-h-[20px] text-sm">
+                <div className="min-h-5 text-sm">
                   <FormMessage />
                 </div>
               </FormItem>

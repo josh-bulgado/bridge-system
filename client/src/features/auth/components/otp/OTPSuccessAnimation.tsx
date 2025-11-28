@@ -25,7 +25,7 @@ export const OTPSuccessAnimation = ({
         <p className="text-sm text-muted-foreground">{subtitle}</p>
       </div>
 
-      <style jsx>{`
+      <style>{`
         @keyframes fadeInScale {
           from {
             opacity: 0;

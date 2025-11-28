@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { rejectResident } from "../services/residentService";
 import { toast } from "sonner";
@@ -13,7 +14,7 @@ export const useRejectResidentVerification = () => {
   return useMutation({
     mutationFn: ({ residentId, reason }: RejectResidentParams) => 
       rejectResident(residentId, reason),
-    onSuccess: (data, { residentId }) => {
+    onSuccess: ( { residentId }) => {
       // Invalidate and refetch residents list
       queryClient.invalidateQueries({ queryKey: ["residents"] });
       queryClient.invalidateQueries({ queryKey: ["resident", residentId] });

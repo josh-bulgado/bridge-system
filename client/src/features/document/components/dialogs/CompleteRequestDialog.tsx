@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -46,12 +45,15 @@ export function CompleteRequestDialog({
           </AlertDialogTitle>
           <AlertDialogDescription className="space-y-3 pt-2">
             <p>
-              Confirm that <strong>{residentName}</strong> has successfully picked up their document.
+              Confirm that <strong>{residentName}</strong> has successfully
+              picked up their document.
             </p>
-            <div className="bg-muted rounded-lg p-3 space-y-1.5">
+            <div className="bg-muted space-y-1.5 rounded-lg p-3">
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Tracking Number:</span>
-                <code className="font-mono font-semibold">{trackingNumber}</code>
+                <code className="font-mono font-semibold">
+                  {trackingNumber}
+                </code>
               </div>
               <div className="flex items-center justify-between text-sm">
                 <span className="text-muted-foreground">Document Type:</span>
@@ -71,9 +73,7 @@ export function CompleteRequestDialog({
           />
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isProcessing}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isProcessing}

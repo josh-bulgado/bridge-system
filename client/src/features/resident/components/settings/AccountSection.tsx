@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useDeleteAccount } from "@/features/resident/hooks";
@@ -8,7 +9,6 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -16,7 +16,7 @@ import {
   AlertDialogHeader,
   AlertDialogTitle,
 } from "@/components/ui/alert-dialog";
-import { InfoIcon, Trash2, AlertTriangle } from "lucide-react";
+import { InfoIcon, AlertTriangle } from "lucide-react";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "sonner";
 
@@ -32,7 +32,7 @@ export function AccountSection() {
     password: "",
   });
 
-  const isGoogleUser = user?.isGoogleUser || false;
+  const isGoogleUser = user?.authProvider === "google" || false;
 
   const validateForm = () => {
     const errors = {

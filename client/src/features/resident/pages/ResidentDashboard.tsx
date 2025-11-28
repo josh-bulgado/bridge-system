@@ -1,31 +1,29 @@
 import { useMemo, useState } from "react";
-import {
-  VerificationReminder,
-  WelcomeSection,
-  QuickActions,
-  RecentRequests,
-  AvailableDocumentsInfo,
-  OfficeInfoCard,
-  HowToVerifyCard,
-  type RequestData,
-} from "../components";
-import { VerificationDialog } from "../components/VerificationDialog";
+import { useNavigate } from "react-router-dom";
 import { useAuth } from "@/features/auth/hooks/useAuth";
 import { useVerificationStatus } from "../hooks/useVerificationStatus";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
-import { Clock, CheckCircle, XCircle, X } from "lucide-react";
 import { useFetchMyDocumentRequests } from "../hooks/useFetchMyDocumentRequests";
 import { useQueryClient } from "@tanstack/react-query";
 import { Skeleton } from "@/components/ui/skeleton";
-import { Button } from "@/components/ui/button";
-import { useNavigate } from "react-router-dom";
+import { VerificationDialog } from "../components/VerificationDialog";
+import type { RequestData } from "../components";
+
+// Import new enhanced components
+import { DashboardHeader } from "../components/DashboardHeader";
+import { VerificationStatusCard } from "../components/VerificationStatusCard";
+import { VerificationProgressStepper } from "../components/VerificationProgressStepper";
+import { DashboardFooter } from "../components/DashboardFooter";
+import { OfficeInfoBanner } from "../components/OfficeInfoBanner";
+import { EnhancedAvailableDocuments } from "../components/EnhancedAvailableDocuments";
+import { EnhancedQuickActions } from "../components/EnhancedQuickActions";
+import { EnhancedRecentRequests } from "../components/EnhancedRecentRequests";
 
 const ResidentDashboard = () => {
   const { data: user } = useAuth();
   const queryClient = useQueryClient();
   const navigate = useNavigate();
 
-  // Fetch verification status using cached hook
+  // Fetch verification status
   const { data: verificationData, isLoading: isLoadingStatus } =
     useVerificationStatus();
 
@@ -36,35 +34,21 @@ const ResidentDashboard = () => {
   const [isVerificationDialogOpen, setIsVerificationDialogOpen] =
     useState(false);
 
-  // Track if user has dismissed the approval notification
-  const [hasSeenApproval, setHasSeenApproval] = useState(() => {
-    return localStorage.getItem(`approval_seen_${user?.id}`) === "true";
-  });
-
-  const handleDismissApproval = () => {
-    if (user?.id) {
-      localStorage.setItem(`approval_seen_${user.id}`, "true");
-      setHasSeenApproval(true);
-    }
-  };
-
   // Refresh verification status after submission
   const handleVerificationSuccess = () => {
-    // Invalidate cache to refetch fresh data
     queryClient.invalidateQueries({ queryKey: ["verificationStatus"] });
   };
 
-  // Fetch real document requests for the logged-in resident
+  // Fetch real document requests
   const { data: documentRequests, isLoading: isLoadingRequests } =
     useFetchMyDocumentRequests();
 
-  // Transform API data to RequestData format and get recent 5 requests
+  // Transform API data to RequestData format
   const recentRequests: RequestData[] = useMemo(() => {
     if (!documentRequests || documentRequests.length === 0) {
       return [];
     }
 
-    // Helper function to get status color and display label
     const getStatusColor = (status: string) => {
       switch (status) {
         case "pending":
@@ -86,7 +70,6 @@ const ResidentDashboard = () => {
       }
     };
 
-    // Helper function to format status for display
     const formatStatus = (status: string) => {
       switch (status) {
         case "pending":
@@ -108,7 +91,6 @@ const ResidentDashboard = () => {
       }
     };
 
-    // Sort by date (newest first) and take top 5
     return documentRequests
       .sort(
         (a, b) =>
@@ -125,6 +107,7 @@ const ResidentDashboard = () => {
           day: "numeric",
         }),
         statusColor: getStatusColor(req.status),
+        trackingNumber: req.trackingNumber,
       }));
   }, [documentRequests]);
 
@@ -134,28 +117,37 @@ const ResidentDashboard = () => {
   };
 
   const handleNewRequest = () => {
-    navigate("/resident/requests/new");
+    navigate("/resident/new-requests");
   };
 
   const handleViewAllRequests = () => {
     navigate("/resident/requests");
   };
 
-  const handlePickupSchedule = () => {
-    // Filter requests that are ready_for_generation or completed
-    navigate("/resident/requests");
-    // TODO: In future, add pickup schedule page or filter
+  const handleContactOffice = () => {
+    // Scroll to office info or open contact modal
+    const officeSection = document.getElementById("office-info");
+    if (officeSection) {
+      officeSection.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   const handleRequestClick = (request: RequestData) => {
-    // Navigate to request details page using React Router (no full page reload!)
     navigate(`/resident/requests/${request.id}`);
   };
 
-  // Get the user's first name for the greeting
+  const handleRequestDocument = (documentId: string) => {
+    if (isVerified) {
+      navigate("/resident/new-requests", {
+        state: { preSelectedDocumentId: documentId },
+      });
+    }
+  };
+
+  // Get user's first name
   const firstName = user?.firstName || user?.email?.split("@")[0] || "Resident";
 
-  // Show loading state while fetching verification status
+  // Show loading state
   if (isLoadingStatus) {
     return (
       <>
@@ -165,20 +157,15 @@ const ResidentDashboard = () => {
           onVerificationSuccess={handleVerificationSuccess}
         />
 
-        <div className="space-y-6">
-          {/* Loading skeleton for verification banner */}
+        <div className="space-y-5">
           <Skeleton className="h-24 w-full rounded-lg" />
-
-          {/* Welcome Section */}
-          <WelcomeSection userName={firstName} />
-
-          {/* Loading skeleton for content */}
-          <div className="grid gap-6 md:grid-cols-3">
-            <Skeleton className="h-32 w-full rounded-lg" />
-            <Skeleton className="h-32 w-full rounded-lg" />
-            <Skeleton className="h-32 w-full rounded-lg" />
+          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
+            <Skeleton className="h-24 w-full rounded-lg" />
           </div>
-          <Skeleton className="h-64 w-full rounded-lg" />
+          <Skeleton className="h-48 w-full rounded-lg" />
         </div>
       </>
     );
@@ -193,136 +180,157 @@ const ResidentDashboard = () => {
       />
 
       <div className="space-y-6">
-        {/* Verification Status Banner */}
-        {/* Not Verified - Show Verification Reminder */}
-        {!isVerified && verificationStatus === "Not Submitted" && (
-          <VerificationReminder onVerifyClick={handleVerifyClick} />
+        {/* Dashboard Header */}
+        <DashboardHeader userName={firstName} isVerified={isVerified} />
+
+        {/* Verification Status Card - Only show for non-verified users */}
+        {!isVerified && (
+          <VerificationStatusCard
+            status={verificationStatus}
+            isVerified={isVerified}
+            onStartVerification={handleVerifyClick}
+            rejectionReason={rejectionReason}
+          />
         )}
 
-        {/* Pending Review */}
-        {!isVerified && verificationStatus === "Pending" && (
-          <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/50">
-            <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            <AlertTitle className="text-blue-800 dark:text-blue-200">
-              Verification Under Review
-            </AlertTitle>
-            <AlertDescription className="text-blue-700 dark:text-blue-300">
-              Your verification documents have been submitted and are currently
-              being reviewed by our staff. You will be notified once the review
-              is complete. This usually takes 1-3 business days.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Under Review */}
-        {!isVerified && verificationStatus === "Under Review" && (
-          <Alert className="border-blue-200 bg-blue-50 dark:border-blue-800 dark:bg-blue-950/50">
-            <Clock className="h-5 w-5 text-blue-600 dark:text-blue-400" />
-            <AlertTitle className="text-blue-800 dark:text-blue-200">
-              Verification Under Review
-            </AlertTitle>
-            <AlertDescription className="text-blue-700 dark:text-blue-300">
-              Your verification is currently being reviewed by our staff. We may
-              contact you if additional information is needed. Thank you for
-              your patience.
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Approved - Only show if user hasn't dismissed it */}
-        {isVerified &&
-          verificationStatus === "Approved" &&
-          !hasSeenApproval && (
-            <Alert className="relative border-green-200 bg-green-50 dark:border-green-800 dark:bg-green-950/50">
-              <CheckCircle className="h-5 w-5 text-green-600 dark:text-green-400" />
-              <AlertTitle className="flex justify-between text-green-800 dark:text-green-200">
-                <div>Verification Approved!</div>
-                <Button
-                  onClick={handleDismissApproval}
-                  variant="ghost"
-                  size="icon-sm"
-                >
-                  <X />
-                </Button>
-              </AlertTitle>
-              <AlertDescription className="text-green-700 dark:text-green-300">
-                Your residency has been verified! You now have full access to
-                all barangay services and can submit document requests.
-              </AlertDescription>
-            </Alert>
-          )}
-
-        {/* Rejected */}
-        {!isVerified && verificationStatus === "Rejected" && (
-          <Alert className="border-red-200 bg-red-50 dark:border-red-800 dark:bg-red-950/50">
-            <XCircle className="h-5 w-5 text-red-600 dark:text-red-400" />
-            <AlertTitle className="text-red-800 dark:text-red-200">
-              Verification Rejected
-            </AlertTitle>
-            <AlertDescription className="text-red-700 dark:text-red-300">
-              <p>
-                Your verification request was not approved. Please review your
-                documents and submit again. If you have questions, please
-                contact the barangay office.
-              </p>
-              {rejectionReason && (
-                <div className="mt-3 rounded-md border border-red-300 bg-red-100 p-3 dark:border-red-800 dark:bg-red-900/30">
-                  <p className="mb-1 text-sm font-semibold">
-                    Reason for Rejection:
-                  </p>
-                  <p className="text-sm">{rejectionReason}</p>
-                </div>
-              )}
-              <Button
-                onClick={handleVerifyClick}
-                variant="outline"
-                className="mt-3 border-red-300 text-red-700 hover:bg-red-100 dark:border-red-700 dark:text-red-300 dark:hover:bg-red-900/30"
-              >
-                Resubmit Verification
-              </Button>
-            </AlertDescription>
-          </Alert>
-        )}
-
-        {/* Welcome Section */}
-        <WelcomeSection userName={firstName} />
-
-        {/* Conditional Content Based on Verification Status */}
+        {/* Conditional Layout Based on Verification Status */}
         {isVerified ? (
           <>
-            {/* Verified Users: Show Full Dashboard */}
+            {/* VERIFIED USER DASHBOARD */}
 
-            {/* Quick Actions */}
-            <QuickActions
-              isVerified={isVerified}
-              onNewRequest={handleNewRequest}
-              onViewAllRequests={handleViewAllRequests}
-              onPickupSchedule={handlePickupSchedule}
-            />
+            {/* Quick Actions - PRIMARY SECTION */}
+            <section>
+              <EnhancedQuickActions
+                isVerified={isVerified}
+                onNewRequest={handleNewRequest}
+                onViewRequests={handleViewAllRequests}
+                onContactOffice={handleContactOffice}
+                onViewPickup={handleViewAllRequests}
+              />
+            </section>
+
+            {/* Available Documents Section */}
+            <section>
+              <EnhancedAvailableDocuments
+                isVerified={isVerified}
+                onRequestDocument={handleRequestDocument}
+              />
+            </section>
 
             {/* Recent Requests */}
-            <RecentRequests
-              isVerified={isVerified}
-              requests={recentRequests}
-              isLoading={isLoadingRequests}
-              onRequestClick={handleRequestClick}
-            />
+            <section>
+              <EnhancedRecentRequests
+                isVerified={isVerified}
+                requests={recentRequests}
+                isLoading={isLoadingRequests}
+                onRequestClick={handleRequestClick}
+                onViewAll={handleViewAllRequests}
+              />
+            </section>
+
+            {/* Office Info */}
+            <section>
+              <OfficeInfoBanner />
+            </section>
           </>
         ) : (
           <>
-            {/* Non-Verified Users: Show Information and Guide */}
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* How to Get Verified */}
-              <HowToVerifyCard onStartVerification={handleVerifyClick} />
+            {/* NON-VERIFIED USER DASHBOARD */}
 
-              {/* Office Information */}
-              <OfficeInfoCard />
-            </div>
+            {/* Verification Steps */}
+            <section>
+              <VerificationProgressStepper
+                currentStatus={verificationStatus}
+                onStartVerification={handleVerifyClick}
+              />
+            </section>
 
-            {/* Available Documents Information */}
-            <AvailableDocumentsInfo />
+            {/* Available Documents Preview */}
+            <section>
+              <EnhancedAvailableDocuments
+                isVerified={isVerified}
+                onRequestDocument={handleRequestDocument}
+              />
+            </section>
+
+            {/* Office Info */}
+            <section>
+              <OfficeInfoBanner />
+            </section>
+
+            {/* Helpful Information Cards */}
+            <section className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+              <div className="rounded-lg border border-dashed border-green-300 bg-green-50 p-5 text-center dark:border-green-700 dark:bg-green-950/20">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                  <svg
+                    className="h-6 w-6 text-green-600 dark:text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M13 10V3L4 14h7v7l9-11h-7z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="mb-2 text-sm font-semibold">Fast Processing</h3>
+                <p className="text-muted-foreground text-xs">
+                  Most documents ready in 1-3 business days
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-dashed border-green-300 bg-green-50 p-5 text-center dark:border-green-700 dark:bg-green-950/20">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                  <svg
+                    className="h-6 w-6 text-green-600 dark:text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="mb-2 text-sm font-semibold">Secure Process</h3>
+                <p className="text-muted-foreground text-xs">
+                  Your documents are handled with strict confidentiality
+                </p>
+              </div>
+
+              <div className="rounded-lg border border-dashed border-green-300 bg-green-50 p-5 text-center sm:col-span-2 lg:col-span-1 dark:border-green-700 dark:bg-green-950/20">
+                <div className="mx-auto mb-3 flex h-12 w-12 items-center justify-center rounded-full bg-green-100 dark:bg-green-900">
+                  <svg
+                    className="h-6 w-6 text-green-600 dark:text-green-400"
+                    fill="none"
+                    stroke="currentColor"
+                    viewBox="0 0 24 24"
+                  >
+                    <path
+                      strokeLinecap="round"
+                      strokeLinejoin="round"
+                      strokeWidth={2}
+                      d="M18.364 5.636l-3.536 3.536m0 5.656l3.536 3.536M9.172 9.172L5.636 5.636m3.536 9.192l-3.536 3.536M21 12a9 9 0 11-18 0 9 9 0 0118 0zm-5 0a4 4 0 11-8 0 4 4 0 018 0z"
+                    />
+                  </svg>
+                </div>
+                <h3 className="mb-2 text-sm font-semibold">24/7 Support</h3>
+                <p className="text-muted-foreground text-xs">
+                  Get help anytime through our support channels
+                </p>
+              </div>
+            </section>
           </>
         )}
+
+        {/* Footer with Contact Office and Help Center */}
+        <DashboardFooter onContactOffice={handleContactOffice} />
       </div>
     </>
   );

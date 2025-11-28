@@ -22,7 +22,7 @@ export const VerificationDialog = ({
   onOpenChange,
   onVerificationSuccess,
 }: VerificationDialogProps) => {
-  const { form, isSubmitted, isSubmitting, onSubmit, handleBackToDashboard, resetForm } =
+  const { form, isSubmitted, isSubmitting, onSubmit, resetForm } =
     useVerification();
 
   const {

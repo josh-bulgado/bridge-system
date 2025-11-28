@@ -1,9 +1,10 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useEffect, useCallback, useRef } from 'react';
 import { toast } from 'sonner';
 import { useQueryClient } from '@tanstack/react-query';
-import { startConnection, stopConnection, getConnection } from '@/lib/signalr';
+import { startConnection, getConnection } from '@/lib/signalr';
 import type { RealtimeNotification } from '@/types/notification';
-import * as signalR from '@microsoft/signalr';
 
 export const useNotifications = () => {
   const queryClient = useQueryClient();

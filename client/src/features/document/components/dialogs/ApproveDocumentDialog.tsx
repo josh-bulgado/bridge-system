@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -39,7 +38,8 @@ export function ApproveDocumentDialog({
           <AlertDialogTitle>Approve Document Request</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to approve this document request for{" "}
-            <strong>{residentName}</strong>? The document will be ready for generation.
+            <strong>{residentName}</strong>? The document will be ready for
+            generation.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="space-y-2 py-4">
@@ -53,9 +53,7 @@ export function ApproveDocumentDialog({
           />
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isProcessing}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isProcessing}

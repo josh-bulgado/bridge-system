@@ -19,7 +19,7 @@ const StaffLayout = lazy(() => import("./features/staff/layout/StaffLayout"));
 
 // Lazy load individual pages
 const ResidentDashboard = lazy(
-  () => import("./features/resident/pages/ResidentDashboardRedesigned"),
+  () => import("./features/resident/pages/ResidentDashboard"),
 );
 const AdminDashboard = lazy(
   () => import("./features/admin/pages/AdminDashboard"),

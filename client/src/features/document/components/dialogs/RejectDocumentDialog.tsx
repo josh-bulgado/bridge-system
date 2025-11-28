@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   Dialog,
   DialogContent,
@@ -53,7 +52,9 @@ export function RejectDocumentDialog({
         </DialogHeader>
         <div className="space-y-4">
           <div className="space-y-2">
-            <Label htmlFor="document-rejection-reason">Rejection Reason *</Label>
+            <Label htmlFor="document-rejection-reason">
+              Rejection Reason *
+            </Label>
             <Textarea
               id="document-rejection-reason"
               placeholder="Enter the reason for rejection (e.g., invalid documents, incomplete information)..."
@@ -63,7 +64,9 @@ export function RejectDocumentDialog({
             />
           </div>
           <div className="space-y-2">
-            <Label htmlFor="document-reject-notes">Additional Notes (Optional)</Label>
+            <Label htmlFor="document-reject-notes">
+              Additional Notes (Optional)
+            </Label>
             <Textarea
               id="document-reject-notes"
               placeholder="Any additional notes..."

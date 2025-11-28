@@ -1,9 +1,8 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { MessageSquare, HelpCircle, ExternalLink, Phone, MapPin, Clock } from "lucide-react";
+
+import { MessageSquare, HelpCircle, ExternalLink } from "lucide-react";
 import { useFetchBarangayConfig } from "@/features/admin/hooks/useFetchBarangayConfig";
-import { cn } from "@/lib/utils";
 
 interface DashboardFooterProps {
   onContactOffice?: () => void;

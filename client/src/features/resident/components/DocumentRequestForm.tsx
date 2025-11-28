@@ -65,7 +65,7 @@ type FormValues = z.infer<typeof formSchema>;
 
 interface DocumentRequestFormProps {
   onDocumentSelect: (document: Document | null) => void;
-  onPaymentMethodChange: (method: "online" | "walkin") => void;
+  onPaymentMethodChange: (method: "online" | "walkin" | undefined) => void;
   preSelectedDocumentId?: string;
 }
 
@@ -83,7 +83,7 @@ export function DocumentRequestForm({
     useCreateResidentDocumentRequest();
   console.log("Available documents:", user);
 
-  const [selectedDocumentId, setSelectedDocumentId] = useState<string>("");
+  const [, setSelectedDocumentId] = useState<string>("");
   const [showCustomPurpose, setShowCustomPurpose] = useState(false);
   const [showPaymentDialog, setShowPaymentDialog] = useState(false);
   const [showThankYouDialog, setShowThankYouDialog] = useState(false);

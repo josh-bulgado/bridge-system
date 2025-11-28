@@ -13,7 +13,7 @@ export const addDocumentSchema = z.object({
   templateUrl: z
     .url("Invalid template URL")
     .refine((url) => url.includes("cloudinary.com"), {
-      message: "Template must be uploaded through Cloudinary",
+      message: "Template is required",
     }),
 });
 

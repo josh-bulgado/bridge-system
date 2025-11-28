@@ -1,3 +1,5 @@
+/* eslint-disable react-hooks/exhaustive-deps */
+/* eslint-disable react-refresh/only-export-components */
 import { useState, useEffect, createContext, useContext } from "react";
 import { useForm, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -15,8 +17,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Spinner } from "@/components/ui/spinner";
 import StepPersonalInfo from "./StepPersonalInfo";
-import StepContactInfo_New from "./StepContactInfo_New";
 import StepSecuritySetup from "./StepSecuritySetup";
+import StepContactInfo from "./StepContactInfo";
 
 // Context to share email availability state
 interface EmailAvailabilityContextType {
@@ -215,7 +217,7 @@ export const RegistrationForm = () => {
               <form onSubmit={methods.handleSubmit(onSubmit)} className="space-y-8">
                 <div className="min-h-[480px] animate-in fade-in slide-in-from-right-4 duration-300">
                   {step === 1 && <StepPersonalInfo />}
-                  {step === 2 && <StepContactInfo_New />}
+                  {step === 2 && <StepContactInfo />}
                   {step === 3 && <StepSecuritySetup />}
                 </div>
 

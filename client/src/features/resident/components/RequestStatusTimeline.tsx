@@ -7,6 +7,7 @@ import {
   CircleCheck,
   XCircle,
   Circle,
+  type LucideIcon,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -35,7 +36,7 @@ interface RequestStatusTimelineProps {
 
 const statusConfig: Record<
   string,
-  { icon: any; color: string; label: string }
+  { icon: LucideIcon; color: string; label: string }
 > = {
   pending: {
     icon: FileText,
@@ -91,7 +92,6 @@ const statusConfig: Record<
 
 export function RequestStatusTimeline({
   currentStatus,
-  createdAt,
   updatedAt,
   statusHistory,
 }: RequestStatusTimelineProps) {

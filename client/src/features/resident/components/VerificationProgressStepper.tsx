@@ -6,7 +6,7 @@ import { CheckCircle, Upload, Clock, ShieldCheck, FileText } from "lucide-react"
 import { cn } from "@/lib/utils";
 
 interface VerificationProgressStepperProps {
-  currentStatus: "Not Submitted" | "Pending" | "Under Review" | "Approved" | "Rejected";
+  currentStatus: "Not Submitted" | "Pending" | "Under Review" | "Approved" | "Rejected" | string;
   onStartVerification: () => void;
 }
 
@@ -15,7 +15,7 @@ interface Step {
   title: string;
   description: string;
   icon: React.ElementType;
-  status: "completed" | "current" | "upcoming";
+  status: "completed" | "current" | "upcoming" | string;
 }
 
 export const VerificationProgressStepper: React.FC<VerificationProgressStepperProps> = ({

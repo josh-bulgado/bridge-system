@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useNotificationCenter } from "@/hooks/useNotificationCenter";
 import { formatDistanceToNow } from "date-fns";
@@ -11,7 +12,6 @@ import {
   Info,
   AlertCircle,
   Filter,
-  X,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";

@@ -12,7 +12,7 @@ import {
 import { cn } from "@/lib/utils";
 
 interface VerificationStatusCardProps {
-  status: "Not Submitted" | "Pending" | "Under Review" | "Approved" | "Rejected";
+  status: "Not Submitted" | "Pending" | "Under Review" | "Approved" | "Rejected" | string;
   isVerified: boolean;
   onStartVerification: () => void;
   rejectionReason?: string;

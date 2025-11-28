@@ -7,9 +7,7 @@ import {
   verificationSchema,
   type VerificationFormData,
 } from "../schemas/verificationSchema";
-import {
-  verificationService,
-} from "../services/verificationService";
+import { verificationService } from "../services/verificationService";
 
 export const useVerification = () => {
   const navigate = useNavigate();
@@ -38,13 +36,17 @@ export const useVerification = () => {
     setIsSubmitting(true);
     try {
       // Removed: Don't log form data with personal information
-      
+
       // Validate that all required files are uploaded
-      if (!data.governmentIdFront || !data.governmentIdBack || !data.proofOfResidency) {
+      if (
+        !data.governmentIdFront ||
+        !data.governmentIdBack ||
+        !data.proofOfResidency
+      ) {
         toast.error("Please upload all required documents before submitting.");
         return;
       }
-      
+
       // Map camelCase to PascalCase for C# backend
       const submissionData = {
         StreetPurok: data.streetPurok,
@@ -61,19 +63,22 @@ export const useVerification = () => {
         ProofOfResidencyUrl: data.proofOfResidencyUrl,
         ProofOfResidencyFileType: data.proofOfResidencyFileType,
       };
-      
+
       // Removed: Don't log submission data
-      const response = await verificationService.submitVerification(submissionData);
-      toast.success("Thank you for submitting your verification request! Our staff will review your submission and notify you once it's approved.", {
-        duration: 6000, // Show for 6 seconds
-      });
+      await verificationService.submitVerification(submissionData);
+      toast.success(
+        "Thank you for submitting your verification request! Our staff will review your submission and notify you once it's approved.",
+        {
+          duration: 6000, // Show for 6 seconds
+        },
+      );
       setIsSubmitted(true);
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
     } catch (error: any) {
       // Removed: Don't log error details that may contain sensitive info
-      
+
       const errorMessage =
-        error.response?.data?.message || 
+        error.response?.data?.message ||
         error.response?.data?.error ||
         error.message ||
         "Failed to submit verification";

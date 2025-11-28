@@ -47,7 +47,7 @@ export function AddDocumentSheet() {
   const [templateFile, setTemplateFile] = React.useState<File | null>(null);
   const [isUploadingTemplate, setIsUploadingTemplate] = React.useState(false);
   
-  const { mutate: createDocument, isPending } = useCreateDocument();
+  const { mutate: createDocument } = useCreateDocument();
   const uploadMutation = useUploadDocument();
 
   // Use Form hook with correct type inference
@@ -55,7 +55,7 @@ export function AddDocumentSheet() {
     resolver: zodResolver(addDocumentSchema), // Ensure schema is used with the correct types
     defaultValues: {
       name: "",
-      price: 0,
+      price: 0.00,
       processingTime: "",
       status: "Active", // Default value for status
       requirements: [""], // Default to an empty requirement

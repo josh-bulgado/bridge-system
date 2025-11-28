@@ -1,9 +1,10 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import React from "react";
 import { Label } from "@/components/ui/label";
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
 import { Camera, ImageIcon, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import type { UseFormSetValue, FieldErrors } from "react-hook-form";
+import type { FieldErrors } from "react-hook-form";
 import type { BarangayConfigFormData } from "../../schemas/barangayConfigSchema";
 
 interface LogoUploadSectionProps {
@@ -54,8 +55,8 @@ export const LogoUploadSection: React.FC<LogoUploadSectionProps> = ({
           <label
             htmlFor="logo-input"
             className={cn(
-              "bg-primary text-primary-foreground absolute bottom-0 right-0 rounded-full p-2 transition-transform hover:scale-110",
-              isUploading ? "cursor-not-allowed opacity-50" : "cursor-pointer"
+              "bg-primary text-primary-foreground absolute right-0 bottom-0 rounded-full p-2 transition-transform hover:scale-110",
+              isUploading ? "cursor-not-allowed opacity-50" : "cursor-pointer",
             )}
           >
             <Camera className="h-4 w-4" />

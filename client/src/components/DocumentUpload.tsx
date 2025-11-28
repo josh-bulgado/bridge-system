@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { useUploadDocument, useUploadVerificationDocument } from "@/hooks/useUploadFile";
+/* eslint-disable @typescript-eslint/no-explicit-any */
+import {
+  useUploadDocument,
+  useUploadVerificationDocument,
+} from "@/hooks/useUploadFile";
 import { FileUploader } from "./FileUploader";
-import { toast } from "sonner";
 
 interface DocumentUploadProps {
   folder?: string;
@@ -48,7 +50,12 @@ export function DocumentUpload({
       onUpload={handleUpload}
       accept=".pdf,.doc,.docx,image/*"
       maxSize={maxSize}
-      label={label || (isVerificationDocument ? "Upload Verification Document" : "Upload Document")}
+      label={
+        label ||
+        (isVerificationDocument
+          ? "Upload Verification Document"
+          : "Upload Document")
+      }
       description={
         description ||
         (isVerificationDocument

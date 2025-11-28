@@ -1,5 +1,9 @@
 import * as React from "react";
-import { IconChevronDown, IconLayoutColumns, IconPlus } from "@tabler/icons-react";
+import {
+  IconChevronDown,
+  IconLayoutColumns,
+  IconPlus,
+} from "@tabler/icons-react";
 import {
   type ColumnDef,
   type ColumnFiltersState,
@@ -72,12 +76,16 @@ export function DocumentRequestDataTable<TData, TValue>({
     onColumnVisibilityChange: setColumnVisibility,
     onPaginationChange: setPagination,
     onGlobalFilterChange: setGlobalFilter,
-    globalFilterFn: (row, columnId, filterValue) => {
+    globalFilterFn: (row, _columnId, filterValue) => {
       const searchValue = String(filterValue).toLowerCase();
-      
+
       // Get values from the row
-      const trackingNumber = String(row.getValue("trackingNumber") || "").toLowerCase();
-      const documentType = String(row.getValue("documentType") || "").toLowerCase();
+      const trackingNumber = String(
+        row.getValue("trackingNumber") || "",
+      ).toLowerCase();
+      const documentType = String(
+        row.getValue("documentType") || "",
+      ).toLowerCase();
       const purpose = String(row.getValue("purpose") || "").toLowerCase();
       const status = String(row.getValue("status") || "").toLowerCase();
 
@@ -125,7 +133,9 @@ export function DocumentRequestDataTable<TData, TValue>({
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="payment_pending">Payment Pending</SelectItem>
             <SelectItem value="payment_verified">Payment Verified</SelectItem>
-            <SelectItem value="ready_for_generation">Ready for Generation</SelectItem>
+            <SelectItem value="ready_for_generation">
+              Ready for Generation
+            </SelectItem>
             <SelectItem value="processing">Processing</SelectItem>
             <SelectItem value="ready_for_pickup">Ready for Pickup</SelectItem>
             <SelectItem value="completed">Completed</SelectItem>
@@ -167,10 +177,7 @@ export function DocumentRequestDataTable<TData, TValue>({
             </DropdownMenuContent>
           </DropdownMenu>
 
-          <Button 
-            onClick={() => navigate("/resident/requests/new")}
-            size="sm"
-          >
+          <Button onClick={() => navigate("/resident/requests/new")} size="sm">
             <IconPlus className="mr-2 h-4 w-4" />
             Request Document
           </Button>

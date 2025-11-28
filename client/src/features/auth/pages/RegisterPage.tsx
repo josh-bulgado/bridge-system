@@ -1,5 +1,4 @@
 import { RegistrationForm, RegistrationFeaturesList } from "../components";
-import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
 import BridgeIcon from "@/components/bridge-icon";
 import { useEffect } from "react";
 

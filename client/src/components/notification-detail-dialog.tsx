@@ -23,7 +23,6 @@ export function NotificationDetailDialog({
   notification,
   open,
   onOpenChange,
-  onMarkAsRead,
   onDelete,
 }: NotificationDetailDialogProps) {
   if (!notification) return null;

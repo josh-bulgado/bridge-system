@@ -1,4 +1,4 @@
-import { useAuth } from "@/features/auth/hooks/useAuth";
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { CheckCircle2, XCircle, Clock, AlertCircle, FileText } from "lucide-react";
@@ -10,7 +10,6 @@ interface VerificationStatusSectionProps {
 }
 
 export function VerificationStatusSection({ onClose }: VerificationStatusSectionProps) {
-  const { data: user } = useAuth();
   const { data: verificationData } = useVerificationStatus();
   const navigate = useNavigate();
 

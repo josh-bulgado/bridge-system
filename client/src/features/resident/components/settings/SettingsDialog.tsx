@@ -53,7 +53,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-3xl h-[90vh] md:h-[600px] p-0 gap-0 overflow-hidden flex flex-col w-[95vw]">
         {/* Header */}
-        <div className="px-4 md:px-6 py-3 md:py-4 border-b flex-shrink-0 flex items-center justify-between">
+        <div className="px-4 md:px-6 py-3 md:py-4 border-b shrink-0 flex items-center justify-between">
           <h2 className="text-lg md:text-xl font-semibold">Settings</h2>
           {/* Mobile menu toggle */}
           <button
@@ -69,7 +69,7 @@ export function SettingsDialog({ open, onOpenChange }: SettingsDialogProps) {
           {/* Sidebar Navigation */}
           <nav
             className={cn(
-              "border-r bg-muted/20 p-3 overflow-y-auto flex-shrink-0 transition-all duration-200",
+              "border-r bg-muted/20 p-3 overflow-y-auto shrink-0 transition-all duration-200",
               "w-full md:w-56 absolute md:relative z-10 md:z-auto h-full md:h-auto bg-background md:bg-muted/20",
               showSidebar ? "left-0" : "-left-full md:left-0"
             )}

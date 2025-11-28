@@ -8,11 +8,11 @@ export const useRegistration = () => {
 
   const mutation = useMutation({
     mutationFn: (data: RegisterFormData) => registrationApi.register(data), // ✅ uses your service directly
-    
+
     // Prevent duplicate mutations
     retry: false,
-    
-    onSuccess: (data) => {
+
+    onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["user"] });
     },
 
@@ -26,14 +26,14 @@ export const useRegistration = () => {
   // Extract the error message from the response
   const getErrorMessage = () => {
     if (!mutation.error) return null;
-    
+
     const error = mutation.error as AxiosError<{ message?: string }>;
-    
+
     // Try to get the message from the server response
     if (error.response?.data?.message) {
       return error.response.data.message;
     }
-    
+
     // Fallback to the error message
     return error.message || "Registration failed";
   };

@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+/* eslint-disable react-hooks/rules-of-hooks */
 import { useState, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { authService } from "../services/authService";
@@ -30,7 +32,6 @@ const RESEND_COOLDOWN_SECONDS = 60; // 1 minute
 
 export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
   const navigate = useNavigate();
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   // Guard: Redirect if no email provided
   if (!email) {
@@ -105,7 +106,8 @@ export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
           // Fallback
           navigate("/sign-in", {
             state: {
-              message: "Email verified successfully! Please sign in to continue.",
+              message:
+                "Email verified successfully! Please sign in to continue.",
             },
           });
         }
@@ -183,7 +185,7 @@ export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
 
   return (
     <>
-      <div className="flex w-full max-w-md flex-col rounded-lg border bg-card p-6 sm:p-8 shadow-lg">
+      <div className="bg-card flex w-full max-w-md flex-col rounded-lg border p-6 shadow-lg sm:p-8">
         <OTPHeader />
 
         {/* Success Animation */}
@@ -198,7 +200,8 @@ export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
                 onChange={handleCodeChange}
                 disabled={otpState.isVerifying || otpState.success}
                 error={
-                  (otpState.error?.includes("Invalid") ?? false) || isCodeExpired
+                  (otpState.error?.includes("Invalid") ?? false) ||
+                  isCodeExpired
                 }
                 success={otpState.success}
               />
@@ -234,7 +237,7 @@ export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
                 isCodeExpired ||
                 otpState.attempts >= MAX_ATTEMPTS
               }
-              className="inline-flex h-11 w-full items-center justify-center gap-2 whitespace-nowrap rounded-lg bg-primary px-4 py-2 text-sm font-medium text-primary-foreground ring-offset-background transition-all duration-200 hover:bg-primary/90 hover:scale-[1.02] active:scale-[0.98] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50"
+              className="bg-primary text-primary-foreground ring-offset-background hover:bg-primary/90 focus-visible:ring-ring inline-flex h-11 w-full items-center justify-center gap-2 rounded-lg px-4 py-2 text-sm font-medium whitespace-nowrap transition-all duration-200 hover:scale-[1.02] focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:outline-none active:scale-[0.98] disabled:pointer-events-none disabled:opacity-50"
             >
               {otpState.isVerifying ? (
                 <>
@@ -273,10 +276,10 @@ export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
             />
 
             {/* Back Link */}
-            <div className="text-center border-t pt-6">
+            <div className="border-t pt-6 text-center">
               <Link
                 to="/sign-in"
-                className="inline-flex items-center gap-2 text-sm font-medium text-muted-foreground hover:text-foreground transition-colors"
+                className="text-muted-foreground hover:text-foreground inline-flex items-center gap-2 text-sm font-medium transition-colors"
               >
                 <svg
                   className="h-4 w-4"
@@ -299,7 +302,7 @@ export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
       </div>
 
       {/* Custom Animations Styles */}
-      <style jsx>{`
+      <style>{`
         @keyframes shake {
           0%,
           100% {

@@ -2,11 +2,9 @@ import {
   LayoutDashboard,
   FilePlus,
   ClipboardList,
-  MessageSquare,
 } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -38,14 +36,6 @@ const navMainItems = [
   },
 ];
 
-const navSecondaryItems = [
-  {
-    title: "Help & Support",
-    url: "/resident/help",
-    icon: MessageSquare,
-  },
-];
-
 export function ResidentSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
@@ -64,7 +54,6 @@ export function ResidentSidebar({
   const userData = {
     name: userName,
     email: userEmail,
-    avatar: user?.avatar, // Use user's avatar if available, otherwise initials will be shown
   };
 
   return (
