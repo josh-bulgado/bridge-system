@@ -8,6 +8,7 @@ import { ForgotPasswordPage } from "./features/auth/pages/ForgotPasswordPage";
 import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import CompleteGoogleProfilePage from "./features/auth/pages/CompleteGoogleProfilePage";
 import { ErrorBoundary } from "./components/ui/error-boundary";
+import { ProtectedRoute } from "./components/ProtectedRoute";
 
 // Lazy load layouts and pages
 const ResidentLayout = lazy(
@@ -92,7 +93,14 @@ function App() {
             />
 
             {/* Resident Routes */}
-            <Route path="/resident" element={<ResidentLayout />}>
+            <Route
+              path="/resident"
+              element={
+                <ProtectedRoute allowedRoles={["resident"]}>
+                  <ResidentLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<ResidentDashboard />} />
               <Route path="verify" element={<VerificationPage />} />
               <Route path="verification" element={<VerificationPage />} />
@@ -111,7 +119,14 @@ function App() {
             </Route>
 
             {/* Admin Routes */}
-            <Route path="/admin" element={<AdminLayout />}>
+            <Route
+              path="/admin"
+              element={
+                <ProtectedRoute allowedRoles={["admin"]}>
+                  <AdminLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<AdminDashboard />} />
               <Route
                 path="resident-management"
@@ -130,7 +145,14 @@ function App() {
             </Route>
 
             {/* Staff Routes */}
-            <Route path="/staff" element={<StaffLayout />}>
+            <Route
+              path="/staff"
+              element={
+                <ProtectedRoute allowedRoles={["staff"]}>
+                  <StaffLayout />
+                </ProtectedRoute>
+              }
+            >
               <Route index element={<StaffDashboard />} />
               <Route
                 path="resident-management"

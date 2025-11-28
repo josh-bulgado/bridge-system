@@ -22,6 +22,7 @@ import { useSignIn } from "../hooks/useSignIn";
 import { useGoogleLogin } from "@react-oauth/google";
 import { useGoogleSignIn } from "../hooks/useGoogleSignIn";
 import { toast } from "sonner";
+import { Spinner } from "@/components/ui/spinner";
 
 export const SignInForm = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -29,7 +30,8 @@ export const SignInForm = () => {
   const [error] = useState<string>("");
   const location = useLocation();
   const [successMessage, setSuccessMessage] = useState<string | null>(null);
-  const { mutate: googleSignIn, isPending: isGoogleLoading } = useGoogleSignIn();
+  const { mutate: googleSignIn, isPending: isGoogleLoading } =
+    useGoogleSignIn();
 
   // Check for success message from navigation state
   useEffect(() => {
@@ -63,35 +65,38 @@ export const SignInForm = () => {
     onSuccess: async (tokenResponse) => {
       try {
         // Exchange the access token for user info and ID token
-        const response = await fetch('https://www.googleapis.com/oauth2/v3/userinfo', {
-          headers: {
-            Authorization: `Bearer ${tokenResponse.access_token}`,
+        const response = await fetch(
+          "https://www.googleapis.com/oauth2/v3/userinfo",
+          {
+            headers: {
+              Authorization: `Bearer ${tokenResponse.access_token}`,
+            },
           },
-        });
-        
+        );
+
         const userInfo = await response.json();
-        
+
         // Check if it's a Gmail account
-        if (!userInfo.email || !userInfo.email.endsWith('@gmail.com')) {
-          toast.error('Only Gmail accounts are allowed for Google Sign-In.');
+        if (!userInfo.email || !userInfo.email.endsWith("@gmail.com")) {
+          toast.error("Only Gmail accounts are allowed for Google Sign-In.");
           return;
         }
 
         // Use the access token as ID token (we'll validate on backend)
         googleSignIn({ idToken: tokenResponse.access_token });
       } catch (error) {
-        toast.error('Failed to authenticate with Google. Please try again.');
+        toast.error("Failed to authenticate with Google. Please try again.");
       }
     },
     onError: () => {
-      toast.error('Google Sign-In was cancelled or failed.');
+      toast.error("Google Sign-In was cancelled or failed.");
     },
   });
 
   return (
     <div className="w-full max-w-md">
       <div className="bg-card flex flex-col rounded-xl border p-8 shadow-lg transition-shadow duration-300 hover:shadow-xl">
-        <div className="flex flex-col gap-3 text-center mb-8">
+        <div className="mb-8 flex flex-col gap-3 text-center">
           <h2 className="text-2xl font-bold tracking-tight">Welcome Back</h2>
           <p className="text-muted-foreground text-sm leading-relaxed">
             Enter your credentials to access your account
@@ -140,7 +145,7 @@ export const SignInForm = () => {
                       className="h-10 transition-all duration-200 focus:scale-[1.01]"
                     />
                   </FormControl>
-                  <div className="min-h-[20px]">
+                  <div className="min-h-5">
                     <FormMessage />
                   </div>
                 </FormItem>
@@ -152,8 +157,10 @@ export const SignInForm = () => {
               name="password"
               render={({ field }) => (
                 <FormItem className="space-y-2">
-                  <div className="flex items-center justify-between mb-2">
-                    <FormLabel className="text-sm font-medium">Password</FormLabel>
+                  <div className="mb-2 flex items-center justify-between">
+                    <FormLabel className="text-sm font-medium">
+                      Password
+                    </FormLabel>
                     <Link
                       to="/forgot-password"
                       className="text-muted-foreground hover:text-primary text-xs font-medium transition-colors"
@@ -196,7 +203,7 @@ export const SignInForm = () => {
               control={form.control}
               name="rememberMe"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-center space-y-0 gap-2.5 pt-2">
+                <FormItem className="flex flex-row items-center gap-2.5 space-y-0 pt-2">
                   <FormControl>
                     <Checkbox
                       id="remember-me"
@@ -207,7 +214,7 @@ export const SignInForm = () => {
                   </FormControl>
                   <FormLabel
                     htmlFor="remember-me"
-                    className="text-muted-foreground hover:text-foreground cursor-pointer text-sm font-normal leading-none transition-colors"
+                    className="text-muted-foreground hover:text-foreground cursor-pointer text-sm leading-none font-normal transition-colors"
                   >
                     Remember me for 30 days
                   </FormLabel>
@@ -251,7 +258,7 @@ export const SignInForm = () => {
                   <Separator />
                 </div>
                 <div className="relative flex justify-center">
-                  <span className="bg-card text-muted-foreground px-4 text-xs font-medium uppercase tracking-wider">
+                  <span className="bg-card text-muted-foreground px-4 text-xs font-medium tracking-wider uppercase">
                     Or continue with
                   </span>
                 </div>
@@ -262,26 +269,11 @@ export const SignInForm = () => {
                 type="button"
                 disabled={isGoogleLoading || form.formState.isSubmitting}
                 onClick={() => handleGoogleLogin()}
-                className="hover:border-primary/50 h-11 w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
+                className=" h-11 w-full transition-all duration-200 hover:scale-[1.02] active:scale-[0.98]"
               >
                 {isGoogleLoading ? (
                   <span className="flex items-center gap-2">
-                    <svg className="h-4 w-4 animate-spin" viewBox="0 0 24 24">
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                        fill="none"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-                      />
-                    </svg>
+                    <Spinner />
                     Signing in...
                   </span>
                 ) : (
@@ -310,7 +302,7 @@ export const SignInForm = () => {
               </Button>
             </div>
 
-            <p className="text-muted-foreground text-center text-sm pt-4">
+            <p className="text-muted-foreground pt-4 text-center text-sm">
               Don&apos;t have an account?{" "}
               <Link
                 to="/register"
@@ -322,24 +314,6 @@ export const SignInForm = () => {
           </form>
         </Form>
       </div>
-
-      <p className="text-muted-foreground mt-4 px-8 text-center text-xs">
-        By clicking continue, you agree to our{" "}
-        <a
-          href="#"
-          className="hover:text-primary underline underline-offset-4 transition-colors"
-        >
-          Terms of Service
-        </a>{" "}
-        and{" "}
-        <a
-          href="#"
-          className="hover:text-primary underline underline-offset-4 transition-colors"
-        >
-          Privacy Policy
-        </a>
-        .
-      </p>
     </div>
   );
 };

@@ -46,7 +46,7 @@ const StepPersonalInfo = () => {
                 <FormControl>
                   <Input {...field} placeholder="Juan" className="h-10" autoFocus />
                 </FormControl>
-                <div className="min-h-[20px] text-sm">
+                <div className="min-h-5 text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -83,7 +83,7 @@ const StepPersonalInfo = () => {
                     }}
                   />
                 </FormControl>
-                <div className="min-h-[20px] text-sm">
+                <div className="min-h-5 text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -105,7 +105,7 @@ const StepPersonalInfo = () => {
                 <FormControl>
                   <Input {...field} placeholder="Dela Cruz" className="h-10" />
                 </FormControl>
-                <div className="min-h-[20px] text-sm">
+                <div className="min-h-5 text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -141,7 +141,7 @@ const StepPersonalInfo = () => {
                     <SelectItem value="iv">IV</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className="min-h-[20px] text-sm">
+                <div className="min-h-5 text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -169,7 +169,7 @@ const StepPersonalInfo = () => {
                     hideLabels={true}
                   />
                 </FormControl>
-                <div className="min-h-[20px] text-sm">
+                <div className="min-h-5 text-sm">
                   <FormMessage />
                 </div>
               </FormItem>
@@ -202,7 +202,7 @@ const StepPersonalInfo = () => {
                     <SelectItem value="Separated">Separated</SelectItem>
                   </SelectContent>
                 </Select>
-                <div className="min-h-[20px] text-sm">
+                <div className="min-h-5 text-sm">
                   <FormMessage />
                 </div>
               </FormItem>

@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { AlertTriangle, Loader2, ExternalLink, Download } from "lucide-react";
+import { AlertTriangle, Loader2, ExternalLink } from "lucide-react";
 import { cn } from "@/lib/utils";
 import api from "@/lib/api";
 import { PdfViewer } from "@/components/ui/pdf-viewer";

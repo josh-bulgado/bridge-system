@@ -1,6 +1,5 @@
 import { SignInForm } from "../components/SignInForm";
 import { AuthFeaturesList } from "../components/AuthFeaturesList";
-import { ThemeSwitcherMultiButton } from "@/components/elements/theme-switcher-multi-button";
 import BridgeIcon from "@/components/bridge-icon";
 
 export const SignInPage = () => {
@@ -26,7 +25,6 @@ export const SignInPage = () => {
       </div>
 
       <div className="m-auto flex flex-col items-center justify-center pb-4 lg:w-1/2">
-        <ThemeSwitcherMultiButton />
         <BridgeIcon responsive="hideOnLg" />
 
         <SignInForm />

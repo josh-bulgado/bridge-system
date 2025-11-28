@@ -1,4 +1,3 @@
-import * as React from "react";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -11,7 +10,7 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Loader2 } from "lucide-react";
+import { Spinner } from "@/components/ui/spinner";
 
 interface ApprovePaymentDialogProps {
   open: boolean;
@@ -39,7 +38,8 @@ export function ApprovePaymentDialog({
           <AlertDialogTitle>Approve Payment</AlertDialogTitle>
           <AlertDialogDescription>
             Are you sure you want to approve the GCash payment for{" "}
-            <strong>{residentName}</strong>? This will unlock the document review step.
+            <strong>{residentName}</strong>? This will unlock the document
+            review step.
           </AlertDialogDescription>
         </AlertDialogHeader>
         <div className="space-y-2 py-4">
@@ -53,9 +53,7 @@ export function ApprovePaymentDialog({
           />
         </div>
         <AlertDialogFooter>
-          <AlertDialogCancel disabled={isProcessing}>
-            Cancel
-          </AlertDialogCancel>
+          <AlertDialogCancel disabled={isProcessing}>Cancel</AlertDialogCancel>
           <AlertDialogAction
             onClick={onConfirm}
             disabled={isProcessing}
@@ -63,7 +61,7 @@ export function ApprovePaymentDialog({
           >
             {isProcessing ? (
               <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                <Spinner />
                 Approving...
               </>
             ) : (

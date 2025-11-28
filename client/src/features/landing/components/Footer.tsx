@@ -6,7 +6,7 @@ const Footer = () => {
       <div className="container mx-auto flex flex-col md:flex-row items-start justify-between max-w-4xl">
         {/* Left Section */}
         <div className="flex flex-col gap-2">
-          <BridgeIcon className="h-6 w-6" />
+          <BridgeIcon  />
           <p className="text-sm text-muted-foreground">Copyright © 2025</p>
           <p className="text-sm text-muted-foreground">Republic of the Philippines</p>
           <p className="text-sm text-muted-foreground">All Rights Reserved</p>

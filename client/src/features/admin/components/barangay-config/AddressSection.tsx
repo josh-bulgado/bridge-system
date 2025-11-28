@@ -21,8 +21,9 @@ import {
   PopoverContent,
   PopoverTrigger,
 } from "@/components/ui/popover";
-import { ChevronsUpDown, Check, Loader2 } from "lucide-react";
+import { ChevronsUpDown, Check } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { Spinner } from "@/components/ui/spinner";
 
 interface AddressOption {
   code: string;
@@ -49,7 +50,7 @@ interface AddressSectionProps {
   isLoadingBarangays: boolean;
   onAddressSelect: (
     type: "region" | "province" | "municipality" | "barangay",
-    option: AddressOption
+    option: AddressOption,
   ) => void;
 }
 
@@ -100,7 +101,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
           value={selectedAddress.provinceCode}
           onValueChange={(value) => {
             const selectedProvince = provinceOptions.find(
-              (p) => p.code === value
+              (p) => p.code === value,
             );
             if (selectedProvince) {
               onAddressSelect("province", selectedProvince);
@@ -114,8 +115,8 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
                 isLoadingProvinces
                   ? "Loading provinces..."
                   : !selectedAddress.regionCode
-                  ? "Select region first"
-                  : "Select province"
+                    ? "Select region first"
+                    : "Select province"
               }
             />
           </SelectTrigger>
@@ -129,7 +130,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
         </Select>
         {isLoadingProvinces && (
           <div className="flex items-center gap-2 text-sm text-neutral-500">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Spinner />
             Loading provinces...
           </div>
         )}
@@ -142,7 +143,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
           value={selectedAddress.municipalityCode}
           onValueChange={(value) => {
             const selectedMunicipality = municipalityOptions.find(
-              (m) => m.code === value
+              (m) => m.code === value,
             );
             if (selectedMunicipality) {
               onAddressSelect("municipality", selectedMunicipality);
@@ -156,8 +157,8 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
                 isLoadingMunicipalities
                   ? "Loading municipalities..."
                   : !selectedAddress.provinceCode
-                  ? "Select province first"
-                  : "Select municipality"
+                    ? "Select province first"
+                    : "Select municipality"
               }
             />
           </SelectTrigger>
@@ -171,7 +172,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
         </Select>
         {isLoadingMunicipalities && (
           <div className="flex items-center gap-2 text-sm text-neutral-500">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Spinner />
             Loading municipalities...
           </div>
         )}
@@ -192,13 +193,13 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
               {selectedAddress.barangayCode
                 ? barangayOptions.find(
                     (barangay) =>
-                      barangay.code === selectedAddress.barangayCode
+                      barangay.code === selectedAddress.barangayCode,
                   )?.name
                 : isLoadingBarangays
-                ? "Loading barangays..."
-                : !selectedAddress.municipalityCode
-                ? "Select municipality first"
-                : "Select barangay"}
+                  ? "Loading barangays..."
+                  : !selectedAddress.municipalityCode
+                    ? "Select municipality first"
+                    : "Select barangay"}
               <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
             </Button>
           </PopoverTrigger>
@@ -222,7 +223,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
                           "mr-2 h-4 w-4",
                           selectedAddress.barangayCode === barangay.code
                             ? "opacity-100"
-                            : "opacity-0"
+                            : "opacity-0",
                         )}
                       />
                       {barangay.name}
@@ -235,7 +236,7 @@ export const AddressSection: React.FC<AddressSectionProps> = ({
         </Popover>
         {isLoadingBarangays && (
           <div className="flex items-center gap-2 text-sm text-neutral-500">
-            <Loader2 className="h-4 w-4 animate-spin" />
+            <Spinner />
             Loading barangays...
           </div>
         )}

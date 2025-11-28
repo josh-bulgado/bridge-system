@@ -1,10 +1,12 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { useState } from "react";
 import { useUploadProfilePicture, useDeleteFile } from "@/hooks/useUploadFile";
-import { Button } from "@/components/ui/button";
+
 import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
-import { Camera, Loader2, X } from "lucide-react";
+import { Camera, X } from "lucide-react";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
+import { Spinner } from "./ui/spinner";
 
 /**
  * Profile Picture Upload with Validation
@@ -63,7 +65,7 @@ export function ProfilePictureUpload({
     // Upload
     try {
       const result = await uploadMutation.mutateAsync(file);
-      
+
       toast.success("Profile picture updated", {
         description: "Your profile picture has been updated successfully.",
       });
@@ -110,7 +112,7 @@ export function ProfilePictureUpload({
   return (
     <div className={cn("flex flex-col items-center gap-4", className)}>
       <div className="relative">
-        <Avatar className="w-32 h-32">
+        <Avatar className="h-32 w-32">
           <AvatarImage src={displayImage || undefined} alt={userName} />
           <AvatarFallback className="text-2xl">
             {userName
@@ -123,19 +125,19 @@ export function ProfilePictureUpload({
         </Avatar>
 
         {isLoading && (
-          <div className="absolute inset-0 flex items-center justify-center bg-black/50 rounded-full">
-            <Loader2 className="w-8 h-8 text-white animate-spin" />
+          <div className="absolute inset-0 flex items-center justify-center rounded-full bg-black/50">
+            <Spinner />
           </div>
         )}
 
         <label
           htmlFor="profile-picture-input"
           className={cn(
-            "absolute bottom-0 right-0 p-2 bg-primary text-primary-foreground rounded-full cursor-pointer transition-transform hover:scale-110",
-            isLoading && "opacity-50 cursor-not-allowed"
+            "bg-primary text-primary-foreground absolute right-0 bottom-0 cursor-pointer rounded-full p-2 transition-transform hover:scale-110",
+            isLoading && "cursor-not-allowed opacity-50",
           )}
         >
-          <Camera className="w-4 h-4" />
+          <Camera className="h-4 w-4" />
           <input
             id="profile-picture-input"
             type="file"
@@ -149,17 +151,17 @@ export function ProfilePictureUpload({
         {currentImageUrl && !isLoading && (
           <button
             onClick={handleDelete}
-            className="absolute top-0 right-0 p-2 bg-destructive text-destructive-foreground rounded-full transition-transform hover:scale-110"
+            className="bg-destructive text-destructive-foreground absolute top-0 right-0 rounded-full p-2 transition-transform hover:scale-110"
             aria-label="Remove profile picture"
           >
-            <X className="w-4 h-4" />
+            <X className="h-4 w-4" />
           </button>
         )}
       </div>
 
       <div className="text-center">
         <p className="text-sm font-medium">{userName}</p>
-        <p className="text-xs text-muted-foreground">
+        <p className="text-muted-foreground text-xs">
           Click camera icon to upload
         </p>
       </div>

@@ -90,7 +90,6 @@ export function ResidentSidebar({
       </SidebarHeader>
       <SidebarContent className="will-change-auto">
         <NavMain items={navMainItems} />
-        <NavSecondary items={navSecondaryItems} className="mt-auto" />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

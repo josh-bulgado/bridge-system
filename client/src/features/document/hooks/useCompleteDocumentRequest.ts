@@ -22,7 +22,7 @@ export const useCompleteDocumentRequest = () => {
       return response.data;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ["document-requests"] });
+      queryClient.invalidateQueries({ queryKey: ["documentRequests"] });
       toast.success("Request marked as completed", {
         description: "The resident has successfully picked up their document.",
       });
