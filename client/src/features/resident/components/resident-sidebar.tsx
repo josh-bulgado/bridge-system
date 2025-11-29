@@ -1,12 +1,6 @@
-import {
-  LayoutDashboard,
-  FilePlus,
-  ClipboardList,
-  MessageSquare,
-} from "lucide-react";
+import { LayoutDashboard, FilePlus, ClipboardList } from "lucide-react";
 
 import { NavMain } from "@/components/nav-main";
-import { NavSecondary } from "@/components/nav-secondary";
 import { NavUser } from "@/components/nav-user";
 import {
   Sidebar,
@@ -19,30 +13,26 @@ import {
 } from "@/components/ui/sidebar";
 import BridgeIcon from "../../../components/bridge-icon";
 import { useAuth } from "@/features/auth/hooks/useAuth";
+import { useFetchResidentById } from "@/features/staff/hooks";
 
 const navMainItems = [
   {
     title: "Dashboard",
     url: "/resident",
     icon: LayoutDashboard,
+    requiresVerification: false, // Dashboard is always accessible
   },
   {
     title: "My Requests",
     url: "/resident/requests",
     icon: ClipboardList,
+    requiresVerification: true, // Requires verification
   },
   {
     title: "New Request",
     url: "/resident/new-requests",
     icon: FilePlus,
-  },
-];
-
-const navSecondaryItems = [
-  {
-    title: "Help & Support",
-    url: "/resident/help",
-    icon: MessageSquare,
+    requiresVerification: true, // Requires verification
   },
 ];
 
@@ -50,6 +40,11 @@ export function ResidentSidebar({
   ...props
 }: React.ComponentProps<typeof Sidebar>) {
   const { data: user } = useAuth();
+
+  const { data: residentData } = useFetchResidentById(user?.residentId || "");
+
+  const isVerified = residentData?.verificationStatus === "Approved" || false;
+
   // Removed: Don't log user data
 
   // Format user data for NavUser component
@@ -63,8 +58,7 @@ export function ResidentSidebar({
 
   const userData = {
     name: userName,
-    email: userEmail,
-    avatar: user?.avatar, // Use user's avatar if available, otherwise initials will be shown
+    email: userEmail, // Use user's avatar if available, otherwise initials will be shown
   };
 
   return (
@@ -89,7 +83,7 @@ export function ResidentSidebar({
         </SidebarMenu>
       </SidebarHeader>
       <SidebarContent className="will-change-auto">
-        <NavMain items={navMainItems} />
+        <NavMain items={navMainItems} isVerified={isVerified} />
       </SidebarContent>
       <SidebarFooter>
         <NavUser user={userData} />

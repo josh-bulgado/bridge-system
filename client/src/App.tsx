@@ -9,6 +9,7 @@ import { ResetPasswordPage } from "./features/auth/pages/ResetPasswordPage";
 import CompleteGoogleProfilePage from "./features/auth/pages/CompleteGoogleProfilePage";
 import { ErrorBoundary } from "./components/ui/error-boundary";
 import { ProtectedRoute } from "./components/ProtectedRoute";
+import { VerifiedRoute } from "./components/VerifiedRoute";
 
 // Lazy load layouts and pages
 const ResidentLayout = lazy(
@@ -106,15 +107,27 @@ function App() {
               <Route path="verification" element={<VerificationPage />} />
               <Route
                 path="requests"
-                element={<ResidentDocumentRequestPage />}
+                element={
+                  <VerifiedRoute>
+                    <ResidentDocumentRequestPage />
+                  </VerifiedRoute>
+                }
               />
               <Route
                 path="new-requests"
-                element={<CreateDocumentRequestPage />}
+                element={
+                  <VerifiedRoute>
+                    <CreateDocumentRequestPage />
+                  </VerifiedRoute>
+                }
               />
               <Route
                 path="requests/:id"
-                element={<DocumentRequestDetailPage />}
+                element={
+                  <VerifiedRoute>
+                    <DocumentRequestDetailPage />
+                  </VerifiedRoute>
+                }
               />
             </Route>
 

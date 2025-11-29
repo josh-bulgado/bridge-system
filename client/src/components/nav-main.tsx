@@ -8,15 +8,17 @@ import {
 } from "@/components/ui/sidebar";
 import { type LucideIcon } from "lucide-react";
 
-export function NavMain({
-  items,
-}: {
+interface NavMainProps {
   items: {
     title: string;
     url: string;
     icon?: LucideIcon;
+    requiresVerification?: boolean;
   }[];
-}) {
+  isVerified?: boolean;
+}
+
+export function NavMain({ items, isVerified }: NavMainProps) {
   const location = useLocation();
 
   return (
@@ -25,16 +27,24 @@ export function NavMain({
         <SidebarMenu>
           {items.map((item) => {
             const isActive = location.pathname === item.url;
+            // Disable item only if it requires verification and user is not verified
+            const isDisabled = item.requiresVerification && !isVerified;
+
             return (
               <SidebarMenuItem key={item.title}>
                 <SidebarMenuButton
-                  tooltip={item.title}
+                  disabled={isDisabled}
+                  tooltip={isDisabled ? `${item.title} (Verification required)` : item.title}
                   asChild
                   className={
-                    isActive ? "bg-primary/10 text-primary font-medium" : ""
+                    isActive 
+                      ? "bg-primary/10 text-primary font-medium" 
+                      : isDisabled 
+                      ? "opacity-50 cursor-not-allowed text-muted-foreground" 
+                      : ""
                   }
                 >
-                  <Link to={item.url}>
+                  <Link to={item.url} className={isDisabled ? "pointer-events-none" : ""}>
                     {item.icon && <item.icon />}
                     <span>{item.title}</span>
                   </Link>

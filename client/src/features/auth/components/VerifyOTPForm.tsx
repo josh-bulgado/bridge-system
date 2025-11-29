@@ -299,7 +299,7 @@ export const VerifyOTPForm = ({ email }: VerifyOTPFormProps) => {
       </div>
 
       {/* Custom Animations Styles */}
-      <style jsx>{`
+      <style>{`
         @keyframes shake {
           0%,
           100% {
