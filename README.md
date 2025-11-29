@@ -293,26 +293,50 @@ Powered by **Resend API** for reliable email delivery:
 
 ## 🚢 Deployment
 
-### Using Render.com (Recommended)
+### Production Deployment
 
-#### Backend
+**Live URLs:**
+- 🌐 **Frontend:** https://bridgesystem.abrdns.com (Vercel)
+- 🔧 **Backend:** https://bridge-system-api.onrender.com (Render)
+- 📚 **API Docs:** https://bridge-system-api.onrender.com/swagger
+
+### Quick Deploy (60 minutes)
+
 ```bash
-# Add render.yaml to root
-# Connect GitHub repository to Render
-# Set environment variables in Render dashboard
-# Deploy automatically on push
+# 1. Setup Resend for emails
+#    - Create account at resend.com
+#    - Add domain: bridgesystem.abrdns.com
+#    - Configure DNS records
+#    - Generate API key
+
+# 2. Deploy Frontend to Vercel
+#    - Import Git repository
+#    - Configure root directory: client
+#    - Add environment variables
+#    - Add custom domain
+
+# 3. Update Backend on Render
+#    - Add Resend API key
+#    - Update ALLOWED_ORIGINS
+#    - Redeploy
+
+# 4. Configure DNS in CloudDNS
+#    - Add CNAME for Vercel
+#    - Add TXT records for email (SPF, DKIM)
+
+# 5. Test everything
+#    - Run: powershell -File verify-deployment.ps1
 ```
 
-#### Frontend
-```bash
-# Build for production
-npm run build
+📖 **Full Guides:**
+- **Quick Start:** [QUICK_DEPLOY.md](QUICK_DEPLOY.md) - Deploy in 60 minutes
+- **Complete Guide:** [DEPLOYMENT_GUIDE.md](DEPLOYMENT_GUIDE.md) - Detailed instructions
+- **Checklist:** [DEPLOYMENT_CHECKLIST.md](DEPLOYMENT_CHECKLIST.md) - Step-by-step tasks
+- **Vercel:** [VERCEL_DEPLOYMENT.md](VERCEL_DEPLOYMENT.md) - Frontend deployment
+- **Resend:** [RESEND_SETUP.md](RESEND_SETUP.md) - Email service setup
+- **DNS:** [DNS_CONFIGURATION.md](DNS_CONFIGURATION.md) - DNS configuration
 
-# Deploy to Vercel, Netlify, or Render
-# Set VITE_API_URL to production backend URL
-```
-
-### Using Docker
+### Using Docker (Local Development)
 
 ```bash
 # Build and run with Docker Compose
